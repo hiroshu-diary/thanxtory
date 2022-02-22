@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:thanxtory/pages/home/home_page.dart';
-import 'package:thanxtory/z_security/client_id.dart';
 import 'model/scaffold_messenger_controller.dart';
 import 'routes/routes.dart';
 
@@ -61,7 +60,10 @@ class AuthGate extends StatelessWidget {
             providerConfigs: [
               Platform.isIOS
                   ? const AppleProviderConfiguration()
-                  : const GoogleProviderConfiguration(clientId: Id.clientId)
+                  : const GoogleProviderConfiguration(
+                      clientId:
+                          '369803051167-n1ab0tnulgn6e7s09jtldijococ22nsa.apps.googleusercontent.com',
+                    )
 
               ///端末がiOSで、もしeGiftを受けとったらGoogle認証を行わせる
             ],
