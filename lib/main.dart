@@ -1,18 +1,17 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:flutterfire_ui/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:thanxtory/pages/home/home_page.dart';
 import 'model/scaffold_messenger_controller.dart';
 import 'routes/routes.dart';
-
+import 'firebase_options.dart';
 //todo リリース前に20220309に変える
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -32,7 +31,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const AuthGate(),
+      home: const ScaffoldMessengerNavigator(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -42,35 +41,6 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.black54,
         ),
       ),
-    );
-  }
-}
-
-class AuthGate extends StatelessWidget {
-  const AuthGate({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      initialData: FirebaseAuth.instance.currentUser,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return SignInScreen(
-            providerConfigs: [
-              Platform.isIOS
-                  ? const AppleProviderConfiguration()
-                  : const GoogleProviderConfiguration(
-                      clientId:
-                          '369803051167-n1ab0tnulgn6e7s09jtldijococ22nsa.apps.googleusercontent.com',
-                    )
-
-              ///端末がiOSで、もしeGiftを受けとったらGoogle認証を行わせる
-            ],
-          );
-        }
-        return const ScaffoldMessengerNavigator();
-      },
     );
   }
 }
@@ -97,7 +67,6 @@ class ScaffoldMessengerNavigator extends StatelessWidget {
           },
         ),
       ),
-      // child: const HomePage(),
     );
   }
 }

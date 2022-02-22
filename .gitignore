@@ -48,3 +48,7 @@ app.*.map.json
 # Avoid firebase file.
 /ios/Runner/GoogleService-Info.plist
 /android/app/google-services.json
+
+# Avoid google id
+/lib/google_id.dart
+/lib/firebase_options.dart
