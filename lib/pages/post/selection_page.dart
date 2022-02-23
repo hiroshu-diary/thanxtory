@@ -29,16 +29,31 @@ Center selectionPage(BuildContext context) {
                 ),
               ),
               onPressed: () {
-                Navigator.pop(context);
-                //todo pushAndNamed
-                // Navigator.of(context).popAndPushNamed('/pages/post/post_page');
-                // Navigator.push(context, MaterialPageRoute(builder: (context) {
-                //   return Container();
-                //todo Navigatorの使い方
-                //   ///Navigator.popしながらpushしたい
-                //   ///Navigator.pushで0,0にするには？
-                //   //Navigator.popAndPushNamed(context, routeName)がわからない
-                // }));
+                //todo Navigator.popAndPushNamed(context, routeName)がわからない
+                //routeNameは定義必須
+                /// popしてpushしたい
+                // Navigator.pop(context);
+
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return Scaffold(
+                    body: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('アカウントを検索して選ぶページ'),
+                          MaterialButton(
+                            color: Colors.pinkAccent,
+                            child: const Text('戻るボタン'),
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }));
               },
             ),
           ),

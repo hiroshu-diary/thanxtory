@@ -50,5 +50,4 @@ app.*.map.json
 /android/app/google-services.json
 
 # Avoid google id
-/lib/google_id.dart
 /lib/firebase_options.dart

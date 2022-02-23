@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thanxtory/pages/home/home_page.dart';
+import 'model/constant.dart';
 import 'model/scaffold_messenger_controller.dart';
 import 'routes/routes.dart';
 import 'firebase_options.dart';
@@ -31,7 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const ScaffoldMessengerNavigator(),
+      home: const AuthGate(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -42,6 +44,45 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class AuthGate extends StatefulWidget {
+  const AuthGate({Key? key}) : super(key: key);
+
+  @override
+  _AuthGateState createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator(color: C.subColor);
+        }
+        if (snapshot.hasData) {
+          return const ScaffoldMessengerNavigator();
+        }
+        return const ScaffoldMessengerNavigator();
+      },
+    );
+  }
+}
+
+class SignPage extends StatefulWidget {
+  const SignPage({Key? key}) : super(key: key);
+
+  @override
+  _SignPageState createState() => _SignPageState();
+}
+
+class _SignPageState extends State<SignPage> {
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold();
   }
 }
 
