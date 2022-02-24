@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thanxtory/pages/home/home_page.dart';
+import 'package:thanxtory/pages/login/login_page.dart';
 import 'model/constant.dart';
 import 'model/scaffold_messenger_controller.dart';
 import 'routes/routes.dart';
@@ -66,7 +67,7 @@ class _AuthGateState extends State<AuthGate> {
         if (snapshot.hasData) {
           return const ScaffoldMessengerNavigator();
         }
-        return const ScaffoldMessengerNavigator();
+        return const LoginPage();
       },
     );
   }

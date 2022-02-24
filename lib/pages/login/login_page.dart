@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:thanxtory/main.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
 import 'package:thanxtory/pages/login/registraion_page.dart';
 
-class Login extends StatefulWidget {
+import '../../model/constant.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
   @override
   _Login createState() => _Login();
 }
 
-class _Login extends State<Login> {
+class _Login extends State<LoginPage> {
   // Firebase 認証
   final _auth = FirebaseAuth.instance;
   late UserCredential _result;
@@ -31,22 +36,46 @@ class _Login extends State<Login> {
           children: <Widget>[
             // メールアドレスの入力フォーム
             Padding(
-                padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
-                child: TextFormField(
-                  decoration: const InputDecoration(labelText: "メールアドレス"),
-                  onChanged: (String value) {
-                    _mail = value;
-                  },
-                )),
+              padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
+              child: TextFormField(
+                cursorColor: C.accentColor,
+                decoration: const InputDecoration(
+                  labelText: 'メールアドレス',
+                  labelStyle: TextStyle(color: C.subColor),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: C.mainColor,
+                    ),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: C.subColor),
+                  ),
+                ),
+                onChanged: (String value) {
+                  _mail = value;
+                },
+              ),
+            ),
 
             // パスワードの入力フォーム
             Padding(
               padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 10.0),
               child: TextFormField(
-                decoration: const InputDecoration(labelText: "パスワード（8～20文字）"),
-                obscureText: true, // パスワードが見えないようRにする
-                maxLength: 20, // 入力可能な文字数
-                maxLengthEnforced: false, // 入力可能な文字数の制限を超える場合の挙動の制御
+                cursorColor: C.accentColor,
+                decoration: const InputDecoration(
+                  labelText: 'パスワード（8～20文字）',
+                  labelStyle: TextStyle(color: C.subColor),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: C.mainColor,
+                    ),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: C.subColor),
+                  ),
+                ),
+                obscureText: true,
+                maxLength: 20,
                 onChanged: (String value) {
                   _password = value;
                 },
@@ -64,9 +93,8 @@ class _Login extends State<Login> {
 
             // ログインボタンの配置
             ButtonTheme(
-              minWidth: 350.0,
-              // height: 100.0,
-              child: RaisedButton(
+              minWidth: 330.0,
+              child: MaterialButton(
                 // ボタンの形状
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -85,12 +113,6 @@ class _Login extends State<Login> {
 
                     // Email確認が済んでいる場合のみHome画面へ
                     if (_user.emailVerified) {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return Container();
-                          // Home(user_id: _user.uid, auth: _auth)
-                        },
-                      ));
                     } else {
                       Navigator.push(
                         context,
@@ -116,16 +138,22 @@ class _Login extends State<Login> {
                 // ボタン内の文字や書式
                 child: const Text(
                   'ログイン',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                 ),
                 textColor: Colors.white,
-                color: Colors.blue,
+                color: C.subColor,
               ),
             ),
 
             // ログイン失敗時のエラーメッセージ
             TextButton(
-              child: const Text('上記メールアドレスにパスワード再設定メールを送信'),
+              child: const Text(
+                '上記メールアドレスにパスワード再設定メールを送信',
+                style: TextStyle(color: C.accentColor),
+              ),
               onPressed: () => _auth.sendPasswordResetEmail(email: _mail),
             ),
           ],
@@ -133,36 +161,44 @@ class _Login extends State<Login> {
       ),
 
       // 画面下にアカウント作成画面への遷移ボタンを配置
-      bottomNavigationBar:
-          Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ButtonTheme(
-            minWidth: 350.0,
-            // height: 100.0,
-            child: RaisedButton(
-                child: const Text(
-                  'アカウントを作成する',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                textColor: Colors.blue,
-                color: Colors.blue[50],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-
-                // ボタンクリック後にアカウント作成用の画面の遷移する。
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      fullscreenDialog: true,
-                      builder: (BuildContext context) => const Registration(),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(bottom: 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ButtonTheme(
+                minWidth: 330.0,
+                child: MaterialButton(
+                  child: const Text(
+                    'アカウントを作成する',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
-                  );
-                }),
-          ),
+                  ),
+                  textColor: C.accentColor,
+                  color: C.mainColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+
+                  // ボタンクリック後にアカウント作成用の画面の遷移する。
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        builder: (BuildContext context) => const Registration(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
-      ]),
+      ),
     );
   }
 }

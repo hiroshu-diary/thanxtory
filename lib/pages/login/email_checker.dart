@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:thanxtory/main.dart';
 
 import '../home/home_page.dart';
 
@@ -9,12 +11,12 @@ class EmailCheck extends StatefulWidget {
   final String password;
   final int from; //1 → アカウント作成画面から    2 → ログイン画面から
 
-  const EmailCheck(
-      {Key? key,
-      required this.email,
-      required this.password,
-      required this.from})
-      : super(key: key);
+  const EmailCheck({
+    Key? key,
+    required this.email,
+    required this.password,
+    required this.from,
+  }) : super(key: key);
 
   @override
   _EmailCheck createState() => _EmailCheck();
@@ -25,12 +27,27 @@ class _EmailCheck extends State<EmailCheck> {
   late UserCredential _result;
   late String _remindMailCheck;
   late String _sentEmailText;
-  int _btn_click_num = 0;
+  int _buttonNum = 0;
+  CollectionReference servedPosts =
+      FirebaseFirestore.instance.collection('servedPosts');
+  CollectionReference receivedPosts =
+      FirebaseFirestore.instance.collection('receivedPosts');
+  CollectionReference clappedPosts =
+      FirebaseFirestore.instance.collection('clappedPosts');
+  CollectionReference userProfiles =
+      FirebaseFirestore.instance.collection('userProfiles');
+
+  Future<void> addUser(userId) {
+    userProfiles.add(userProfiles.doc(userId).collection('userProfile'));
+    clappedPosts.add(clappedPosts.doc(userId).collection('clappedPost'));
+    receivedPosts.add(receivedPosts.doc(userId).collection('receivedPost'));
+    return servedPosts.add(servedPosts.doc(userId).collection('servedPost'));
+  }
 
   @override
   Widget build(BuildContext context) {
     // 前画面から遷移後の初期表示内容
-    if (_btn_click_num == 0) {
+    if (_buttonNum == 0) {
       if (widget.from == 1) {
         // アカウント作成画面から遷移した時
         _remindMailCheck = '';
@@ -64,8 +81,7 @@ class _EmailCheck extends State<EmailCheck> {
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 30.0),
               child: ButtonTheme(
                 minWidth: 200.0,
-                // height: 100.0,
-                child: RaisedButton(
+                child: MaterialButton(
                   // ボタンの形状
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -79,11 +95,12 @@ class _EmailCheck extends State<EmailCheck> {
 
                     _result.user!.sendEmailVerification();
                     setState(() {
-                      _btn_click_num++;
+                      _buttonNum++;
                       _sentEmailText = '${widget.email}\nに確認メールを送信しました。';
                     });
                   },
 
+                  //todo メールを日本語にする
                   // ボタン内の文字や書式
                   child: const Text(
                     '確認メールを再送信',
@@ -97,8 +114,7 @@ class _EmailCheck extends State<EmailCheck> {
 
             // メール確認完了のボタン配置（Home画面に遷移）
             ButtonTheme(
-              minWidth: 350.0,
-              // height: 100.0,
+              minWidth: 330.0,
               child: ElevatedButton(
                 // ボタンの形状
 
@@ -110,19 +126,12 @@ class _EmailCheck extends State<EmailCheck> {
 
                   // Email確認が済んでいる場合は、Home画面へ遷移
                   if (_result.user!.emailVerified) {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        // return HomePage(
-                        //   user_id: _result.user.uid,
-                        //   auth: _auth,
-                        // );
-                        return Container();
-                      },
-                    ));
+                    //todo FirestoreにuserIdで４つのコレクション中にサブコレクションを追加
+                    Navigator.pop(context);
+                    Navigator.pop(context);
                   } else {
-                    // print('NG');
                     setState(() {
-                      _btn_click_num++;
+                      _buttonNum++;
                       _remindMailCheck =
                           "まだメール確認が完了していません。\n確認メール内のリンクをクリックしてください。";
                     });

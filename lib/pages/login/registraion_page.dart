@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
 
@@ -17,9 +18,9 @@ class _RegistrationState extends State<Registration> {
   late UserCredential _result;
   late User _user;
 
-  String _mail = ""; // 入力されたメールアドレス
-  String _password = ""; // 入力されたパスワード
-  String _infoText = ""; // 登録に関する情報を表示
+  String _mail = ''; // 入力されたメールアドレス
+  String _password = ''; // 入力されたパスワード
+  String _infoText = ''; // 登録に関する情報を表示
   bool _isActivePassword = false; // パスワードが有効な文字数を満たしているかどうか
 
   // エラーメッセージを日本語化するためのクラス
@@ -44,7 +45,19 @@ class _RegistrationState extends State<Registration> {
             Padding(
                 padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
                 child: TextFormField(
-                  decoration: const InputDecoration(labelText: "メールアドレス"),
+                  cursorColor: C.accentColor,
+                  decoration: const InputDecoration(
+                    labelText: 'メールアドレス',
+                    labelStyle: TextStyle(color: C.subColor),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: C.mainColor,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: C.subColor),
+                    ),
+                  ),
                   onChanged: (String value) {
                     _mail = value;
                   },
@@ -54,10 +67,21 @@ class _RegistrationState extends State<Registration> {
             Padding(
               padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 10.0),
               child: TextFormField(
-                  decoration: const InputDecoration(labelText: "パスワード（8～20文字）"),
-                  obscureText: true, // パスワードが見えないようRにする
-                  maxLength: 20, // 入力可能な文字数
-                  maxLengthEnforced: false, // 入力可能な文字数の制限を超える場合の挙動の制御
+                  cursorColor: C.accentColor,
+                  decoration: const InputDecoration(
+                    labelText: 'パスワード（8～20文字）',
+                    labelStyle: TextStyle(color: C.subColor),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: C.mainColor,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: C.subColor),
+                    ),
+                  ),
+                  obscureText: true,
+                  maxLength: 20,
                   onChanged: (String value) {
                     if (value.length >= 8) {
                       _password = value;
@@ -79,15 +103,17 @@ class _RegistrationState extends State<Registration> {
 
             // アカウント作成のボタン配置
             ButtonTheme(
-              minWidth: 350.0,
-              // height: 100.0,
-              child: RaisedButton(
+              minWidth: 330.0,
+              child: MaterialButton(
                 child: const Text(
                   '登録',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 textColor: Colors.white,
-                color: Colors.blue,
+                color: C.subColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
