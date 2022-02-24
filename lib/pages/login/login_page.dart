@@ -5,6 +5,7 @@ import 'package:thanxtory/pages/login/email_checker.dart';
 import 'package:thanxtory/pages/login/registration_page.dart';
 
 import '../../model/constant.dart';
+//todo エラーメッセージの日本語化
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -14,14 +15,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _Login extends State<LoginPage> {
-  // Firebase 認証
   final _auth = FirebaseAuth.instance;
   late UserCredential _result;
   late User _user;
 
-  String _mail = ""; // 入力されたメールアドレス
-  String _password = ""; // 入力されたパスワード
-  String _infoText = ""; // ログインに関する情報を表示
+  String _mail = "";
+  String _password = "";
+  String _infoText = "";
 
   // エラーメッセージを日本語化するためのクラス
   final authError = AuthenticationError();

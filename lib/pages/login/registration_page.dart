@@ -4,6 +4,8 @@ import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
 
+//todo 登録時に名前を受取り、EmailCheckerに置くって名前をFirestoreに保存
+//todo エラー文の日本語化
 // アカウント登録ページ
 class Registration extends StatefulWidget {
   const Registration({Key? key}) : super(key: key);

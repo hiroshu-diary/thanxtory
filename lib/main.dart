@@ -9,6 +9,8 @@ import 'model/scaffold_messenger_controller.dart';
 import 'routes/routes.dart';
 import 'firebase_options.dart';
 //todo リリース前に20220309に変える
+//todo オンボーディング画面を作る
+//todo アプリアイコンを入れる
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
