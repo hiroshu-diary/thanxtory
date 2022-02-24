@@ -29,11 +29,6 @@ Center selectionPage(BuildContext context) {
                 ),
               ),
               onPressed: () {
-                //todo Navigator.popAndPushNamed(context, routeName)がわからない
-                //routeNameは定義必須
-                /// popしてpushしたい
-                // Navigator.pop(context);
-
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return Scaffold(
                     body: Center(

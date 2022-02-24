@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:thanxtory/main.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
-import 'package:thanxtory/pages/login/registraion_page.dart';
+import 'package:thanxtory/pages/login/registration_page.dart';
 
 import '../../model/constant.dart';
 
