@@ -125,7 +125,7 @@ class _Login extends State<LoginPage> {
                         MaterialPageRoute(
                           builder: (context) {
                             return EmailCheck(
-                              email: _mail,
+                              mail: _mail,
                               password: _password,
                               from: 2,
                             );

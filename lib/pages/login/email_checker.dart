@@ -6,14 +6,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../model/constant.dart';
 
 class EmailCheck extends StatefulWidget {
-  // 呼び出し元Widgetから受け取った後、変更をしないためfinalを宣言。
-  final String email;
+  final String mail;
   final String password;
   final int from;
 
   const EmailCheck({
     Key? key,
-    required this.email,
+    required this.mail,
     required this.password,
     required this.from,
   }) : super(key: key);
@@ -24,38 +23,21 @@ class EmailCheck extends StatefulWidget {
 
 class _EmailCheck extends State<EmailCheck> {
   final _auth = FirebaseAuth.instance;
+
   late UserCredential _result;
   late String _stateText;
   int _buttonNum = 0;
-  CollectionReference servedPosts =
-      FirebaseFirestore.instance.collection('servedPosts');
-  CollectionReference receivedPosts =
-      FirebaseFirestore.instance.collection('receivedPosts');
-  CollectionReference clappedPosts =
-      FirebaseFirestore.instance.collection('clappedPosts');
-  CollectionReference userProfiles =
-      FirebaseFirestore.instance.collection('userProfiles');
-
-  //todo 値をsetできるようにする
-  Future<void> addUser() {
-    return userProfiles.doc(_result.user!.uid).set({
-      'mail': widget.email,
-      'name': "hiroshi",
-      'introduction': "i am hiroshi",
-      'image': "FireStoreからのレファレンス",
-      'todayThanks': 0,
-      'rowCount': 0,
-      'servedCount': 0,
-      'receivedCount': 0
-    });
-  }
+  var servedPosts = FirebaseFirestore.instance.collection('servedPosts');
+  var receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
+  var clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
+  var userProfiles = FirebaseFirestore.instance.collection('userProfiles');
 
   @override
   Widget build(BuildContext context) {
     // 前画面から遷移後の初期表示内容
     if (_buttonNum == 0) {
       widget.from == 1
-          ? _stateText = '${widget.email}\nに確認メールを送信しました。'
+          ? _stateText = '${widget.mail}\nに確認メールを送信しました。'
           : 'まだメール確認が完了していません。\n確認メール内のリンクをクリックしてください。';
     }
 
@@ -91,14 +73,14 @@ class _EmailCheck extends State<EmailCheck> {
 
                 onPressed: () async {
                   _result = await _auth.signInWithEmailAndPassword(
-                    email: widget.email,
+                    email: widget.mail,
                     password: widget.password,
                   );
 
                   _result.user!.sendEmailVerification();
                   setState(() {
                     _buttonNum++;
-                    _stateText = '${widget.email}\nに確認メールを送信しました。';
+                    _stateText = '${widget.mail}\nに確認メールを送信しました。';
                   });
                 },
 
@@ -123,15 +105,29 @@ class _EmailCheck extends State<EmailCheck> {
                   ),
                   onPressed: () async {
                     _result = await _auth.signInWithEmailAndPassword(
-                      email: widget.email,
+                      email: widget.mail,
                       password: widget.password,
                     );
 
                     // Email確認が済んでいる場合は、Home画面へ遷移
+                    //todo ４つのドキュメントを追加
+                    //todo uid+Thanxtoryを名称としたフォルダをStorageに作成→デフォルトアイコンをアップロード
 
                     if (_result.user!.emailVerified) {
-                      await addUser();
-                      //todo FirestoreにuserIdで４つのコレクション中にサブコレクションを追加
+                      final uid = _result.user!.uid;
+                      await userProfiles.doc(uid).set({
+                        'mail': widget.mail,
+                        'name': 'hiroshi',
+                        'introduction': 'hiroshiがThanxtoryを始めました。',
+                        'todayThanks': 0,
+                        'rowCount': 0,
+                        'servedCount': 0,
+                        'receivedCount': 0
+                      });
+                      await servedPosts.doc(uid).set({});
+                      await receivedPosts.doc(uid).set({});
+                      await clappedPosts.doc(uid).set({});
+
                       Navigator.pop(context);
                       Navigator.pop(context);
                     } else {

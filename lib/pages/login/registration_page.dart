@@ -129,7 +129,7 @@ class _RegistrationState extends State<Registration> {
                       Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return EmailCheck(
-                            email: _mail,
+                            mail: _mail,
                             password: _password,
                             from: 1,
                           );
