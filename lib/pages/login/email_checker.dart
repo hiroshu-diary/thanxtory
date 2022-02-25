@@ -37,8 +37,8 @@ class _EmailCheck extends State<EmailCheck> {
       FirebaseFirestore.instance.collection('userProfiles');
 
   //todo 値をsetできるようにする
-  Future<void> addUser(userId) {
-    return userProfiles.doc(userId).set({
+  Future<void> addUser() {
+    return userProfiles.doc(_result.user!.uid).set({
       'mail': widget.email,
       'name': "hiroshi",
       'introduction': "i am hiroshi",
@@ -46,7 +46,7 @@ class _EmailCheck extends State<EmailCheck> {
       'todayThanks': 0,
       'rowCount': 0,
       'servedCount': 0,
-      'receivedCount': 0,
+      'receivedCount': 0
     });
   }
 
@@ -77,14 +77,15 @@ class _EmailCheck extends State<EmailCheck> {
             ),
 
             SizedBox(
-              width: 280,
+              width: 300,
               child: CupertinoButton(
+                padding: EdgeInsets.zero,
                 color: Colors.grey,
                 child: const Text(
                   '確認メールを再送信',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
                   ),
                 ),
 
@@ -109,14 +110,15 @@ class _EmailCheck extends State<EmailCheck> {
             Padding(
               padding: const EdgeInsets.only(top: 40),
               child: SizedBox(
-                width: 280,
+                width: 300,
                 child: CupertinoButton(
+                  padding: EdgeInsets.zero,
                   color: C.subColor,
                   child: const Text(
                     'メール確認完了',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 18,
                     ),
                   ),
                   onPressed: () async {
@@ -128,7 +130,7 @@ class _EmailCheck extends State<EmailCheck> {
                     // Email確認が済んでいる場合は、Home画面へ遷移
 
                     if (_result.user!.emailVerified) {
-                      await addUser(_result.user!.uid);
+                      await addUser();
                       //todo FirestoreにuserIdで４つのコレクション中にサブコレクションを追加
                       Navigator.pop(context);
                       Navigator.pop(context);

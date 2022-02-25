@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:thanxtory/model/constant.dart';
@@ -15,17 +16,15 @@ class Registration extends StatefulWidget {
 }
 
 class _RegistrationState extends State<Registration> {
-  // Firebase Authenticationを利用するためのインスタンス
   final _auth = FirebaseAuth.instance;
   late UserCredential _result;
   late User _user;
 
-  String _mail = ''; // 入力されたメールアドレス
-  String _password = ''; // 入力されたパスワード
-  String _infoText = ''; // 登録に関する情報を表示
-  bool _isActivePassword = false; // パスワードが有効な文字数を満たしているかどうか
+  String _mail = '';
+  String _password = '';
+  String _infoText = '';
+  bool _isActivePassword = false;
 
-  // エラーメッセージを日本語化するためのクラス
   final authError = AuthenticationError();
 
   @override
@@ -43,7 +42,6 @@ class _RegistrationState extends State<Registration> {
               ),
             ),
 
-            // メールアドレスの入力フォーム
             Padding(
                 padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
                 child: TextFormField(
@@ -65,7 +63,6 @@ class _RegistrationState extends State<Registration> {
                   },
                 )),
 
-            // パスワードの入力フォーム
             Padding(
               padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 10.0),
               child: TextFormField(
@@ -104,21 +101,19 @@ class _RegistrationState extends State<Registration> {
             ),
 
             // アカウント作成のボタン配置
-            ButtonTheme(
-              minWidth: 330.0,
-              child: MaterialButton(
+            SizedBox(
+              width: 300,
+              child: CupertinoButton(
+                padding: EdgeInsets.zero,
                 child: const Text(
                   '登録',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
+                    color: Colors.white,
                   ),
                 ),
-                textColor: Colors.white,
                 color: C.subColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
                 onPressed: () async {
                   if (_isActivePassword) {
                     try {
