@@ -1,6 +1,10 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
 import 'package:thanxtory/pages/login/registration_page.dart';
@@ -26,6 +30,16 @@ class _Login extends State<LoginPage> {
 
   // エラーメッセージを日本語化するためのクラス
   final authError = AuthenticationError();
+  Future<File> getImageFileFromAssets() async {
+    final byteData = await rootBundle.load('assets/default_image.jpeg');
+    final directory = await getApplicationDocumentsDirectory();
+    final directoryPath = directory.path;
+    final file = File('$directoryPath/default_image.jpeg');
+    await file.writeAsBytes(byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+    return file;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,6 +183,17 @@ class _Login extends State<LoginPage> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final File f = await getImageFileFromAssets();
+
+          final FirebaseStorage storage = FirebaseStorage.instance;
+          final uploadTask =
+              await storage.ref('sample/default_image.jpeg').putFile(f);
+          print(uploadTask);
+        },
+        child: const Text('UP'),
       ),
 
       // 画面下にアカウント作成画面への遷移ボタンを配置

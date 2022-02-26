@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -31,6 +34,7 @@ class _EmailCheck extends State<EmailCheck> {
   var receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
   var clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
   var userProfiles = FirebaseFirestore.instance.collection('userProfiles');
+  FirebaseStorage storage = FirebaseStorage.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +115,6 @@ class _EmailCheck extends State<EmailCheck> {
 
                     // Email確認が済んでいる場合は、Home画面へ遷移
                     //todo ４つのドキュメントを追加
-                    //todo uid+Thanxtoryを名称としたフォルダをStorageに作成→デフォルトアイコンをアップロード
 
                     if (_result.user!.emailVerified) {
                       final uid = _result.user!.uid;
@@ -124,6 +127,12 @@ class _EmailCheck extends State<EmailCheck> {
                         'servedCount': 0,
                         'receivedCount': 0
                       });
+                      //todo uid+Thanxtoryを名称としたフォルダをStorageに作成→デフォルトアイコンをアップロード
+                      var file = File('default_image.jpeg');
+                      //FirebaseStorage storage = FirebaseStorage.instance;
+                      await storage
+                          .ref('${uid}/default_image.jpeg')
+                          .putFile(file);
                       await servedPosts.doc(uid).set({});
                       await receivedPosts.doc(uid).set({});
                       await clappedPosts.doc(uid).set({});
