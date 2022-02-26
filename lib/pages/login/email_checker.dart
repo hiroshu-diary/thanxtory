@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,7 +35,18 @@ class _EmailCheck extends State<EmailCheck> {
   var receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
   var clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
   var userProfiles = FirebaseFirestore.instance.collection('userProfiles');
-  FirebaseStorage storage = FirebaseStorage.instance;
+  final storage = FirebaseStorage.instance;
+
+  Future<File> getImageFileFromAssets() async {
+    final byteData = await rootBundle.load('assets/default_image.jpeg');
+    final directory = await getApplicationDocumentsDirectory();
+    final directoryPath = directory.path;
+    final file = File('$directoryPath/default_image.jpeg');
+    await file.writeAsBytes(byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+    return file;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +86,6 @@ class _EmailCheck extends State<EmailCheck> {
                     fontSize: 18,
                   ),
                 ),
-
                 onPressed: () async {
                   _result = await _auth.signInWithEmailAndPassword(
                     email: widget.mail,
@@ -87,8 +98,6 @@ class _EmailCheck extends State<EmailCheck> {
                     _stateText = '${widget.mail}\nに確認メールを送信しました。';
                   });
                 },
-
-                //todo メールを日本語にする
               ),
             ),
 
@@ -113,7 +122,6 @@ class _EmailCheck extends State<EmailCheck> {
                       password: widget.password,
                     );
 
-                    // Email確認が済んでいる場合は、Home画面へ遷移
                     //todo ４つのドキュメントを追加
 
                     if (_result.user!.emailVerified) {
@@ -127,15 +135,11 @@ class _EmailCheck extends State<EmailCheck> {
                         'servedCount': 0,
                         'receivedCount': 0
                       });
-                      //todo uid+Thanxtoryを名称としたフォルダをStorageに作成→デフォルトアイコンをアップロード
-                      var file = File('default_image.jpeg');
-                      //FirebaseStorage storage = FirebaseStorage.instance;
-                      await storage
-                          .ref('${uid}/default_image.jpeg')
-                          .putFile(file);
-                      await servedPosts.doc(uid).set({});
-                      await receivedPosts.doc(uid).set({});
-                      await clappedPosts.doc(uid).set({});
+                      final File f = await getImageFileFromAssets();
+
+                      final uploadTask = await storage
+                          .ref('$uid/default_image.jpeg')
+                          .putFile(f);
 
                       Navigator.pop(context);
                       Navigator.pop(context);
