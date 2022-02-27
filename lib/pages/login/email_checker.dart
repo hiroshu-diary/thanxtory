@@ -137,9 +137,7 @@ class _EmailCheck extends State<EmailCheck> {
                       });
                       final File f = await getImageFileFromAssets();
 
-                      final uploadTask = await storage
-                          .ref('$uid/default_image.jpeg')
-                          .putFile(f);
+                      await storage.ref('$uid/default_image.jpeg').putFile(f);
 
                       Navigator.pop(context);
                       Navigator.pop(context);

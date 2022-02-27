@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../model/constant.dart';
 import '../post/post_page.dart';
 import '../profile/profile_page.dart';
@@ -52,6 +53,10 @@ class _HomePageState extends State<HomePage> {
 
   void getNotion() {
     notification = _prefs.getBool('notion') ?? false;
+  }
+
+  void _launchURL(url) async {
+    if (!await launch(url)) throw 'Could not launch $url';
   }
 
   @override
@@ -165,6 +170,8 @@ class _HomePageState extends State<HomePage> {
                       'アプリを評価',
                       () {
                         //todo アプリのURLまたはサイトに遷移、url_launcher使用
+                        String _storeURL = Platform.isIOS ? '' : '';
+                        _launchURL(_storeURL);
                       },
                     ),
                     buildTile(
@@ -175,7 +182,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       'アンケート',
                       () {
-                        //todo Googleフォームを開く
+                        const _formURL = 'https://forms.gle/yZBojmdRHM4khcSD9';
+                        _launchURL(_formURL);
                       },
                     ),
                     buildTile(
@@ -186,7 +194,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                       'サインアウト',
                       () async {
-                        //todo サインアウトメソッド、初回画面に戻る
                         await FirebaseAuth.instance.signOut();
                       },
                     ),
