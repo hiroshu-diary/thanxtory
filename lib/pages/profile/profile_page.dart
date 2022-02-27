@@ -43,8 +43,6 @@ class _ProfilePageState extends State<ProfilePage>
   Widget build(BuildContext context) {
     final double profileHeight = MediaQuery.of(context).size.height / 3.9;
 
-    //todo imageの読み込み　質問
-
     //todo リストタブより上を隠すNestedSca...に変える
     return Scaffold(
       backgroundColor: Colors.white,
@@ -65,8 +63,6 @@ class _ProfilePageState extends State<ProfilePage>
                         child: CircleAvatar(
                           backgroundColor: Colors.transparent,
                           radius: 32,
-
-                          ///backgroundImageでNetworkImageならできる
                           child: ClipOval(
                             child: FutureBuilder(
                               future: getURL(),
@@ -75,15 +71,16 @@ class _ProfilePageState extends State<ProfilePage>
                                 if (snapshot.connectionState ==
                                         ConnectionState.done &&
                                     snapshot.hasData) {
-                                  //todo CachedINetworkImageとImage.networkの違い、使い分け
                                   return CachedNetworkImage(
-                                    fit: BoxFit.fill,
+                                    fit: BoxFit.cover,
                                     imageUrl: snapshot.data!,
                                   );
+                                  //→取得後、端末内に保存
                                   // return Image.network(
                                   //   snapshot.data!,
                                   //   fit: BoxFit.cover,
                                   // );
+                                  //毎回取りにいく
                                 }
                                 if (snapshot.connectionState ==
                                         ConnectionState.waiting ||
@@ -173,6 +170,7 @@ class _ProfilePageState extends State<ProfilePage>
       body: TabBarView(
         controller: _tabController,
         children: [
+          //todo 自分のservedPostをstreamBuilderで標示
           ListView.builder(
             padding: EdgeInsets.zero,
             itemCount: serveList.length,
@@ -180,6 +178,7 @@ class _ProfilePageState extends State<ProfilePage>
               return serveList.reversed.toList()[index];
             },
           ),
+          //todo 自分のreceivedPostをstreamBuilderで標示
           ListView.builder(
             padding: EdgeInsets.zero,
             itemCount: receiveList.length,
@@ -187,6 +186,7 @@ class _ProfilePageState extends State<ProfilePage>
               return receiveList.reversed.toList()[index];
             },
           ),
+          //todo 自分のclappedPostをstreamBuilderで標示
           ListView.builder(
             padding: EdgeInsets.zero,
             itemCount: receiveList.length,

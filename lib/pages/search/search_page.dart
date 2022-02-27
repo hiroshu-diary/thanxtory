@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../model/constant.dart';
 
+//todo 検索画面をAlgolia連携をして作る
 class SearchPage extends StatefulWidget {
   const SearchPage({
     Key? key,

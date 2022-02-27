@@ -114,7 +114,7 @@ class _ContentCardState extends State<ContentCard> {
               });
         }
         //else↓
-        //todo 投稿を報告するメソッド、メールまたはGoogleForm
+        //todo 投稿を報告するメソッド
       },
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: double.maxFinite),

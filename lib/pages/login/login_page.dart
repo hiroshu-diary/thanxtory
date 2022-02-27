@@ -133,10 +133,10 @@ class _Login extends State<LoginPage> {
                         ),
                       );
                     }
-                  } catch (e) {
+                  } on FirebaseAuthException catch (e) {
                     // ログインに失敗した場合
                     setState(() {
-                      _infoText = authError.loginErrorMsg(e.toString());
+                      _infoText = authError.loginErrorMsg(e.code);
                     });
                   }
                 },

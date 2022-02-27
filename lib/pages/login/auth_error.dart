@@ -4,12 +4,12 @@ class AuthenticationError {
   loginErrorMsg(String errorCode) {
     String errorMsg;
 
-    if (errorCode == 'ERROR_INVALID_EMAIL') {
+    if (errorCode == 'invalid-email') {
       errorMsg = '有効なメールアドレスを入力してください。';
-    } else if (errorCode == 'ERROR_USER_NOT_FOUND') {
+    } else if (errorCode == 'user-not-found') {
       // 入力されたメールアドレスが登録されていない場合
       errorMsg = 'メールアドレスかパスワードが間違っています。';
-    } else if (errorCode == 'ERROR_WRONG_PASSWORD') {
+    } else if (errorCode == 'wrong-password') {
       // 入力されたパスワードが間違っている場合
       errorMsg = 'メールアドレスかパスワードが間違っています。';
     } else if (errorCode == 'error') {
@@ -26,9 +26,9 @@ class AuthenticationError {
   registerErrorMsg(String errorCode) {
     String errorMsg;
 
-    if (errorCode == 'ERROR_INVALID_EMAIL') {
+    if (errorCode == 'invalid-email') {
       errorMsg = '有効なメールアドレスを入力してください。';
-    } else if (errorCode == 'ERROR_EMAIL_ALREADY_IN_USE') {
+    } else if (errorCode == 'email-already-in-use') {
       // メールアドレスかパスワードがEmpty or Nullの場合
       errorMsg = '既に登録済みのメールアドレスです。';
     } else if (errorCode == 'error') {

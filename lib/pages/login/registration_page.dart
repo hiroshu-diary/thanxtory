@@ -135,10 +135,10 @@ class _RegistrationState extends State<Registration> {
                           );
                         },
                       ));
-                    } catch (e) {
+                    } on FirebaseAuthException catch (e) {
                       // 登録に失敗した場合
                       setState(() {
-                        _infoText = authError.registerErrorMsg(e.toString());
+                        _infoText = authError.registerErrorMsg(e.code);
                       });
                     }
                   } else {

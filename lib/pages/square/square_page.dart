@@ -26,6 +26,7 @@ class _SquarePageState extends State<SquarePage> {
   @override
   Widget build(BuildContext context) {
     //todo 引っ張って更新できるようにする
+    //todo servedPostsの各uidのドキュメントをでCollectionGroup等で取得し、時系列順でstreamBuilderで標示
     //更新時はCupertinoActivityIndicator
     return ListView.builder(
       padding: EdgeInsets.zero,

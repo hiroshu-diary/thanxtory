@@ -169,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       'アプリを評価',
                       () {
-                        //todo アプリのURLまたはサイトに遷移、url_launcher使用
+                        //todo アプリストアURLの挿入
                         String _storeURL = Platform.isIOS ? '' : '';
                         _launchURL(_storeURL);
                       },
