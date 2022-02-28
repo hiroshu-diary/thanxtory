@@ -30,13 +30,13 @@ dependencies:
   path_provider: ^2.0.9
   cached_network_image: ^3.2.0
   url_launcher: ^6.0.20
+  flutter_native_splash: ^2.0.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^1.0.0
-
 
 
 flutter:
@@ -53,3 +53,7 @@ flutter:
         - asset: assets/fonts/NotoSansJP-Medium.otf
         - asset: assets/fonts/NotoSansJP-Regular.otf
         - asset: assets/fonts/NotoSansJP-Thin.otf
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/splash.png
