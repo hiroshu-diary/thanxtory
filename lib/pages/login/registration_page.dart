@@ -5,9 +5,8 @@ import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
 
-//todo 登録時に名前を受取り、EmailCheckerに置くって名前をFirestoreに保存
-//todo エラー文の日本語化
-// アカウント登録ページ
+import 'form_helper.dart';
+
 class Registration extends StatefulWidget {
   const Registration({Key? key}) : super(key: key);
 
@@ -20,12 +19,20 @@ class _RegistrationState extends State<Registration> {
   late UserCredential _result;
   late User _user;
 
-  String _mail = '';
-  String _password = '';
   String _infoText = '';
-  bool _isActivePassword = false;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _mailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   final authError = AuthenticationError();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _mailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,57 +48,9 @@ class _RegistrationState extends State<Registration> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
-
-            Padding(
-                padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
-                child: TextFormField(
-                  cursorColor: C.accentColor,
-                  decoration: const InputDecoration(
-                    labelText: 'メールアドレス',
-                    labelStyle: TextStyle(color: C.subColor),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: C.mainColor,
-                      ),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: C.subColor),
-                    ),
-                  ),
-                  onChanged: (String value) {
-                    _mail = value;
-                  },
-                )),
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 10.0),
-              child: TextFormField(
-                  cursorColor: C.accentColor,
-                  decoration: const InputDecoration(
-                    labelText: 'パスワード（8～20文字）',
-                    labelStyle: TextStyle(color: C.subColor),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: C.mainColor,
-                      ),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: C.subColor),
-                    ),
-                  ),
-                  obscureText: true,
-                  maxLength: 20,
-                  onChanged: (String value) {
-                    if (value.length >= 8) {
-                      _password = value;
-                      _isActivePassword = true;
-                    } else {
-                      _isActivePassword = false;
-                    }
-                  }),
-            ),
-
-            // 登録失敗時のエラーメッセージ
+            editForm(_nameController, 'ユーザー名（変更可）'),
+            editForm(_mailController, 'メールアドレス'),
+            pWForm(_passwordController),
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 5.0),
               child: Text(
@@ -99,8 +58,6 @@ class _RegistrationState extends State<Registration> {
                 style: const TextStyle(color: Colors.red),
               ),
             ),
-
-            // アカウント作成のボタン配置
             SizedBox(
               width: 300,
               child: CupertinoButton(
@@ -115,28 +72,26 @@ class _RegistrationState extends State<Registration> {
                 ),
                 color: C.subColor,
                 onPressed: () async {
-                  if (_isActivePassword) {
+                  if (_passwordController.text.length >= 8) {
                     try {
-                      // メール/パスワードでユーザー登録
                       _result = await _auth.createUserWithEmailAndPassword(
-                        email: _mail,
-                        password: _password,
+                        email: _mailController.text,
+                        password: _passwordController.text,
                       );
 
-                      // 登録成功
-                      _user = _result.user!; // 登録したユーザー情報
-                      _user.sendEmailVerification(); // Email確認のメールを送信
+                      _user = _result.user!;
+                      _user.sendEmailVerification();
                       Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return EmailCheck(
-                            mail: _mail,
-                            password: _password,
+                            name: _nameController.text,
+                            mail: _mailController.text,
+                            password: _passwordController.text,
                             from: 1,
                           );
                         },
                       ));
                     } on FirebaseAuthException catch (e) {
-                      // 登録に失敗した場合
                       setState(() {
                         _infoText = authError.registerErrorMsg(e.code);
                       });

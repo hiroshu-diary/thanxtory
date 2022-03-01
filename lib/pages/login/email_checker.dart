@@ -10,12 +10,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../model/constant.dart';
 
 class EmailCheck extends StatefulWidget {
+  final String name;
   final String mail;
   final String password;
   final int from;
 
   const EmailCheck({
     Key? key,
+    required this.name,
     required this.mail,
     required this.password,
     required this.from,
@@ -31,17 +33,13 @@ class _EmailCheck extends State<EmailCheck> {
   late UserCredential _result;
   late String _stateText;
   int _buttonNum = 0;
-  var servedPosts = FirebaseFirestore.instance.collection('servedPosts');
-  var receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
-  var clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
   var userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   final storage = FirebaseStorage.instance;
 
   Future<void> setUserProfiles(String uid) {
     return userProfiles.doc(uid).set({
       'mail': widget.mail,
-      //todo widget.nameで受け取ろう↓
-      'name': 'hiroshi',
+      'name': widget.name,
       'introduction': 'hiroshiがThanxtoryを始めました。',
       'todayThanks': 0,
       'rowCount': 0,
@@ -50,44 +48,23 @@ class _EmailCheck extends State<EmailCheck> {
     });
   }
 
-  Future<void> setServedPosts(String uid) {
-    return servedPosts
-        .doc(uid)
-        .collection('posts')
-        .doc('start')
-        .set({'start': 'start'});
-  }
-
-  Future<void> setReceivedPosts(String uid) {
-    return receivedPosts
-        .doc(uid)
-        .collection('posts')
-        .doc('start')
-        .set({'start': 'start'});
-  }
-
-  Future<void> setClappedPosts(String uid) {
-    return clappedPosts
-        .doc(uid)
-        .collection('posts')
-        .doc('start')
-        .set({'start': 'start'});
-  }
-
   Future<File> getImageFileFromAssets() async {
     final byteData = await rootBundle.load('assets/default_image.jpeg');
     final directory = await getApplicationDocumentsDirectory();
     final directoryPath = directory.path;
     final file = File('$directoryPath/default_image.jpeg');
-    await file.writeAsBytes(byteData.buffer
-        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+    await file.writeAsBytes(
+      byteData.buffer.asUint8List(
+        byteData.offsetInBytes,
+        byteData.lengthInBytes,
+      ),
+    );
 
     return file;
   }
 
   @override
   Widget build(BuildContext context) {
-    // 前画面から遷移後の初期表示内容
     if (_buttonNum == 0) {
       widget.from == 1
           ? _stateText = '${widget.mail}\nに確認メールを送信しました。'
@@ -95,12 +72,10 @@ class _EmailCheck extends State<EmailCheck> {
     }
 
     return Scaffold(
-      // メイン画面
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 確認メール未完了時のメッセージ
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
               child: Text(
@@ -110,7 +85,6 @@ class _EmailCheck extends State<EmailCheck> {
                 ),
               ),
             ),
-
             SizedBox(
               width: 300,
               child: CupertinoButton(
@@ -137,8 +111,6 @@ class _EmailCheck extends State<EmailCheck> {
                 },
               ),
             ),
-
-            // メール確認完了のボタン配置（Home画面に遷移）
             Padding(
               padding: const EdgeInsets.only(top: 40),
               child: SizedBox(
@@ -162,14 +134,6 @@ class _EmailCheck extends State<EmailCheck> {
                     if (_result.user!.emailVerified) {
                       final uid = _result.user!.uid;
                       await setUserProfiles(uid);
-                      await setServedPosts(uid);
-                      await setReceivedPosts(uid);
-                      await setClappedPosts(uid);
-                      await clappedPosts
-                          .doc(uid)
-                          .collection('test')
-                          .doc('postId')
-                          .set({});
 
                       final File f = await getImageFileFromAssets();
 

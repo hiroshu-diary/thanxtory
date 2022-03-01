@@ -134,6 +134,7 @@ class _HomePageState extends State<HomePage> {
                         horizontal: 24.0,
                       ),
                       child: Center(
+                        //todo 【質問】todayThanksだけ受け取る
                         child: Text(
                           _todayCount.toString(),
                           style: countStyle(),
@@ -152,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                         setState(() {
                           setNotion(!notification);
                         });
-                        //todo flutter_local_notificationなどのメソッド
+                        //todo プッシュ通知
                       },
                       CupertinoSwitch(
                         value: notification,
