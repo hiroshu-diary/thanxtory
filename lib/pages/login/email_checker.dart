@@ -37,6 +37,43 @@ class _EmailCheck extends State<EmailCheck> {
   var userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   final storage = FirebaseStorage.instance;
 
+  Future<void> setUserProfiles(String uid) {
+    return userProfiles.doc(uid).set({
+      'mail': widget.mail,
+      //todo widget.nameで受け取ろう↓
+      'name': 'hiroshi',
+      'introduction': 'hiroshiがThanxtoryを始めました。',
+      'todayThanks': 0,
+      'rowCount': 0,
+      'servedCount': 0,
+      'receivedCount': 0
+    });
+  }
+
+  Future<void> setServedPosts(String uid) {
+    return servedPosts
+        .doc(uid)
+        .collection('posts')
+        .doc('start')
+        .set({'start': 'start'});
+  }
+
+  Future<void> setReceivedPosts(String uid) {
+    return receivedPosts
+        .doc(uid)
+        .collection('posts')
+        .doc('start')
+        .set({'start': 'start'});
+  }
+
+  Future<void> setClappedPosts(String uid) {
+    return clappedPosts
+        .doc(uid)
+        .collection('posts')
+        .doc('start')
+        .set({'start': 'start'});
+  }
+
   Future<File> getImageFileFromAssets() async {
     final byteData = await rootBundle.load('assets/default_image.jpeg');
     final directory = await getApplicationDocumentsDirectory();
@@ -122,19 +159,18 @@ class _EmailCheck extends State<EmailCheck> {
                       password: widget.password,
                     );
 
-                    //todo ４つのドキュメントを追加
-
                     if (_result.user!.emailVerified) {
                       final uid = _result.user!.uid;
-                      await userProfiles.doc(uid).set({
-                        'mail': widget.mail,
-                        'name': 'hiroshi',
-                        'introduction': 'hiroshiがThanxtoryを始めました。',
-                        'todayThanks': 0,
-                        'rowCount': 0,
-                        'servedCount': 0,
-                        'receivedCount': 0
-                      });
+                      await setUserProfiles(uid);
+                      await setServedPosts(uid);
+                      await setReceivedPosts(uid);
+                      await setClappedPosts(uid);
+                      await clappedPosts
+                          .doc(uid)
+                          .collection('test')
+                          .doc('postId')
+                          .set({});
+
                       final File f = await getImageFileFromAssets();
 
                       await storage.ref('$uid/default_image.jpeg').putFile(f);

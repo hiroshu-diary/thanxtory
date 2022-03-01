@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,30 @@ class _HomePageState extends State<HomePage> {
   int currentIndex = 0;
   bool notification = false;
   late SharedPreferences _prefs;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
+  final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
+  final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
+  late String _uid;
+
+  @override
+  void initState() {
+    int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
+    _uid = _auth.currentUser!.uid;
+
+    if (today > lastPostDay) {
+      todayThanks = 0;
+    }
+    setInstance();
+    super.initState();
+  }
+
+  List viewList = [
+    const SquarePage(),
+    const PostPage(),
+    const SearchPage(),
+    const ProfilePage()
+  ];
 
   Future<void> setInstance() async {
     _prefs = await SharedPreferences.getInstance();
@@ -59,16 +84,6 @@ class _HomePageState extends State<HomePage> {
     if (!await launch(url)) throw 'Could not launch $url';
   }
 
-  @override
-  void initState() {
-    int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
-    if (today > lastPostDay) {
-      todayThanks = 0;
-    }
-    setInstance();
-    super.initState();
-  }
-
   InkWell buildTile(Icon icon, String title, VoidCallback onTap,
       [Widget? trailing]) {
     return InkWell(
@@ -94,12 +109,18 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List viewList = [
-      const SquarePage(),
-      const PostPage(),
-      const SearchPage(),
-      const ProfilePage()
-    ];
+    var _todayCount = FutureBuilder<DocumentSnapshot>(
+      future: _userProfiles.doc(_uid).get(),
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<DocumentSnapshot> snapshot,
+      ) {
+        Map<String, dynamic> data =
+            snapshot.data!.data() as Map<String, dynamic>;
+        return data['todayThanks'];
+      },
+    );
+
     return Scaffold(
       drawer: currentIndex == 0 || currentIndex == 3
           ? Drawer(
@@ -114,13 +135,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: Center(
                         child: Text(
-                          '今日の感謝数：$todayThanks',
-                          style: const TextStyle(
-                            fontFamily: 'NotoSansJP',
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: C.subColor,
-                          ),
+                          _todayCount.toString(),
+                          style: countStyle(),
                         ),
                       ),
                     ),
@@ -194,7 +210,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       'サインアウト',
                       () async {
-                        await FirebaseAuth.instance.signOut();
+                        await _auth.signOut();
                       },
                     ),
                   ],
@@ -427,6 +443,15 @@ class _HomePageState extends State<HomePage> {
               ],
             )
           : null,
+    );
+  }
+
+  TextStyle countStyle() {
+    return const TextStyle(
+      fontFamily: 'NotoSansJP',
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+      color: C.subColor,
     );
   }
 }
