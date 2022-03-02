@@ -52,11 +52,11 @@ class _ContentCardState extends State<ContentCard> {
 
   @override
   Widget build(BuildContext context) {
-    String myName = widget.message.name;
-    String thanksMessage = widget.message.message;
     //todo createdAtをまずDateTimeに変換する
     // DateTime createdAt = map["createdAt"].toDate();
     String postedTime = fromAtNow(widget.message.createdTime);
+    String myName = widget.message.name;
+    String thanksMessage = widget.message.message;
 
     return GestureDetector(
       onLongPress: () {
@@ -110,7 +110,7 @@ class _ContentCardState extends State<ContentCard> {
                                     onPressed: () {
                                       //todo 投稿を削除するメソッド
                                       todayThanks--;
-                                      servedCount--;
+
                                       Navigator.pop(context);
                                     },
                                   ),
@@ -148,8 +148,7 @@ class _ContentCardState extends State<ContentCard> {
                         },
                         child: CircleAvatar(
                           backgroundImage: myImage,
-                          minRadius: 32,
-                          maxRadius: 32,
+                          radius: 32,
                         ),
                       ),
                     ),
@@ -200,11 +199,16 @@ class _ContentCardState extends State<ContentCard> {
                     ///感謝メッセージ
 
                     Padding(
-                      padding: const EdgeInsets.only(top: 8.0, right: 8.0),
+                      padding: const EdgeInsets.only(top: 8.0, right: 12.0),
                       child: Text(
                         //todo contentへ置き換え
                         thanksMessage,
-                        maxLines: 10,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'NotoSansJP'
+                        ),
+                        maxLines: 39,
                         softWrap: true,
                         overflow: TextOverflow.visible,
                       ),
@@ -221,8 +225,9 @@ class _ContentCardState extends State<ContentCard> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          ///自分がいいねした投稿をclapListに追加する
                           LikeButton(
+                            ///自分がいいねした投稿をclapListに追加する
+                            // countBuilder: ,
                             //todo clapCountに置き換え
                             likeCount: likeCount,
                             likeBuilder: (bool isLiked) {

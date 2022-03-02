@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
   List viewList = [
     const SquarePage(),
     const PostPage(),
-    const SearchPage(),
+    // const SearchPage(),
     const ProfilePage()
   ];
 
@@ -110,7 +110,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: currentIndex == 0 || currentIndex == 3
+      drawer: currentIndex == 0 || currentIndex == 2
           ? Drawer(
               child: Padding(
                 padding: const EdgeInsets.only(top: 60.0),
@@ -435,12 +435,12 @@ class _HomePageState extends State<HomePage> {
                           backgroundImage: AssetImage('assets/images/max.png'),
                         ),
                 ),
-                const BottomNavigationBarItem(
-                  label: 'さがす',
-                  tooltip: '',
-                  icon: Icon(CupertinoIcons.search),
-                  activeIcon: Icon(FontAwesomeIcons.search),
-                ),
+                // const BottomNavigationBarItem(
+                //   label: 'さがす',
+                //   tooltip: '',
+                //   icon: Icon(CupertinoIcons.search),
+                //   activeIcon: Icon(FontAwesomeIcons.search),
+                // ),
                 const BottomNavigationBarItem(
                   label: 'あなた',
                   tooltip: '',
@@ -462,5 +462,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-//hiroshu.diary@gmail.com

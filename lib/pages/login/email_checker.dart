@@ -40,7 +40,7 @@ class _EmailCheck extends State<EmailCheck> {
     return userProfiles.doc(uid).set({
       'mail': widget.mail,
       'name': widget.name,
-      'introduction': 'hiroshiがThanxtoryを始めました。',
+      'introduction': 'Thanxtory、始めました！',
       'todayThanks': 0,
       'rowCount': 0,
       'servedCount': 0,

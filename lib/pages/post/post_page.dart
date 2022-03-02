@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thanxtory/model/message.dart';
-import 'package:thanxtory/pages/post/selection_page.dart';
 import 'package:thanxtory/widgets/content_card.dart';
 import '../../model/constant.dart';
 import '../../model/list.dart';
@@ -24,11 +23,6 @@ class PostPage extends StatefulWidget {
   _PostPageState createState() => _PostPageState();
 }
 
-enum receiver {
-  someone,
-  me,
-  none,
-}
 //todo receiver...でBottomNavigationBarをコントロールする
 
 class _PostPageState extends State<PostPage> {
@@ -40,7 +34,7 @@ class _PostPageState extends State<PostPage> {
   final _storage = FirebaseStorage.instance;
   final String _receiverId = '';
 
-  var destination = receiver.none;
+  String destination = 'none';
   late SharedPreferences _prefs;
   late TextEditingController _textEditingController;
 
@@ -61,7 +55,7 @@ class _PostPageState extends State<PostPage> {
   }
 
   Future<String> getURL() async {
-    var ref = _storage.ref('3aQhAPXLD1W43WABs2CsId6ERK12/default_image.jpeg');
+    var ref = _storage.ref('$_uid/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
     return imageUrl;
   }
@@ -108,25 +102,50 @@ class _PostPageState extends State<PostPage> {
                       '投稿する',
                       style: TextStyle(color: C.accentColor),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       ///投稿時処理
                       if (_formKey.currentState!.validate()) {
                         //todo userProfilesで処理↓
                         todayThanks++;
-                        servedCount++;
                         print(lastPostDay);
+                        final _now = DateTime.now();
                         int _lastPostDay = int.parse(
-                          DateFormat('yyyyMMdd').format(DateTime.now()),
+                          DateFormat('yyyyMMdd').format(_now),
                         );
                         setDay(_lastPostDay);
                         print(lastPostDay);
-                        _servedPosts.doc(_uid).collection('posts').add({
+
+                        final newPostDoc =
+                            _servedPosts.doc(_uid).collection('posts').doc();
+                        await newPostDoc.set({
                           'serverId': _uid,
                           'receiverId': _receiverId,
-                          'createdAt': Timestamp.fromDate(DateTime.now()),
+                          'createdAt': Timestamp.fromDate(_now),
                           'content': _textEditingController.text,
                           'clapCount': 0,
                         });
+
+                        await _userProfiles.doc(_uid).update({
+                          'todayThanks': todayThanks,
+                          'servedCount': FieldValue.increment(1),
+                        });
+                        var _postId = newPostDoc.id;
+                        if (destination == 'someone') {
+                        } else if (destination == 'me') {
+                          await _receivedPosts.doc(_uid).collection('posts').doc(_postId).set({
+                            'serverId': _uid,
+                            'receiverId': _receiverId,
+                            'createdAt': Timestamp.fromDate(_now),
+                            'content': _textEditingController.text,
+                            'clapCount': 0,
+                          });
+                          await _userProfiles.doc(_uid).update({
+                            'receivedCount': FieldValue.increment(1),
+                          });
+                        } else if (destination == 'none') {
+                        }
+
+
                         serveList.add(
                           ContentCard(
                             message: Message(
@@ -149,9 +168,6 @@ class _PostPageState extends State<PostPage> {
                 ],
               ),
               body: TextFormField(
-                ///ここをやめるか、書き方を変えてできるのか？
-                ///CircleAvatarだけsetStateから外せられる？
-                onChanged: (value) => setState(() {}),
                 autofocus: true,
                 controller: _textEditingController,
                 validator: (value) {
@@ -164,6 +180,7 @@ class _PostPageState extends State<PostPage> {
                   }
                 },
                 decoration: InputDecoration(
+                  //todo iconだけsetStateを対象外にする
                   icon: Padding(
                     padding: const EdgeInsets.only(left: 16, top: 16),
                     child: Column(
@@ -202,16 +219,10 @@ class _PostPageState extends State<PostPage> {
                   border: InputBorder.none,
                   contentPadding:
                       const EdgeInsets.only(left: 4, right: 16, top: 8),
-                  hintText: '何を伝える？',
-                  counterText: '${_textEditingController.text.length} / 139',
-                  counterStyle: TextStyle(
-                    color: _textEditingController.text.length > 139
-                        ? Colors.red
-                        : Colors.black87,
-                  ),
                 ),
                 maxLines: 39,
-                // maxLength: 139,
+                maxLength: 139,
+                maxLengthEnforced: false,
                 style: const TextStyle(
                   fontSize: 16,
                   fontFamily: 'NotoSansJP',
@@ -246,7 +257,124 @@ class _PostPageState extends State<PostPage> {
                     onPressed: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                        return selectionPage(context);
+                         return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 24,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: C.subColor),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: CupertinoButton(
+                                    child: const Center(
+                                      child: Text(
+                                        'Thanxtoryアカウントを探す',
+                                        style: TextStyle(
+                                          color: C.subColor,
+                                          fontSize: 20,
+                                          fontFamily: 'NotoSansJP',
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                        return Scaffold(
+                                          body: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                const Text(
+                                                  'Coming soon...',
+                                                ),
+                                                MaterialButton(
+                                                  color: C.mainColor,
+                                                  child: const Text(
+                                                    '戻る',
+                                                    style: TextStyle(
+                                                      color: C.subColor,
+                                                      fontSize: 20,
+                                                      fontFamily: 'NotoSansJP',
+                                                    ),
+                                                  ),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }));
+                                    },
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 24,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: C.subColor),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: CupertinoButton(
+                                    child: const Center(
+                                      child: Text(
+                                        '自分に贈る',
+                                        style: TextStyle(
+                                          color: C.subColor,
+                                          fontSize: 20,
+                                          fontFamily: 'NotoSansJP',
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      destination = 'me';
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 24,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.black54),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: CupertinoButton(
+                                    child: const Center(
+                                      child: Text(
+                                        '宛先を指定しない',
+                                        style: TextStyle(
+                                          color: Colors.black54,
+                                          fontSize: 20,
+                                          fontFamily: 'NotoSansJP',
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      destination = 'none';
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
                       }));
                     },
                   ),
@@ -279,4 +407,5 @@ class _PostPageState extends State<PostPage> {
             ),
           );
   }
+
 }
