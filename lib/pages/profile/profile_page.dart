@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -17,11 +19,13 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
-  String myName = '常角洋';
-
-  String introduction = 'Thanxtoryを運営している人。';
   late TabController _tabController;
   final storage = FirebaseStorage.instance;
+  final _uid = FirebaseAuth.instance.currentUser!.uid;
+  final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
+  final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
+  final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
+  final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
   Future<String> getURL() async {
     var ref = storage.ref('3aQhAPXLD1W43WABs2CsId6ERK12/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
@@ -55,7 +59,6 @@ class _ProfilePageState extends State<ProfilePage>
                 flex: 16,
                 child: Row(
                   children: [
-                    ///アイコン
                     Expanded(
                       flex: 2,
                       child: Padding(
@@ -75,12 +78,6 @@ class _ProfilePageState extends State<ProfilePage>
                                     fit: BoxFit.cover,
                                     imageUrl: snapshot.data!,
                                   );
-                                  //→取得後、端末内に保存
-                                  // return Image.network(
-                                  //   snapshot.data!,
-                                  //   fit: BoxFit.cover,
-                                  // );
-                                  //毎回取りにいく
                                 }
                                 if (snapshot.connectionState ==
                                         ConnectionState.waiting ||
@@ -102,10 +99,9 @@ class _ProfilePageState extends State<ProfilePage>
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Row(
                           children: [
-                            ///連続日数
-                            buildCounters(consecutiveNum, '連続'),
-                            buildCounters(servedCount, 'サーブ'),
-                            buildCounters(receivedCount, 'レシーブ'),
+                            buildCounters('rowCount', '連続'),
+                            buildCounters('servedCount', 'サーブ'),
+                            buildCounters('receivedCount', 'レシーブ'),
                           ],
                         ),
                       ),
@@ -122,9 +118,9 @@ class _ProfilePageState extends State<ProfilePage>
                       flex: 2,
                       child: Column(
                         children: [
-                          Text(
-                            myName,
-                            style: const TextStyle(
+                          buildFutureBuilder(
+                            'name',
+                            const TextStyle(
                               fontSize: 16.0,
                               fontFamily: 'NotoSansJP',
                               fontWeight: FontWeight.w600,
@@ -139,9 +135,9 @@ class _ProfilePageState extends State<ProfilePage>
                       flex: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          introduction,
-                          style: const TextStyle(
+                        child: buildFutureBuilder(
+                          'introduction',
+                          const TextStyle(
                             fontFamily: 'NotoSansJP',
                           ),
                         ),
@@ -199,15 +195,15 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Expanded buildCounters(int count, String name) {
+  Expanded buildCounters(String count, String name) {
     return Expanded(
       flex: 1,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            count.toString(),
-            style: const TextStyle(
+          buildFutureBuilder(
+            count,
+            const TextStyle(
               fontSize: 17.0,
               fontWeight: FontWeight.w600,
             ),
@@ -215,6 +211,34 @@ class _ProfilePageState extends State<ProfilePage>
           Text(name),
         ],
       ),
+    );
+  }
+
+  FutureBuilder<DocumentSnapshot<Map<String, dynamic>>> buildFutureBuilder(
+    String count,
+    TextStyle style,
+  ) {
+    return FutureBuilder(
+      future: _userProfiles.doc(_uid).get(),
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<DocumentSnapshot> snapshot,
+      ) {
+        if (snapshot.hasData) {
+          Map<String, dynamic> data =
+              snapshot.data!.data() as Map<String, dynamic>;
+
+          return Text(
+            data[count].toString(),
+            style: style,
+          );
+        }
+
+        return Text(
+          '　',
+          style: style,
+        );
+      },
     );
   }
 }

@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -16,7 +19,15 @@ class ContentCard extends StatefulWidget {
 }
 
 class _ContentCardState extends State<ContentCard> {
+  final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
+  final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
+  final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
+  final _uid = FirebaseAuth.instance.currentUser!.uid;
+  final _storage = FirebaseStorage.instance;
   ImageProvider myImage = const AssetImage('assets/images/pon.png');
+
+  int likeCount = 0;
+
   final DateTime now = DateTime.now();
 
   String fromAtNow(DateTime date) {
@@ -39,8 +50,6 @@ class _ContentCardState extends State<ContentCard> {
     }
   }
 
-  //
-  int likeCount = 0;
   @override
   Widget build(BuildContext context) {
     String myName = widget.message.name;
@@ -133,7 +142,7 @@ class _ContentCardState extends State<ContentCard> {
                       padding: const EdgeInsets.only(top: 14.0),
                       child: GestureDetector(
                         onTap: () {
-                          //アカウントのプロフィールへ
+                          //todo アカウントのプロフィールへ
                         },
                         child: CircleAvatar(
                           backgroundImage: myImage,
@@ -150,19 +159,16 @@ class _ContentCardState extends State<ContentCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ///名前、時間
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        //名前
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Column(
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  //アカウントのプロフィールへ
+                                  //todo アカウントのプロフィールへ
                                 },
                                 child: Text(
                                   myName,
@@ -179,6 +185,7 @@ class _ContentCardState extends State<ContentCard> {
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, right: 16.0),
                           child: Text(
+                            //todo createdAtに置き換え
                             postedTime,
                             style: const TextStyle(
                               fontFamily: 'NotoSansJP',
@@ -193,6 +200,7 @@ class _ContentCardState extends State<ContentCard> {
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, right: 8.0),
                       child: Text(
+                        //todo contentへ置き換え
                         thanksMessage,
                         maxLines: 10,
                         softWrap: true,
@@ -213,6 +221,7 @@ class _ContentCardState extends State<ContentCard> {
                         children: [
                           ///自分がいいねした投稿をclapListに追加する
                           LikeButton(
+                            //todo clapCountに置き換え
                             likeCount: likeCount,
                             likeBuilder: (bool isLiked) {
                               return Image.asset(

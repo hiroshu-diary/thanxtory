@@ -109,18 +109,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var _todayCount = FutureBuilder<DocumentSnapshot>(
-      future: _userProfiles.doc(_uid).get(),
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<DocumentSnapshot> snapshot,
-      ) {
-        Map<String, dynamic> data =
-            snapshot.data!.data() as Map<String, dynamic>;
-        return data['todayThanks'];
-      },
-    );
-
     return Scaffold(
       drawer: currentIndex == 0 || currentIndex == 3
           ? Drawer(
@@ -134,13 +122,31 @@ class _HomePageState extends State<HomePage> {
                         horizontal: 24.0,
                       ),
                       child: Center(
-                        //todo 【質問】todayThanksだけ受け取る
-                        child: Text(
-                          _todayCount.toString(),
-                          style: countStyle(),
+                        child: FutureBuilder(
+                          future: _userProfiles.doc(_uid).get(),
+                          builder: (
+                            BuildContext context,
+                            AsyncSnapshot<DocumentSnapshot> snapshot,
+                          ) {
+                            if (snapshot.hasData) {
+                              Map<String, dynamic> data =
+                                  snapshot.data!.data() as Map<String, dynamic>;
+
+                              return Text(
+                                '今日の感謝数：${data['todayThanks'].toString()}',
+                                style: countStyle(),
+                              );
+                            }
+
+                            return Text(
+                              '今日の感謝数：　',
+                              style: countStyle(),
+                            );
+                          },
                         ),
                       ),
                     ),
+                    //style: countStyle(),
                     const Divider(height: 2.0, color: C.subColor),
                     buildTile(
                       const Icon(

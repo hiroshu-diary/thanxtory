@@ -1,3 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -28,9 +32,17 @@ enum receiver {
 //todo receiver...でBottomNavigationBarをコントロールする
 
 class _PostPageState extends State<PostPage> {
-  late SharedPreferences _prefs;
+  final _formKey = GlobalKey<FormState>();
+  final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
+  final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
+  final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
+  final _uid = FirebaseAuth.instance.currentUser!.uid;
+  final _storage = FirebaseStorage.instance;
+  final String _receiverId = '';
 
   var destination = receiver.none;
+  late SharedPreferences _prefs;
+  late TextEditingController _textEditingController;
 
   Future<void> setInstance() async {
     _prefs = await SharedPreferences.getInstance();
@@ -48,8 +60,11 @@ class _PostPageState extends State<PostPage> {
     //todo リリース前に20220309に変える
   }
 
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _textEditingController;
+  Future<String> getURL() async {
+    var ref = _storage.ref('3aQhAPXLD1W43WABs2CsId6ERK12/default_image.jpeg');
+    String imageUrl = await ref.getDownloadURL();
+    return imageUrl;
+  }
 
   @override
   void initState() {
@@ -79,7 +94,6 @@ class _PostPageState extends State<PostPage> {
                     'キャンセル',
                     style: TextStyle(color: Colors.black87),
                   ),
-                  //この遷移はColoRichのメソッドで下移動でいく
                   onPressed: () {
                     Nav.navigate(
                       context,
@@ -95,7 +109,9 @@ class _PostPageState extends State<PostPage> {
                       style: TextStyle(color: C.accentColor),
                     ),
                     onPressed: () {
+                      ///投稿時処理
                       if (_formKey.currentState!.validate()) {
+                        //todo userProfilesで処理↓
                         todayThanks++;
                         servedCount++;
                         print(lastPostDay);
@@ -104,6 +120,13 @@ class _PostPageState extends State<PostPage> {
                         );
                         setDay(_lastPostDay);
                         print(lastPostDay);
+                        _servedPosts.doc(_uid).collection('posts').add({
+                          'serverId': _uid,
+                          'receiverId': _receiverId,
+                          'createdAt': Timestamp.fromDate(DateTime.now()),
+                          'content': _textEditingController.text,
+                          'clapCount': 0,
+                        });
                         serveList.add(
                           ContentCard(
                             message: Message(
@@ -115,7 +138,6 @@ class _PostPageState extends State<PostPage> {
                           ),
                         );
 
-                        //ここでAnimation
                         Nav.navigate(
                           context,
                           const AnimationPage(),
@@ -127,6 +149,8 @@ class _PostPageState extends State<PostPage> {
                 ],
               ),
               body: TextFormField(
+                ///ここをやめるか、書き方を変えてできるのか？
+                ///CircleAvatarだけsetStateから外せられる？
                 onChanged: (value) => setState(() {}),
                 autofocus: true,
                 controller: _textEditingController,
@@ -143,15 +167,34 @@ class _PostPageState extends State<PostPage> {
                   icon: Padding(
                     padding: const EdgeInsets.only(left: 16, top: 16),
                     child: Column(
-                      children: const [
+                      children: [
                         CircleAvatar(
                           backgroundColor: Colors.transparent,
-                          minRadius: 26,
-                          maxRadius: 34,
-                          backgroundImage: AssetImage('assets/images/pon.png'),
-                          // backgroundImage: NetworkImage(
-                          //   'https://assets.media-platform.com/bi/dist/images/2021/03/19/black-w960.jpeg',
-                          // ),
+                          radius: 30,
+                          child: ClipOval(
+                            child: FutureBuilder(
+                              future: getURL(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<String> snapshot) {
+                                if (snapshot.connectionState ==
+                                        ConnectionState.done &&
+                                    snapshot.hasData) {
+                                  return CachedNetworkImage(
+                                    fit: BoxFit.cover,
+                                    imageUrl: snapshot.data!,
+                                  );
+                                }
+                                if (snapshot.connectionState ==
+                                        ConnectionState.waiting ||
+                                    !snapshot.hasData) {
+                                  return const CircularProgressIndicator(
+                                    color: C.subColor,
+                                  );
+                                }
+                                return Container();
+                              },
+                            ),
+                          ),
                         ),
                       ],
                     ),
