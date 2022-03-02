@@ -17,7 +17,6 @@ dependencies:
   line_icons: ^2.0.1
   modal_bottom_sheet: ^2.0.0
   shared_preferences: ^2.0.13
-  anim_search_bar: ^2.0.2
   provider: ^6.0.2
   intl: ^0.17.0
   cloud_firestore: ^3.1.8
@@ -31,6 +30,7 @@ dependencies:
   cached_network_image: ^3.2.0
   url_launcher: ^6.0.20
   flutter_native_splash: ^2.0.5
+  material_floating_search_bar: ^0.3.6
 
 dev_dependencies:
   flutter_test:

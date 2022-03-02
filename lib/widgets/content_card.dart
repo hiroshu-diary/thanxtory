@@ -54,6 +54,8 @@ class _ContentCardState extends State<ContentCard> {
   Widget build(BuildContext context) {
     String myName = widget.message.name;
     String thanksMessage = widget.message.message;
+    //todo createdAtをまずDateTimeに変換する
+    // DateTime createdAt = map["createdAt"].toDate();
     String postedTime = fromAtNow(widget.message.createdTime);
 
     return GestureDetector(
