@@ -27,7 +27,7 @@ class _PostPageState extends State<PostPage> {
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
   final _uid = FirebaseAuth.instance.currentUser!.uid;
   final _storage = FirebaseStorage.instance;
-  final String _receiverId = '';
+  String _receiverId = '';
 
   String destination = 'none';
   late SharedPreferences _prefs;
@@ -106,10 +106,19 @@ class _PostPageState extends State<PostPage> {
                           DateFormat('yyyyMMdd').format(_now),
                         );
                         setDay(_lastPostDay);
+                        if (destination == 'someone') {
+                          _receiverId = '';
+                        } else if (destination == 'me') {
+                          _receiverId = _uid;
+                        } else {
+                          _receiverId = '';
+                        }
 
                         final newPostDoc =
                             _servedPosts.doc(_uid).collection('posts').doc();
+                        var _postId = newPostDoc.id;
                         await newPostDoc.set({
+                          'postId': _postId,
                           'serverId': _uid,
                           'receiverId': _receiverId,
                           'createdAt': Timestamp.fromDate(_now),
@@ -121,7 +130,7 @@ class _PostPageState extends State<PostPage> {
                           'todayThanks': todayThanks,
                           'servedCount': FieldValue.increment(1),
                         });
-                        var _postId = newPostDoc.id;
+
                         if (destination == 'someone') {
                         } else if (destination == 'me') {
                           await _receivedPosts
@@ -129,6 +138,7 @@ class _PostPageState extends State<PostPage> {
                               .collection('posts')
                               .doc(_postId)
                               .set({
+                            'postId': _postId,
                             'serverId': _uid,
                             'receiverId': _receiverId,
                             'createdAt': Timestamp.fromDate(_now),
@@ -211,7 +221,6 @@ class _PostPageState extends State<PostPage> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-
               bottomNavigationBar: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,

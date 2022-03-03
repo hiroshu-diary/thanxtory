@@ -9,9 +9,9 @@ import 'package:like_button/like_button.dart';
 import 'package:intl/intl.dart';
 import '../model/constant.dart';
 
-//todo nameをuserProfilesからFutureBuilder経由で取得
-//todo 各アカウントへの遷移もuserProfies等及び、profile_pageのパクリでいく.
+//todo 各アカウントへの遷移もuserProfiles等及び、profile_pageのパクリでいく.
 class ContentCard extends StatefulWidget {
+  final String postId;
   final String serverId;
   final String receiverId;
   final int clapCount;
@@ -20,6 +20,7 @@ class ContentCard extends StatefulWidget {
 
   const ContentCard({
     Key? key,
+    required this.postId,
     required this.serverId,
     required this.receiverId,
     required this.clapCount,
@@ -32,11 +33,14 @@ class ContentCard extends StatefulWidget {
 }
 
 class _ContentCardState extends State<ContentCard> {
-  final storage = FirebaseStorage.instance;
+  final _storage = FirebaseStorage.instance;
   final _uid = FirebaseAuth.instance.currentUser!.uid;
+  final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
+  final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
+  final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
 
   Future<String> getURL(String id) async {
-    var ref = storage.ref('$id/default_image.jpeg');
+    var ref = _storage.ref('$id/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
     return imageUrl;
   }
@@ -63,16 +67,41 @@ class _ContentCardState extends State<ContentCard> {
 
   @override
   Widget build(BuildContext context) {
-    String name = 'つねずみひろし';
-    String createdAt = fromAtNow(widget.createdAt);
-    String content = widget.content;
-    int clapCount = widget.clapCount;
+    FutureBuilder<DocumentSnapshot<Map<String, dynamic>>> name(String id) {
+      return FutureBuilder(
+        future: _userProfiles.doc(id).get(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<DocumentSnapshot> snapshot,
+        ) {
+          if (snapshot.hasData) {
+            Map<String, dynamic> data =
+                snapshot.data!.data() as Map<String, dynamic>;
+            return Text(
+              data['name'],
+              style: const TextStyle(
+                fontSize: 18,
+                fontFamily: 'NotoSansJP',
+                fontWeight: FontWeight.w600,
+              ),
+            );
+          }
+          return const Text('  ');
+        },
+      );
+    }
 
-    ImageProvider myImage = const AssetImage('assets/images/pon.png');
+    String _postId = widget.postId;
+    String _serverId = widget.serverId;
+    String _receiverId = widget.receiverId;
+    String _createdAt = fromAtNow(widget.createdAt);
+    String _content = widget.content;
+    int _clapCount = widget.clapCount;
+
     return GestureDetector(
       onLongPress: () {
         ///自分の投稿なら
-        if (true) {
+        if (_serverId == _uid) {
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -118,9 +147,32 @@ class _ContentCardState extends State<ContentCard> {
                                   CupertinoDialogAction(
                                     child: const Text('はい'),
                                     isDestructiveAction: true,
-                                    onPressed: () {
-                                      //todo 投稿を削除するメソッド
+                                    onPressed: () async {
                                       todayThanks--;
+                                      await _userProfiles.doc(_uid).update({
+                                        'todayThanks': todayThanks,
+                                        'servedCount': FieldValue.increment(-1),
+                                      });
+                                      await _servedPosts
+                                          .doc(_uid)
+                                          .collection('posts')
+                                          .doc(_postId)
+                                          .delete();
+                                      if (_receiverId != '') {
+                                        await _userProfiles
+                                            .doc(_receiverId)
+                                            .update({
+                                          'receivedCount':
+                                              FieldValue.increment(-1),
+                                        });
+                                        await _receivedPosts
+                                            .doc(_receiverId)
+                                            .collection('posts')
+                                            .doc(_postId)
+                                            .delete();
+                                      }
+                                      //todo 自分のservedPostsだけを対象にする
+                                      //todo 関連するclappedPostへの処理
 
                                       Navigator.pop(context);
                                     },
@@ -166,7 +218,7 @@ class _ContentCardState extends State<ContentCard> {
                               builder: (BuildContext context,
                                   AsyncSnapshot<String> snapshot) {
                                 if (snapshot.connectionState ==
-                                    ConnectionState.done &&
+                                        ConnectionState.done &&
                                     snapshot.hasData) {
                                   return CachedNetworkImage(
                                     fit: BoxFit.cover,
@@ -174,7 +226,7 @@ class _ContentCardState extends State<ContentCard> {
                                   );
                                 }
                                 if (snapshot.connectionState ==
-                                    ConnectionState.waiting ||
+                                        ConnectionState.waiting ||
                                     !snapshot.hasData) {
                                   return const CircularProgressIndicator(
                                     color: C.subColor,
@@ -206,14 +258,7 @@ class _ContentCardState extends State<ContentCard> {
                                 onTap: () {
                                   //todo アカウントのプロフィールへ
                                 },
-                                child: Text(
-                                  name,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: 'NotoSansJP',
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                                child: name(_uid),
                               ),
                             ],
                           ),
@@ -221,7 +266,7 @@ class _ContentCardState extends State<ContentCard> {
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, right: 16.0),
                           child: Text(
-                            createdAt,
+                            _createdAt,
                             style: const TextStyle(
                               fontFamily: 'NotoSansJP',
                             ),
@@ -232,7 +277,7 @@ class _ContentCardState extends State<ContentCard> {
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, right: 12.0),
                       child: Text(
-                        content,
+                        _content,
                         style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
@@ -254,7 +299,7 @@ class _ContentCardState extends State<ContentCard> {
                           LikeButton(
                             //todo 自分がいいねした投稿をclapListに追加する
                             // countBuilder: ,
-                            likeCount: clapCount,
+                            likeCount: _clapCount,
                             likeBuilder: (bool isLiked) {
                               return Image.asset(
                                 'assets/images/c.png',

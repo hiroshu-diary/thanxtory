@@ -150,46 +150,51 @@ class _ProfilePageState extends State<ProfilePage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          FutureBuilder(
-            future: _servedPosts.doc(_uid).collection('posts').get(),
-            builder: (
-              BuildContext context,
-              AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
-            ) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, int index) {
-                    var _post = snapshot.data!.docs[index];
-                    String _serverId = _post['serverId'];
-                    String _receiverId = _post['receiverId'];
-                    int _clapCount = _post['clapCount'];
-                    String _content = _post['content'];
-                    Timestamp _createdStamp = _post['createdAt'];
-                    DateTime _createdAt = _createdStamp.toDate();
-                    return ContentCard(
-                      serverId: _serverId,
-                      receiverId: _receiverId,
-                      clapCount: _clapCount,
-                      content: _content,
-                      createdAt: _createdAt,
-                    );
-                  },
-                );
-              }
-              return const CircleAvatar(
-                backgroundColor: Colors.transparent,
-                child: CircularProgressIndicator(color: C.subColor),
-              );
-            },
-          ),
-          //todo 自分のreceivedPostをstreamBuilderで標示
-          Container(),
-          //todo 自分のclappedPostをstreamBuilderで標示
+          buildTab(_servedPosts),
+          buildTab(_receivedPosts),
+          //todo 自分のclappedPostをFutureBuilderで標示
           Container(),
         ],
       ),
+    );
+  }
+
+  FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab(CollectionReference collection) {
+    return FutureBuilder(
+      future: collection.doc(_uid).collection('posts').get(),
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+      ) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, int index) {
+              var _post = snapshot.data!.docs[index];
+              String _postId = _post['postId'];
+              String _serverId = _post['serverId'];
+              String _receiverId = _post['receiverId'];
+              int _clapCount = _post['clapCount'];
+              String _content = _post['content'];
+              Timestamp _createdStamp = _post['createdAt'];
+              DateTime _createdAt = _createdStamp.toDate();
+              return ContentCard(
+                postId: _postId,
+                serverId: _serverId,
+                receiverId: _receiverId,
+                clapCount: _clapCount,
+                content: _content,
+                createdAt: _createdAt,
+              );
+            },
+          );
+        }
+        return const CircleAvatar(
+          backgroundColor: Colors.transparent,
+          child: CircularProgressIndicator(color: C.subColor),
+        );
+      },
     );
   }
 
