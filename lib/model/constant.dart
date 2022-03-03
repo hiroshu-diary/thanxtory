@@ -71,5 +71,3 @@ bool timeSequence = true;
 //todo todayThanksをFirestoreからのみ取得へ変更、データをFirestoreに置く、prefsは排除
 int todayThanks = 0;
 int lastPostDay = 20220213;
-//todo 連続達成したら++、達成できなかったら0↓
-int consecutiveNum = 25;

@@ -20,8 +20,6 @@ class PostPage extends StatefulWidget {
   _PostPageState createState() => _PostPageState();
 }
 
-//todo receiver...でBottomNavigationBarをコントロールする
-
 class _PostPageState extends State<PostPage> {
   final _formKey = GlobalKey<FormState>();
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
@@ -100,17 +98,14 @@ class _PostPageState extends State<PostPage> {
                       style: TextStyle(color: C.accentColor),
                     ),
                     onPressed: () async {
-                      ///投稿時処理
                       if (_formKey.currentState!.validate()) {
                         //todo userProfilesで処理↓
                         todayThanks++;
-                        print(lastPostDay);
                         final _now = DateTime.now();
                         int _lastPostDay = int.parse(
                           DateFormat('yyyyMMdd').format(_now),
                         );
                         setDay(_lastPostDay);
-                        print(lastPostDay);
 
                         final newPostDoc =
                             _servedPosts.doc(_uid).collection('posts').doc();
@@ -217,7 +212,6 @@ class _PostPageState extends State<PostPage> {
                 ),
               ),
 
-              ///送り先の選択
               bottomNavigationBar: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
@@ -231,10 +225,10 @@ class _PostPageState extends State<PostPage> {
                   width: double.maxFinite,
                   height: 60,
                   child: CupertinoButton(
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        'Thanxtoryアカウントに贈る',
-                        style: TextStyle(
+                        destination == 'me' ? '自分に贈る' : 'Thanxtoryアカウントに贈る',
+                        style: const TextStyle(
                           color: C.subColor,
                           fontSize: 18,
                           fontFamily: 'NotoSansJP',
@@ -242,6 +236,7 @@ class _PostPageState extends State<PostPage> {
                       ),
                     ),
                     onPressed: () {
+                      //todo 上下で移動させたい
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return Center(
@@ -294,6 +289,9 @@ class _PostPageState extends State<PostPage> {
                                                   onPressed: () {
                                                     Navigator.pop(context);
                                                     Navigator.pop(context);
+                                                    setState(() {
+                                                      destination = 'none';
+                                                    });
                                                   },
                                                 ),
                                               ],
@@ -327,8 +325,10 @@ class _PostPageState extends State<PostPage> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      destination = 'me';
                                       Navigator.pop(context);
+                                      setState(() {
+                                        destination = 'me';
+                                      });
                                     },
                                   ),
                                 ),
@@ -355,8 +355,10 @@ class _PostPageState extends State<PostPage> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      destination = 'none';
                                       Navigator.pop(context);
+                                      setState(() {
+                                        destination = 'none';
+                                      });
                                     },
                                   ),
                                 ),

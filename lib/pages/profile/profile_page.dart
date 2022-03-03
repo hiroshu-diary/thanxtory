@@ -18,7 +18,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
-  double profileHeight = 215.0;
   late TabController _tabController;
   final storage = FirebaseStorage.instance;
   final _uid = FirebaseAuth.instance.currentUser!.uid;
@@ -27,8 +26,8 @@ class _ProfilePageState extends State<ProfilePage>
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
   final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
 
-  Future<String> getURL() async {
-    var ref = storage.ref('3aQhAPXLD1W43WABs2CsId6ERK12/default_image.jpeg');
+  Future<String> getURL(String id) async {
+    var ref = storage.ref('$id/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
     return imageUrl;
   }
@@ -46,11 +45,11 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    //todo リストタブより上を隠すNestedSca...に変える
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: Size(double.maxFinite, profileHeight),
+        //todo 高さをレスポンシブに変える
+        preferredSize: const Size(double.maxFinite, 200),
         child: SafeArea(
           child: Column(
             children: [
@@ -62,10 +61,10 @@ class _ProfilePageState extends State<ProfilePage>
                       padding: const EdgeInsets.all(16.0),
                       child: CircleAvatar(
                         backgroundColor: Colors.transparent,
-                        radius: 36,
+                        radius: 30,
                         child: ClipOval(
                           child: FutureBuilder(
-                            future: getURL(),
+                            future: getURL(_uid),
                             builder: (BuildContext context,
                                 AsyncSnapshot<String> snapshot) {
                               if (snapshot.connectionState ==
@@ -151,7 +150,6 @@ class _ProfilePageState extends State<ProfilePage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          //todo 自分のservedPostをstreamBuilderで標示
           FutureBuilder(
             future: _servedPosts.doc(_uid).collection('posts').get(),
             builder: (
@@ -160,6 +158,7 @@ class _ProfilePageState extends State<ProfilePage>
             ) {
               if (snapshot.connectionState == ConnectionState.done) {
                 return ListView.builder(
+                  padding: EdgeInsets.zero,
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, int index) {
                     var _post = snapshot.data!.docs[index];
@@ -169,7 +168,13 @@ class _ProfilePageState extends State<ProfilePage>
                     String _content = _post['content'];
                     Timestamp _createdStamp = _post['createdAt'];
                     DateTime _createdAt = _createdStamp.toDate();
-                    return Text(_content);
+                    return ContentCard(
+                      serverId: _serverId,
+                      receiverId: _receiverId,
+                      clapCount: _clapCount,
+                      content: _content,
+                      createdAt: _createdAt,
+                    );
                   },
                 );
               }
@@ -183,7 +188,6 @@ class _ProfilePageState extends State<ProfilePage>
           Container(),
           //todo 自分のclappedPostをstreamBuilderで標示
           Container(),
-
         ],
       ),
     );
@@ -228,10 +232,7 @@ class _ProfilePageState extends State<ProfilePage>
           );
         }
 
-        return Text(
-          '　',
-          style: style,
-        );
+        return Text('　', style: style);
       },
     );
   }

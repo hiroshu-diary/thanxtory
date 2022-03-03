@@ -1,3 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -5,16 +9,37 @@ import 'package:like_button/like_button.dart';
 import 'package:intl/intl.dart';
 import '../model/constant.dart';
 
+//todo nameをuserProfilesからFutureBuilder経由で取得
+//todo 各アカウントへの遷移もuserProfies等及び、profile_pageのパクリでいく.
 class ContentCard extends StatefulWidget {
-  const ContentCard({Key? key}) : super(key: key);
+  final String serverId;
+  final String receiverId;
+  final int clapCount;
+  final String content;
+  final DateTime createdAt;
 
+  const ContentCard({
+    Key? key,
+    required this.serverId,
+    required this.receiverId,
+    required this.clapCount,
+    required this.content,
+    required this.createdAt,
+  }) : super(key: key);
 
   @override
   _ContentCardState createState() => _ContentCardState();
 }
 
 class _ContentCardState extends State<ContentCard> {
-  ImageProvider myImage = const AssetImage('assets/images/pon.png');
+  final storage = FirebaseStorage.instance;
+  final _uid = FirebaseAuth.instance.currentUser!.uid;
+
+  Future<String> getURL(String id) async {
+    var ref = storage.ref('$id/default_image.jpeg');
+    String imageUrl = await ref.getDownloadURL();
+    return imageUrl;
+  }
 
   String fromAtNow(DateTime date) {
     final Duration difference = DateTime.now().difference(date);
@@ -38,14 +63,12 @@ class _ContentCardState extends State<ContentCard> {
 
   @override
   Widget build(BuildContext context) {
-    //todo createdAtをまずDateTimeに変換する
+    String name = 'つねずみひろし';
+    String createdAt = fromAtNow(widget.createdAt);
+    String content = widget.content;
+    int clapCount = widget.clapCount;
 
-    String createdAt = '';
-    String myName = '';
-    String thanksMessage = '';
-    int likeCount = 0;
-
-
+    ImageProvider myImage = const AssetImage('assets/images/pon.png');
     return GestureDetector(
       onLongPress: () {
         ///自分の投稿なら
@@ -135,8 +158,32 @@ class _ContentCardState extends State<ContentCard> {
                           //todo アカウントのプロフィールへ
                         },
                         child: CircleAvatar(
-                          backgroundImage: myImage,
-                          radius: 32,
+                          backgroundColor: Colors.transparent,
+                          radius: 30,
+                          child: ClipOval(
+                            child: FutureBuilder(
+                              future: getURL(_uid),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<String> snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done &&
+                                    snapshot.hasData) {
+                                  return CachedNetworkImage(
+                                    fit: BoxFit.cover,
+                                    imageUrl: snapshot.data!,
+                                  );
+                                }
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                    !snapshot.hasData) {
+                                  return const CircularProgressIndicator(
+                                    color: C.subColor,
+                                  );
+                                }
+                                return Container();
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -160,7 +207,7 @@ class _ContentCardState extends State<ContentCard> {
                                   //todo アカウントのプロフィールへ
                                 },
                                 child: Text(
-                                  myName,
+                                  name,
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontFamily: 'NotoSansJP',
@@ -174,7 +221,6 @@ class _ContentCardState extends State<ContentCard> {
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, right: 16.0),
                           child: Text(
-                            //todo createdAtに置き換え
                             createdAt,
                             style: const TextStyle(
                               fontFamily: 'NotoSansJP',
@@ -183,27 +229,19 @@ class _ContentCardState extends State<ContentCard> {
                         ),
                       ],
                     ),
-
-                    ///感謝メッセージ
-
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, right: 12.0),
                       child: Text(
-                        //todo contentへ置き換え
-                        thanksMessage,
+                        content,
                         style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'NotoSansJP'
-                        ),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'NotoSansJP'),
                         maxLines: 39,
                         softWrap: true,
                         overflow: TextOverflow.visible,
                       ),
                     ),
-
-                    ///拍手ボタン
-
                     Padding(
                       padding: const EdgeInsets.only(
                         top: 4.0,
@@ -214,10 +252,9 @@ class _ContentCardState extends State<ContentCard> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           LikeButton(
-                            ///自分がいいねした投稿をclapListに追加する
+                            //todo 自分がいいねした投稿をclapListに追加する
                             // countBuilder: ,
-                            //todo clapCountに置き換え
-                            likeCount: likeCount,
+                            likeCount: clapCount,
                             likeBuilder: (bool isLiked) {
                               return Image.asset(
                                 'assets/images/c.png',

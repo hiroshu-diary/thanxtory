@@ -156,29 +156,29 @@ class _HomePageState extends State<HomePage> {
                     ),
                     //style: countStyle(),
                     const Divider(height: 2.0, color: C.subColor),
-                    buildTile(
-                      const Icon(
-                        CupertinoIcons.bell,
-                        color: Colors.black87,
-                        size: 24,
-                      ),
-                      '通知設定',
-                      () {
-                        setState(() {
-                          setNotion(!notification);
-                        });
-                        //todo プッシュ通知
-                      },
-                      CupertinoSwitch(
-                        value: notification,
-                        activeColor: C.subColor,
-                        onChanged: (bool value) {
-                          setState(() {
-                            setNotion(value);
-                          });
-                        },
-                      ),
-                    ),
+                    ///プッシュ通知
+                    // buildTile(
+                    //   const Icon(
+                    //     CupertinoIcons.bell,
+                    //     color: Colors.black87,
+                    //     size: 24,
+                    //   ),
+                    //   '通知設定',
+                    //   () {
+                    //     setState(() {
+                    //       setNotion(!notification);
+                    //     });
+                    //   },
+                    //   CupertinoSwitch(
+                    //     value: notification,
+                    //     activeColor: C.subColor,
+                    //     onChanged: (bool value) {
+                    //       setState(() {
+                    //         setNotion(value);
+                    //       });
+                    //     },
+                    //   ),
+                    // ),
                     buildTile(
                       const Icon(
                         CupertinoIcons.settings,
@@ -253,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                           if (timeSequence == true) {
                             //todo 最新投稿へ移動
                           } else {
-                            //todo もうシャッフルする
+                            //todo 再度シャッフルしたものを取得
                           }
                         },
                         child: const Text(
