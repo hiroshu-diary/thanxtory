@@ -1,34 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:like_button/like_button.dart';
 import 'package:intl/intl.dart';
-import 'package:thanxtory/model/message.dart';
 import '../model/constant.dart';
 
 class ContentCard extends StatefulWidget {
-  final Message message;
+  const ContentCard({Key? key}) : super(key: key);
 
-  const ContentCard({Key? key, required this.message}) : super(key: key);
 
   @override
   _ContentCardState createState() => _ContentCardState();
 }
 
 class _ContentCardState extends State<ContentCard> {
-  final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
-  final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
-  final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
-  final _uid = FirebaseAuth.instance.currentUser!.uid;
-  final _storage = FirebaseStorage.instance;
   ImageProvider myImage = const AssetImage('assets/images/pon.png');
-
-  int likeCount = 0;
-
-  final DateTime now = DateTime.now();
 
   String fromAtNow(DateTime date) {
     final Duration difference = DateTime.now().difference(date);
@@ -53,10 +39,12 @@ class _ContentCardState extends State<ContentCard> {
   @override
   Widget build(BuildContext context) {
     //todo createdAtをまずDateTimeに変換する
-    // DateTime createdAt = map["createdAt"].toDate();
-    String postedTime = fromAtNow(widget.message.createdTime);
-    String myName = widget.message.name;
-    String thanksMessage = widget.message.message;
+
+    String createdAt = '';
+    String myName = '';
+    String thanksMessage = '';
+    int likeCount = 0;
+
 
     return GestureDetector(
       onLongPress: () {
@@ -187,7 +175,7 @@ class _ContentCardState extends State<ContentCard> {
                           padding: const EdgeInsets.only(top: 8.0, right: 16.0),
                           child: Text(
                             //todo createdAtに置き換え
-                            postedTime,
+                            createdAt,
                             style: const TextStyle(
                               fontFamily: 'NotoSansJP',
                             ),

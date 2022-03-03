@@ -50,7 +50,6 @@ class _HomePageState extends State<HomePage> {
   List viewList = [
     const SquarePage(),
     const PostPage(),
-    // const SearchPage(),
     const ProfilePage()
   ];
 
@@ -128,13 +127,22 @@ class _HomePageState extends State<HomePage> {
                             BuildContext context,
                             AsyncSnapshot<DocumentSnapshot> snapshot,
                           ) {
-                            if (snapshot.hasData) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done &&
+                                snapshot.hasData) {
                               Map<String, dynamic> data =
                                   snapshot.data!.data() as Map<String, dynamic>;
 
                               return Text(
                                 '今日の感謝数：${data['todayThanks'].toString()}',
                                 style: countStyle(),
+                              );
+                            }
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                                !snapshot.hasData) {
+                              return const CircularProgressIndicator(
+                                color: C.subColor,
                               );
                             }
 
@@ -435,12 +443,7 @@ class _HomePageState extends State<HomePage> {
                           backgroundImage: AssetImage('assets/images/max.png'),
                         ),
                 ),
-                // const BottomNavigationBarItem(
-                //   label: 'さがす',
-                //   tooltip: '',
-                //   icon: Icon(CupertinoIcons.search),
-                //   activeIcon: Icon(FontAwesomeIcons.search),
-                // ),
+
                 const BottomNavigationBarItem(
                   label: 'あなた',
                   tooltip: '',

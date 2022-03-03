@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../model/constant.dart';
-import '../../model/list.dart';
 
 class SquarePage extends StatefulWidget {
   const SquarePage({Key? key}) : super(key: key);
@@ -28,15 +27,6 @@ class _SquarePageState extends State<SquarePage> {
     //todo 引っ張って更新できるようにする
     //todo servedPostsの各uidのドキュメントをでCollectionGroup等で取得し、時系列順でstreamBuilderで標示
     //更新時はCupertinoActivityIndicator
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: allList.length,
-      itemBuilder: (BuildContext context, int index) {
-        if (timeSequence == true) {
-          allList.shuffle();
-        }
-        return allList.reversed.toList()[index];
-      },
-    );
+    return Container();
   }
 }

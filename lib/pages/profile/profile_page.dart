@@ -5,8 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thanxtory/model/constant.dart';
-
-import '../../model/list.dart';
+import 'package:thanxtory/widgets/content_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -19,6 +18,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
+  double profileHeight = 215.0;
   late TabController _tabController;
   final storage = FirebaseStorage.instance;
   final _uid = FirebaseAuth.instance.currentUser!.uid;
@@ -26,6 +26,7 @@ class _ProfilePageState extends State<ProfilePage>
   final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
   final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
+
   Future<String> getURL() async {
     var ref = storage.ref('3aQhAPXLD1W43WABs2CsId6ERK12/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
@@ -45,8 +46,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    final double profileHeight = MediaQuery.of(context).size.height / 3.9;
-
     //todo リストタブより上を隠すNestedSca...に変える
     return Scaffold(
       backgroundColor: Colors.white,
@@ -55,109 +54,95 @@ class _ProfilePageState extends State<ProfilePage>
         child: SafeArea(
           child: Column(
             children: [
-              Expanded(
-                flex: 16,
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          radius: 32,
-                          child: ClipOval(
-                            child: FutureBuilder(
-                              future: getURL(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<String> snapshot) {
-                                if (snapshot.connectionState ==
-                                        ConnectionState.done &&
-                                    snapshot.hasData) {
-                                  return CachedNetworkImage(
-                                    fit: BoxFit.cover,
-                                    imageUrl: snapshot.data!,
-                                  );
-                                }
-                                if (snapshot.connectionState ==
-                                        ConnectionState.waiting ||
-                                    !snapshot.hasData) {
-                                  return const CircularProgressIndicator(
-                                    color: C.subColor,
-                                  );
-                                }
-                                return Container();
-                              },
-                            ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        radius: 36,
+                        child: ClipOval(
+                          child: FutureBuilder(
+                            future: getURL(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<String> snapshot) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  snapshot.hasData) {
+                                return CachedNetworkImage(
+                                  fit: BoxFit.cover,
+                                  imageUrl: snapshot.data!,
+                                );
+                              }
+                              if (snapshot.connectionState ==
+                                      ConnectionState.waiting ||
+                                  !snapshot.hasData) {
+                                return const CircularProgressIndicator(
+                                  color: C.subColor,
+                                );
+                              }
+                              return Container();
+                            },
                           ),
                         ),
                       ),
                     ),
-                    Expanded(
-                      flex: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          children: [
-                            buildCounters('rowCount', '連続'),
-                            buildCounters('servedCount', 'サーブ'),
-                            buildCounters('receivedCount', 'レシーブ'),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 9,
-                child: Row(
-                  children: [
-                    ///名前
-                    Expanded(
-                      flex: 2,
-                      child: Column(
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 4 * 3,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
                         children: [
-                          buildFutureBuilder(
-                            'name',
-                            const TextStyle(
-                              fontSize: 16.0,
-                              fontFamily: 'NotoSansJP',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          buildCounters('rowCount', '連続'),
+                          buildCounters('servedCount', 'サーブ'),
+                          buildCounters('receivedCount', 'レシーブ'),
                         ],
                       ),
                     ),
-
-                    ///自己紹介
-                    Expanded(
-                      flex: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: buildFutureBuilder(
-                          'introduction',
-                          const TextStyle(
-                            fontFamily: 'NotoSansJP',
-                          ),
-                        ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 20),
+                  buildFutureBuilder(
+                    'name',
+                    const TextStyle(
+                      fontSize: 16.0,
+                      fontFamily: 'NotoSansJP',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 20.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: buildFutureBuilder(
+                      'introduction',
+                      const TextStyle(
+                        fontFamily: 'NotoSansJP',
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Expanded(
-                flex: 5,
-                child: TabBar(
-                  controller: _tabController,
-                  indicatorColor: C.subColor,
-                  labelColor: Colors.black,
-                  tabs: const [
-                    Tab(text: 'サーブ'),
-                    Tab(text: 'レシーブ'),
-                    Tab(text: '拍手'),
-                  ],
-                ),
+              TabBar(
+                controller: _tabController,
+                indicatorColor: C.subColor,
+                labelColor: Colors.black,
+                tabs: const [
+                  Tab(text: 'サーブ'),
+                  Tab(text: 'レシーブ'),
+                  Tab(text: '拍手'),
+                ],
               )
             ],
           ),
@@ -167,29 +152,38 @@ class _ProfilePageState extends State<ProfilePage>
         controller: _tabController,
         children: [
           //todo 自分のservedPostをstreamBuilderで標示
-          ListView.builder(
-            padding: EdgeInsets.zero,
-            itemCount: serveList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return serveList.reversed.toList()[index];
+          FutureBuilder(
+            future: _servedPosts.doc(_uid).collection('posts').get(),
+            builder: (
+              BuildContext context,
+              AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+            ) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, int index) {
+                    var _post = snapshot.data!.docs[index];
+                    String _serverId = _post['serverId'];
+                    String _receiverId = _post['receiverId'];
+                    int _clapCount = _post['clapCount'];
+                    String _content = _post['content'];
+                    Timestamp _createdStamp = _post['createdAt'];
+                    DateTime _createdAt = _createdStamp.toDate();
+                    return Text(_content);
+                  },
+                );
+              }
+              return const CircleAvatar(
+                backgroundColor: Colors.transparent,
+                child: CircularProgressIndicator(color: C.subColor),
+              );
             },
           ),
           //todo 自分のreceivedPostをstreamBuilderで標示
-          ListView.builder(
-            padding: EdgeInsets.zero,
-            itemCount: receiveList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return receiveList.reversed.toList()[index];
-            },
-          ),
+          Container(),
           //todo 自分のclappedPostをstreamBuilderで標示
-          ListView.builder(
-            padding: EdgeInsets.zero,
-            itemCount: receiveList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return clapList.reversed.toList()[index];
-            },
-          ),
+          Container(),
+
         ],
       ),
     );

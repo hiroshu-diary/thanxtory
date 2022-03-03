@@ -1,15 +1,16 @@
-class Message {
-  late String address;
-  late String name;
-  late String message;
-  DateTime createdTime = DateTime.now();
-  int clapCount = 0;
-  String? recipient;
 
-  Message({
-    required this.address,
-    required this.name,
-    required this.message,
-    required this.createdTime,
+class Post {
+  late String serverId;
+  late String receiverId;
+  late String content;
+  late DateTime createdAt;
+  late int clapCount;
+
+  Post({
+    required this.serverId,
+    required this.receiverId,
+    required this.content,
+    required this.createdAt,
+    required this.clapCount,
   });
 }

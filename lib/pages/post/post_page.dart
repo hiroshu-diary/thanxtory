@@ -6,10 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thanxtory/model/message.dart';
-import 'package:thanxtory/widgets/content_card.dart';
 import '../../model/constant.dart';
-import '../../model/list.dart';
 import '../animation/animation_page.dart';
 import '../home/home_page.dart';
 
@@ -132,7 +129,11 @@ class _PostPageState extends State<PostPage> {
                         var _postId = newPostDoc.id;
                         if (destination == 'someone') {
                         } else if (destination == 'me') {
-                          await _receivedPosts.doc(_uid).collection('posts').doc(_postId).set({
+                          await _receivedPosts
+                              .doc(_uid)
+                              .collection('posts')
+                              .doc(_postId)
+                              .set({
                             'serverId': _uid,
                             'receiverId': _receiverId,
                             'createdAt': Timestamp.fromDate(_now),
@@ -142,20 +143,7 @@ class _PostPageState extends State<PostPage> {
                           await _userProfiles.doc(_uid).update({
                             'receivedCount': FieldValue.increment(1),
                           });
-                        } else if (destination == 'none') {
-                        }
-
-
-                        serveList.add(
-                          ContentCard(
-                            message: Message(
-                              address: 'hiroshu.diary',
-                              name: '常角洋',
-                              message: _textEditingController.text,
-                              createdTime: DateTime.now(),
-                            ),
-                          ),
-                        );
+                        } else if (destination == 'none') {}
 
                         Nav.navigate(
                           context,
@@ -180,7 +168,6 @@ class _PostPageState extends State<PostPage> {
                   }
                 },
                 decoration: InputDecoration(
-                  //todo iconだけsetStateを対象外にする
                   icon: Padding(
                     padding: const EdgeInsets.only(left: 16, top: 16),
                     child: Column(
@@ -257,7 +244,7 @@ class _PostPageState extends State<PostPage> {
                     onPressed: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                         return Center(
+                        return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -283,11 +270,13 @@ class _PostPageState extends State<PostPage> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) {
                                         return Scaffold(
                                           body: Center(
                                             child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 const Text(
                                                   'Coming soon...',
@@ -407,5 +396,4 @@ class _PostPageState extends State<PostPage> {
             ),
           );
   }
-
 }
