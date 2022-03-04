@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../model/constant.dart';
 import '../animation/animation_page.dart';
 import '../home/home_page.dart';
@@ -245,10 +246,9 @@ class _PostPageState extends State<PostPage> {
                       ),
                     ),
                     onPressed: () {
-                      //todo 上下で移動させたい
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return Center(
+                      Nav.whiteNavi(
+                        context,
+                        Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -374,8 +374,8 @@ class _PostPageState extends State<PostPage> {
                               ),
                             ],
                           ),
-                        );
-                      }));
+                        ),
+                      );
                     },
                   ),
                 ),

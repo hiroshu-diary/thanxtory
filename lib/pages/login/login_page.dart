@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
 import 'package:thanxtory/pages/login/registration_page.dart';
@@ -74,17 +74,13 @@ class _Login extends State<LoginPage> {
                     _user = _result.user!;
                     if (_user.emailVerified) {
                     } else {
-                      Navigator.push(
+                      Nav.whiteNavi(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return EmailCheck(
-                              name: '',
-                              mail: _mailController.text,
-                              password: _passwordController.text,
-                              from: 2,
-                            );
-                          },
+                        EmailCheck(
+                          name: '',
+                          mail: _mailController.text,
+                          password: _passwordController.text,
+                          from: 2,
                         ),
                       );
                     }

@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
@@ -81,16 +81,15 @@ class _RegistrationState extends State<Registration> {
 
                       _user = _result.user!;
                       _user.sendEmailVerification();
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return EmailCheck(
-                            name: _nameController.text,
-                            mail: _mailController.text,
-                            password: _passwordController.text,
-                            from: 1,
-                          );
-                        },
-                      ));
+                      Nav.whiteNavi(
+                        context,
+                        EmailCheck(
+                          name: _nameController.text,
+                          mail: _mailController.text,
+                          password: _passwordController.text,
+                          from: 1,
+                        ),
+                      );
                     } on FirebaseAuthException catch (e) {
                       setState(() {
                         _infoText = authError.registerErrorMsg(e.code);

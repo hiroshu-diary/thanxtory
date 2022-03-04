@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
+import 'package:thanxtory/pages/profile/profile_page.dart';
 
 import '../model/constant.dart';
 
@@ -100,7 +101,6 @@ class _ContentCardState extends State<ContentCard> {
 
     return GestureDetector(
       onLongPress: () {
-        ///自分の投稿なら
         if (_serverId == _uid) {
           showDialog(
               context: context,
@@ -252,7 +252,12 @@ class _ContentCardState extends State<ContentCard> {
                       padding: const EdgeInsets.only(top: 14.0),
                       child: GestureDetector(
                         onTap: () {
-                          //todo アカウントのプロフィールへ
+                          if (_serverId != _uid) {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (BuildContext context) {
+                              return ProfilePage(userId: _serverId);
+                            }));
+                          }
                         },
                         child: CircleAvatar(
                           backgroundColor: Colors.transparent,
@@ -301,7 +306,12 @@ class _ContentCardState extends State<ContentCard> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  //todo アカウントのプロフィールへ
+                                  if (_serverId != _uid) {
+                                    Navigator.push(context, MaterialPageRoute(
+                                        builder: (BuildContext context) {
+                                      return ProfilePage(userId: _serverId);
+                                    }));
+                                  }
                                 },
                                 child: name(_serverId),
                               ),

@@ -8,7 +8,8 @@ import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/widgets/content_card.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  final String userId;
+  const ProfilePage({Key? key, required this.userId}) : super(key: key);
   static const path = '/profile/';
   static const name = 'ProfilePage';
 
@@ -21,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   final storage = FirebaseStorage.instance;
-  final _uid = FirebaseAuth.instance.currentUser!.uid;
+  String _uid = FirebaseAuth.instance.currentUser!.uid;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
@@ -46,6 +47,10 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    final _userId = widget.userId;
+    if (_userId == '') {
+      _uid = _userId;
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -161,7 +166,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab(CollectionReference collection) {
+  FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab(
+      CollectionReference collection) {
     return FutureBuilder(
       future: collection.doc(_uid).collection('posts').get(),
       builder: (

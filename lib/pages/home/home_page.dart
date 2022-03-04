@@ -1,18 +1,19 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../model/constant.dart';
 import '../post/post_page.dart';
 import '../profile/profile_page.dart';
-import '../search/search_page.dart';
 import '../square/square_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -50,7 +51,7 @@ class _HomePageState extends State<HomePage> {
   List viewList = [
     const SquarePage(),
     const PostPage(),
-    const ProfilePage()
+    const ProfilePage(userId: ''),
   ];
 
   Future<void> setInstance() async {
@@ -128,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                             AsyncSnapshot<DocumentSnapshot> snapshot,
                           ) {
                             if (snapshot.connectionState ==
-                                ConnectionState.done &&
+                                    ConnectionState.done &&
                                 snapshot.hasData) {
                               Map<String, dynamic> data =
                                   snapshot.data!.data() as Map<String, dynamic>;
@@ -139,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                               );
                             }
                             if (snapshot.connectionState ==
-                                ConnectionState.waiting ||
+                                    ConnectionState.waiting ||
                                 !snapshot.hasData) {
                               return const CircularProgressIndicator(
                                 color: C.subColor,
@@ -156,6 +157,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     //style: countStyle(),
                     const Divider(height: 2.0, color: C.subColor),
+
                     ///プッシュ通知
                     // buildTile(
                     //   const Icon(
@@ -443,7 +445,6 @@ class _HomePageState extends State<HomePage> {
                           backgroundImage: AssetImage('assets/images/max.png'),
                         ),
                 ),
-
                 const BottomNavigationBarItem(
                   label: 'あなた',
                   tooltip: '',
