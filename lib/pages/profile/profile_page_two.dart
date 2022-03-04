@@ -1,27 +1,25 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/widgets/content_card.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
-  static const path = '/profile/';
-  static const name = 'ProfilePage';
+class ProfilePageTwo extends StatefulWidget {
+  final String userId;
+  const ProfilePageTwo({Key? key, required this.userId}) : super(key: key);
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _ProfilePageTwoState createState() => _ProfilePageTwoState();
 }
 
 //todo CloudFunctionsで連続投稿を管理
-class _ProfilePageState extends State<ProfilePage>
+
+class _ProfilePageTwoState extends State<ProfilePageTwo>
     with TickerProviderStateMixin {
   late TabController _tabController;
   final storage = FirebaseStorage.instance;
-  final _uid = FirebaseAuth.instance.currentUser!.uid;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
@@ -46,6 +44,8 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    final String _uid = widget.userId;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -96,9 +96,9 @@ class _ProfilePageState extends State<ProfilePage>
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
-                          buildCounters('rowCount', '連続'),
-                          buildCounters('servedCount', 'サーブ'),
-                          buildCounters('receivedCount', 'レシーブ'),
+                          buildCounters(_uid, 'rowCount', '連続'),
+                          buildCounters(_uid, 'servedCount', 'サーブ'),
+                          buildCounters(_uid, 'receivedCount', 'レシーブ'),
                         ],
                       ),
                     ),
@@ -110,6 +110,7 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   const SizedBox(width: 20),
                   buildFutureBuilder(
+                    _uid,
                     'name',
                     const TextStyle(
                       fontSize: 16.0,
@@ -126,6 +127,7 @@ class _ProfilePageState extends State<ProfilePage>
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: buildFutureBuilder(
+                      _uid,
                       'introduction',
                       const TextStyle(
                         fontFamily: 'NotoSansJP',
@@ -152,8 +154,8 @@ class _ProfilePageState extends State<ProfilePage>
         //todo 【質問】各タブを引っ張って更新できるようにしたい
         controller: _tabController,
         children: [
-          buildTab(_servedPosts),
-          buildTab(_receivedPosts),
+          buildTab(_servedPosts, _uid),
+          buildTab(_receivedPosts, _uid),
           //todo 自分のclappedPostをFutureBuilderで標示
           Container(),
         ],
@@ -162,9 +164,11 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab(
-      CollectionReference collection) {
+    CollectionReference collection,
+    String userId,
+  ) {
     return FutureBuilder(
-      future: collection.doc(_uid).collection('posts').get(),
+      future: collection.doc(userId).collection('posts').get(),
       builder: (
         BuildContext context,
         AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
@@ -201,13 +205,14 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Expanded buildCounters(String count, String name) {
+  Expanded buildCounters(String userId, String count, String name) {
     return Expanded(
       flex: 1,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           buildFutureBuilder(
+            userId,
             count,
             const TextStyle(
               fontSize: 17.0,
@@ -221,11 +226,12 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   FutureBuilder<DocumentSnapshot<Map<String, dynamic>>> buildFutureBuilder(
+    String userId,
     String count,
     TextStyle style,
   ) {
     return FutureBuilder(
-      future: _userProfiles.doc(_uid).get(),
+      future: _userProfiles.doc(userId).get(),
       builder: (
         BuildContext context,
         AsyncSnapshot<DocumentSnapshot> snapshot,

@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
   List viewList = [
     const SquarePage(),
     const PostPage(),
-    const ProfilePage(userId: ''),
+    const ProfilePage(),
   ];
 
   Future<void> setInstance() async {

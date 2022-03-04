@@ -21,6 +21,5 @@ final routeBuilder = <String, Widget Function(BuildContext context)>{
       ),
   ProfilePage.path: (context) => const ProfilePage(
         key: ValueKey(ProfilePage.name),
-        userId: '',
       ),
 };

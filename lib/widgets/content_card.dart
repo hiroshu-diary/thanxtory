@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
-import 'package:thanxtory/pages/profile/profile_page.dart';
 
 import '../model/constant.dart';
+import '../pages/profile/profile_page_two.dart';
 
 class ContentCard extends StatefulWidget {
   final String postId;
@@ -255,7 +255,7 @@ class _ContentCardState extends State<ContentCard> {
                           if (_serverId != _uid) {
                             Navigator.push(context, MaterialPageRoute(
                                 builder: (BuildContext context) {
-                              return ProfilePage(userId: _serverId);
+                              return ProfilePageTwo(userId: _serverId);
                             }));
                           }
                         },
@@ -309,7 +309,7 @@ class _ContentCardState extends State<ContentCard> {
                                   if (_serverId != _uid) {
                                     Navigator.push(context, MaterialPageRoute(
                                         builder: (BuildContext context) {
-                                      return ProfilePage(userId: _serverId);
+                                      return ProfilePageTwo(userId: _serverId);
                                     }));
                                   }
                                 },
