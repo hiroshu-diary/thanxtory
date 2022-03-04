@@ -16,6 +16,7 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
+//todo CloudFunctionsで連続投稿を管理
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   late TabController _tabController;
@@ -148,6 +149,7 @@ class _ProfilePageState extends State<ProfilePage>
         ),
       ),
       body: TabBarView(
+        //todo 【質問】各タブを引っ張って更新できるようにしたい
         controller: _tabController,
         children: [
           buildTab(_servedPosts),

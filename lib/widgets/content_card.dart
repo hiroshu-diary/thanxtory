@@ -5,11 +5,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:like_button/like_button.dart';
 import 'package:intl/intl.dart';
+import 'package:like_button/like_button.dart';
+
 import '../model/constant.dart';
 
-//todo 各アカウントへの遷移もuserProfiles等及び、profile_pageのパクリでいく.
 class ContentCard extends StatefulWidget {
   final String postId;
   final String serverId;
@@ -171,7 +171,6 @@ class _ContentCardState extends State<ContentCard> {
                                             .doc(_postId)
                                             .delete();
                                       }
-                                      //todo 自分のservedPostsだけを対象にする
                                       //todo 関連するclappedPostへの処理
 
                                       Navigator.pop(context);
@@ -186,9 +185,55 @@ class _ContentCardState extends State<ContentCard> {
                   ],
                 );
               });
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CupertinoAlertDialog(
+                title: const Text('好ましくない投稿'),
+                content: const Text(
+                  'この投稿を報告しますか？',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                actions: <CupertinoDialogAction>[
+                  CupertinoDialogAction(
+                    child: const Text('いいえ'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  CupertinoDialogAction(
+                    child: const Text('はい'),
+                    isDestructiveAction: true,
+                    onPressed: () async {
+                      await FirebaseFirestore.instance
+                          .collection('harmful')
+                          .add({
+                        'postId': _postId,
+                        'serverId': _serverId,
+                        'content': _content,
+                        'createdAt': _createdAt,
+                        'clapCount': _clapCount,
+                        'reportedAt': Timestamp.fromDate(DateTime.now()),
+                        'reporterId': _uid,
+                      });
+                      Navigator.pop(context);
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return const CupertinoAlertDialog(
+                              content: Text('問題のある投稿として報告しました。'),
+                            );
+                          });
+                    },
+                  ),
+                ],
+              );
+            },
+          );
         }
-        //else↓
-        //todo 投稿を報告するメソッド
       },
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: double.maxFinite),
@@ -214,7 +259,7 @@ class _ContentCardState extends State<ContentCard> {
                           radius: 30,
                           child: ClipOval(
                             child: FutureBuilder(
-                              future: getURL(_uid),
+                              future: getURL(_serverId),
                               builder: (BuildContext context,
                                   AsyncSnapshot<String> snapshot) {
                                 if (snapshot.connectionState ==
@@ -258,7 +303,7 @@ class _ContentCardState extends State<ContentCard> {
                                 onTap: () {
                                   //todo アカウントのプロフィールへ
                                 },
-                                child: name(_uid),
+                                child: name(_serverId),
                               ),
                             ],
                           ),
