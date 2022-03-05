@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../model/constant.dart';
+import 'constant.dart';
 
 Padding editForm(TextEditingController controller, String label) {
   return Padding(

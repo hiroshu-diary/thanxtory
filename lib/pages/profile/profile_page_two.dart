@@ -27,6 +27,10 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
   final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
 
+  final ScrollController _serveController = ScrollController();
+  final ScrollController _receiveController = ScrollController();
+  final ScrollController _clapController = ScrollController();
+
   Future<String> getURL(String id) async {
     var ref = storage.ref('$id/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
@@ -143,10 +147,19 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
                 controller: _tabController,
                 indicatorColor: C.subColor,
                 labelColor: Colors.black,
-                tabs: const [
-                  Tab(text: 'サーブ'),
-                  Tab(text: 'レシーブ'),
-                  Tab(text: '拍手'),
+                tabs: [
+                  GestureDetector(
+                    onLongPress: () => Scroller.scrollToTop(_serveController),
+                    child: const Tab(text: 'サーブ'),
+                  ),
+                  GestureDetector(
+                    onLongPress: () => Scroller.scrollToTop(_receiveController),
+                    child: const Tab(text: 'レシーブ'),
+                  ),
+                  GestureDetector(
+                    onLongPress: () => Scroller.scrollToTop(_clapController),
+                    child: const Tab(text: '拍手'),
+                  ),
                 ],
               )
             ],
@@ -156,8 +169,12 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
       body: TabBarView(
         controller: _tabController,
         children: [
-          buildRefresher(buildTab(_servedPosts, _uid, 'sPosts')),
-          buildRefresher(buildTab(_receivedPosts, _uid, 'rPosts')),
+          buildRefresher(
+            buildTab(_servedPosts, _uid, 'sPosts', _serveController),
+          ),
+          buildRefresher(
+            buildTab(_receivedPosts, _uid, 'rPosts', _receiveController),
+          ),
           //todo 自分のclappedPostをFutureBuilderで標示
           buildRefresher(Container()),
         ],
@@ -210,6 +227,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
     CollectionReference collection,
     String userId,
     String subCollection,
+    ScrollController controller,
   ) {
     return FutureBuilder(
       future: collection.doc(userId).collection(subCollection).get(),
@@ -219,6 +237,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
       ) {
         if (snapshot.connectionState == ConnectionState.done) {
           return ListView.builder(
+            controller: controller,
             padding: EdgeInsets.zero,
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {

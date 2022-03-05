@@ -165,6 +165,17 @@ class Nav {
   }
 }
 
+class Scroller {
+  static void scrollToTop(scrollController) {
+    final topOffset = scrollController.position.minScrollExtent;
+    scrollController.animateTo(
+      topOffset,
+      duration: const Duration(milliseconds: 390),
+      curve: Curves.easeIn,
+    );
+  }
+}
+
 ///グローバル変数
 bool timeSequence = true;
 //todo todayThanksをFirestoreからのみ取得へ変更、データをFirestoreに置く、prefsは排除

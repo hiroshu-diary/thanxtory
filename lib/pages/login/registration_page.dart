@@ -5,7 +5,7 @@ import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
 
-import 'form_helper.dart';
+import '../../model/form_helper.dart';
 
 class Registration extends StatefulWidget {
   const Registration({Key? key}) : super(key: key);

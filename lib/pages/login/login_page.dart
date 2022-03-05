@@ -6,7 +6,7 @@ import 'package:thanxtory/pages/login/email_checker.dart';
 import 'package:thanxtory/pages/login/registration_page.dart';
 
 import '../../model/constant.dart';
-import 'form_helper.dart';
+import '../../model/form_helper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -16,11 +15,10 @@ class SquarePage extends StatefulWidget {
   _SquarePageState createState() => _SquarePageState();
 }
 
+final ScrollController squareController = ScrollController();
+
 class _SquarePageState extends State<SquarePage> {
   final storage = FirebaseStorage.instance;
-  final _uid = FirebaseAuth.instance.currentUser!.uid;
-  final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
-  final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
   Future<String> getURL(String id) async {
     var ref = storage.ref('$id/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
@@ -73,6 +71,7 @@ class _SquarePageState extends State<SquarePage> {
         }
         if (snapshot.connectionState == ConnectionState.done) {
           return ListView.builder(
+            controller: squareController,
             padding: EdgeInsets.zero,
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, int index) {

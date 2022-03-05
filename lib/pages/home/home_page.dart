@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:thanxtory/pages/home/settings_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../model/constant.dart';
@@ -32,8 +34,6 @@ class _HomePageState extends State<HomePage> {
   late SharedPreferences _prefs;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
-  final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
-  final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
   late String _uid;
 
   @override
@@ -189,7 +189,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                       'プロフィール設定',
                       () {
-                        //todo プロフィール設定画面を標示
+                        //todo プロフィール編集機能
+                        Navigator.pop(context);
+                        Nav.navigate360(
+                          context,
+                          const Offset(-1, 0),
+                          const SettingsPage(),
+                        );
                       },
                     ),
                     buildTile(
@@ -252,11 +258,7 @@ class _HomePageState extends State<HomePage> {
                       centerTitle: true,
                       title: GestureDetector(
                         onTap: () {
-                          if (timeSequence == true) {
-                            //todo 最新投稿へ移動
-                          } else {
-                            //todo 再度シャッフルしたものを取得
-                          }
+                          Scroller.scrollToTop(squareController);
                         },
                         child: const Text(
                           'Thanxtory',
