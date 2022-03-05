@@ -149,15 +149,25 @@ class _ProfilePageState extends State<ProfilePage>
         ),
       ),
       body: TabBarView(
-        //todo 【質問】各タブを引っ張って更新できるようにしたい
         controller: _tabController,
         children: [
-          buildTab(_servedPosts, 'sPosts'),
-          buildTab(_receivedPosts, 'rPosts'),
+          buildRefresher(buildTab(_servedPosts, 'sPosts')),
+          buildRefresher(buildTab(_receivedPosts, 'rPosts')),
           //todo 自分のclappedPostをFutureBuilderで標示
-          Container(),
+          buildRefresher(Container()),
         ],
       ),
+    );
+  }
+
+  RefreshIndicator buildRefresher(Widget child) {
+    return RefreshIndicator(
+      backgroundColor: Colors.white,
+      color: C.subColor,
+      onRefresh: () async {
+        setState(() {});
+      },
+      child: child,
     );
   }
 

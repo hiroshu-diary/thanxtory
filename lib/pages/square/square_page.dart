@@ -38,8 +38,14 @@ class _SquarePageState extends State<SquarePage> {
 
   @override
   Widget build(BuildContext context) {
-    //todo 引っ張って更新できるようにする　　　更新時はCupertinoActivityIndicator
-    return buildTab();
+    return RefreshIndicator(
+      backgroundColor: Colors.white,
+      color: C.subColor,
+      onRefresh: () async {
+        setState(() {});
+      },
+      child: buildTab(),
+    );
   }
 
   FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab() {
@@ -52,13 +58,15 @@ class _SquarePageState extends State<SquarePage> {
       ) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             !snapshot.hasData) {
-          return const CircleAvatar(
-            backgroundColor: Colors.transparent,
-            child: SizedBox(
-              width: 240,
-              height: 240,
-              child: CircularProgressIndicator(
-                color: C.subColor,
+          return const Center(
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              child: SizedBox(
+                width: 240,
+                height: 240,
+                child: CircularProgressIndicator(
+                  color: C.subColor,
+                ),
               ),
             ),
           );

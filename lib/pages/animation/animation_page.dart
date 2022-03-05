@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thanxtory/model/scaffold_messenger_controller.dart';
+
 import '../../model/constant.dart';
 import '../home/home_page.dart';
 
@@ -42,19 +43,20 @@ class _AnimationPageState extends State<AnimationPage>
       const HomePage(),
       const Offset(0, 0),
     );
-    // Navigator.popUntil(context, (Route<dynamic> route) => route.isFirst);
 
     late String _text;
     if (todayThanks == 1) {
-      _text = '今日も素敵な感謝を、\nありがとうございます！！';
-    } else if (todayThanks == 2) {
-      _text = '調子が良いですね！\nその勢いです！！';
-    } else {
+      _text = '今日も素敵な感謝を\nありがとうございます！！';
+    } else if (todayThanks == 3) {
       _text = '素敵な一日でしたね！\n１日３投稿達成です！！';
     }
 
     if (mounted) {
-      await context.read<ScaffoldMessengerController>().showAchievement(_text);
+      if (todayThanks == 1 || todayThanks == 3) {
+        await context
+            .read<ScaffoldMessengerController>()
+            .showAchievement(_text);
+      }
     }
   }
 

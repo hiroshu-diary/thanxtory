@@ -9,6 +9,7 @@ import 'package:thanxtory/widgets/content_card.dart';
 
 class ProfilePageTwo extends StatefulWidget {
   final String userId;
+
   const ProfilePageTwo({Key? key, required this.userId}) : super(key: key);
 
   @override
@@ -153,13 +154,12 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
         ),
       ),
       body: TabBarView(
-        //todo 【質問】各タブを引っ張って更新できるようにしたい
         controller: _tabController,
         children: [
-          buildTab(_servedPosts, _uid, 'sPosts'),
-          buildTab(_receivedPosts, _uid, 'rPosts'),
+          buildRefresher(buildTab(_servedPosts, _uid, 'sPosts')),
+          buildRefresher(buildTab(_receivedPosts, _uid, 'rPosts')),
           //todo 自分のclappedPostをFutureBuilderで標示
-          Container(),
+          buildRefresher(Container()),
         ],
       ),
       bottomNavigationBar: Padding(
@@ -192,6 +192,17 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
           ),
         ),
       ),
+    );
+  }
+
+  RefreshIndicator buildRefresher(Widget child) {
+    return RefreshIndicator(
+      backgroundColor: Colors.white,
+      color: C.subColor,
+      onRefresh: () async {
+        setState(() {});
+      },
+      child: child,
     );
   }
 
