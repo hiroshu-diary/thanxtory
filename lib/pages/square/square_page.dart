@@ -1,7 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../model/constant.dart';
+import '../../widgets/content_card.dart';
 
 class SquarePage extends StatefulWidget {
   const SquarePage({Key? key}) : super(key: key);
@@ -13,6 +17,16 @@ class SquarePage extends StatefulWidget {
 }
 
 class _SquarePageState extends State<SquarePage> {
+  final storage = FirebaseStorage.instance;
+  final _uid = FirebaseAuth.instance.currentUser!.uid;
+  final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
+  final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
+  Future<String> getURL(String id) async {
+    var ref = storage.ref('$id/default_image.jpeg');
+    String imageUrl = await ref.getDownloadURL();
+    return imageUrl;
+  }
+
   @override
   void initState() {
     int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
@@ -24,9 +38,57 @@ class _SquarePageState extends State<SquarePage> {
 
   @override
   Widget build(BuildContext context) {
-    //todo 引っ張って更新できるようにする
-    //todo servedPostsの各uidのドキュメントをでCollectionGroup等で取得し、時系列順でstreamBuilderで標示
-    //更新時はCupertinoActivityIndicator
-    return Container();
+    //todo 引っ張って更新できるようにする　　　更新時はCupertinoActivityIndicator
+    return buildTab();
+  }
+
+  FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab() {
+    return FutureBuilder(
+      //todo orderByで時間順に取得する
+      future: FirebaseFirestore.instance.collectionGroup('sPosts').get(),
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+      ) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            !snapshot.hasData) {
+          return const CircleAvatar(
+            backgroundColor: Colors.transparent,
+            child: SizedBox(
+              width: 240,
+              height: 240,
+              child: CircularProgressIndicator(
+                color: C.subColor,
+              ),
+            ),
+          );
+        }
+        if (snapshot.connectionState == ConnectionState.done) {
+          return ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, int index) {
+              var _post = snapshot.data!.docs[index];
+              String _postId = _post['postId'];
+              String _serverId = _post['serverId'];
+              String _receiverId = _post['receiverId'];
+              int _clapCount = _post['clapCount'];
+              String _content = _post['content'];
+              Timestamp _createdStamp = _post['createdAt'];
+              DateTime _createdAt = _createdStamp.toDate();
+              return ContentCard(
+                postId: _postId,
+                serverId: _serverId,
+                receiverId: _receiverId,
+                clapCount: _clapCount,
+                content: _content,
+                createdAt: _createdAt,
+              );
+            },
+          );
+        }
+        return Container();
+      },
+    );
   }
 }

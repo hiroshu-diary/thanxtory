@@ -155,7 +155,7 @@ class _ContentCardState extends State<ContentCard> {
                                       });
                                       await _servedPosts
                                           .doc(_uid)
-                                          .collection('posts')
+                                          .collection('sPosts')
                                           .doc(_postId)
                                           .delete();
                                       if (_receiverId != '') {
@@ -167,7 +167,7 @@ class _ContentCardState extends State<ContentCard> {
                                         });
                                         await _receivedPosts
                                             .doc(_receiverId)
-                                            .collection('posts')
+                                            .collection('rPosts')
                                             .doc(_postId)
                                             .delete();
                                       }
@@ -334,9 +334,10 @@ class _ContentCardState extends State<ContentCard> {
                       child: Text(
                         _content,
                         style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'NotoSansJP'),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'NotoSansJP',
+                        ),
                         maxLines: 39,
                         softWrap: true,
                         overflow: TextOverflow.visible,

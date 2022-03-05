@@ -49,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        //todo 高さをレスポンシブに変える
+        //todo 【質問】高さをレスポンシブに変える
         preferredSize: const Size(double.maxFinite, 200),
         child: SafeArea(
           child: Column(
@@ -152,8 +152,8 @@ class _ProfilePageState extends State<ProfilePage>
         //todo 【質問】各タブを引っ張って更新できるようにしたい
         controller: _tabController,
         children: [
-          buildTab(_servedPosts),
-          buildTab(_receivedPosts),
+          buildTab(_servedPosts, 'sPosts'),
+          buildTab(_receivedPosts, 'rPosts'),
           //todo 自分のclappedPostをFutureBuilderで標示
           Container(),
         ],
@@ -162,9 +162,11 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab(
-      CollectionReference collection) {
+    CollectionReference collection,
+    String subCollection,
+  ) {
     return FutureBuilder(
-      future: collection.doc(_uid).collection('posts').get(),
+      future: collection.doc(_uid).collection(subCollection).get(),
       builder: (
         BuildContext context,
         AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,

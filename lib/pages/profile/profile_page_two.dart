@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:thanxtory/model/constant.dart';
@@ -49,7 +50,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        //todo 高さをレスポンシブに変える
+        //todo 【質問】高さをレスポンシブに変える
         preferredSize: const Size(double.maxFinite, 200),
         child: SafeArea(
           child: Column(
@@ -116,6 +117,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
                       fontSize: 16.0,
                       fontFamily: 'NotoSansJP',
                       fontWeight: FontWeight.w600,
+                      color: C.subColor,
                     ),
                   ),
                 ],
@@ -154,11 +156,41 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
         //todo 【質問】各タブを引っ張って更新できるようにしたい
         controller: _tabController,
         children: [
-          buildTab(_servedPosts, _uid),
-          buildTab(_receivedPosts, _uid),
+          buildTab(_servedPosts, _uid, 'sPosts'),
+          buildTab(_receivedPosts, _uid, 'rPosts'),
           //todo 自分のclappedPostをFutureBuilderで標示
           Container(),
         ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(
+          left: 32.0,
+          right: 32.0,
+          bottom: 39.0,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: C.subColor),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          width: double.maxFinite,
+          height: 72,
+          child: CupertinoButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Center(
+              child: Text(
+                '戻る',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'NotoSansJP',
+                  color: C.subColor,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -166,9 +198,10 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
   FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab(
     CollectionReference collection,
     String userId,
+    String subCollection,
   ) {
     return FutureBuilder(
-      future: collection.doc(userId).collection('posts').get(),
+      future: collection.doc(userId).collection(subCollection).get(),
       builder: (
         BuildContext context,
         AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
@@ -205,7 +238,11 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
     );
   }
 
-  Expanded buildCounters(String userId, String count, String name) {
+  Expanded buildCounters(
+    String userId,
+    String count,
+    String name,
+  ) {
     return Expanded(
       flex: 1,
       child: Column(

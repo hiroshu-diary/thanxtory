@@ -96,8 +96,8 @@ class Nav {
         pageBuilder: (context, animation, secondaryAnimation) {
           return page;
         },
-        transitionDuration: const Duration(milliseconds: 390),
-        reverseTransitionDuration: const Duration(milliseconds: 390),
+        transitionDuration: const Duration(milliseconds: 600),
+        reverseTransitionDuration: const Duration(milliseconds: 600),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final color = ColorTween(
             begin: Colors.transparent,

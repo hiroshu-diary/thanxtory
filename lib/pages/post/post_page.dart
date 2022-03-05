@@ -116,7 +116,7 @@ class _PostPageState extends State<PostPage> {
                         }
 
                         final newPostDoc =
-                            _servedPosts.doc(_uid).collection('posts').doc();
+                            _servedPosts.doc(_uid).collection('sPosts').doc();
                         var _postId = newPostDoc.id;
                         await newPostDoc.set({
                           'postId': _postId,
@@ -136,7 +136,7 @@ class _PostPageState extends State<PostPage> {
                         } else if (destination == 'me') {
                           await _receivedPosts
                               .doc(_uid)
-                              .collection('posts')
+                              .collection('rPosts')
                               .doc(_postId)
                               .set({
                             'postId': _postId,
@@ -274,9 +274,9 @@ class _PostPageState extends State<PostPage> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      Navigator.push(context,
-                                          MaterialPageRoute(builder: (context) {
-                                        return Scaffold(
+                                      Nav.whiteNavi(
+                                        context,
+                                        Scaffold(
                                           body: Center(
                                             child: Column(
                                               mainAxisAlignment:
@@ -306,8 +306,8 @@ class _PostPageState extends State<PostPage> {
                                               ],
                                             ),
                                           ),
-                                        );
-                                      }));
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),
