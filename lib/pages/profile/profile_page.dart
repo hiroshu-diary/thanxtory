@@ -164,6 +164,7 @@ class _ProfilePageState extends State<ProfilePage>
       body: TabBarView(
         controller: _tabController,
         children: [
+          //todo 時系列で取得→自分のsPosts、rPosts, cPosts
           buildRefresher(
             buildTab(_servedPosts, 'sPosts', _serveController),
           ),
@@ -272,7 +273,6 @@ class _ProfilePageState extends State<ProfilePage>
             style: style,
           );
         }
-
         return Text('　', style: style);
       },
     );

@@ -145,7 +145,7 @@ class _ContentCardState extends State<ContentCard> {
                                     },
                                   ),
                                   CupertinoDialogAction(
-                                    child: const Text('はい'),
+                                    child: const Text('削除'),
                                     isDestructiveAction: true,
                                     onPressed: () async {
                                       todayThanks--;
@@ -273,13 +273,6 @@ class _ContentCardState extends State<ContentCard> {
                                   return CachedNetworkImage(
                                     fit: BoxFit.cover,
                                     imageUrl: snapshot.data!,
-                                  );
-                                }
-                                if (snapshot.connectionState ==
-                                        ConnectionState.waiting ||
-                                    !snapshot.hasData) {
-                                  return const CircularProgressIndicator(
-                                    color: C.subColor,
                                   );
                                 }
                                 return Container();

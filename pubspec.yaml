@@ -31,6 +31,8 @@ dependencies:
   url_launcher: ^6.0.20
   flutter_native_splash: ^2.0.5
   material_floating_search_bar: ^0.3.6
+  image_picker: ^0.8.4+10
+  image_cropper: ^1.5.0
 
 dev_dependencies:
   flutter_test:

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -189,7 +188,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                       'プロフィール設定',
                       () {
-                        //todo プロフィール編集機能
                         Navigator.pop(context);
                         Nav.navigate360(
                           context,

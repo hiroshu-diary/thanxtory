@@ -47,7 +47,6 @@ class _PostPageState extends State<PostPage> {
 
   void getDay() {
     lastPostDay = _prefs.getInt('lastPostDay') ?? 20220214;
-    //todo リリース前に20220309に変える
   }
 
   Future<String> getURL() async {
