@@ -39,6 +39,87 @@ class _ContentCardState extends State<ContentCard> {
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
+  final _clappedPosts = FirebaseFirestore.instance.collection('clappedPosts');
+
+  late String _postId;
+  late String _serverId;
+  late String _receiverId;
+  late String _createdAt;
+  late String _content;
+  late int _clapCount;
+
+  bool isClapped = false;
+  Future<bool> _onLikeButtonTapped(bool isLiked) async {
+    try {
+      if (isLiked == false) {
+        await _clappedPosts.doc(_uid).collection('cPosts').doc(_postId).set({
+          'postId': _postId,
+        });
+        await _servedPosts
+            .doc(_serverId)
+            .collection('sPosts')
+            .doc(_postId)
+            .update({
+          'clapCount': FieldValue.increment(1),
+        });
+        await _servedPosts
+            .doc(_serverId)
+            .collection('sPosts')
+            .doc(_postId)
+            .collection('clappedByUsers')
+            .doc(_uid)
+            .set({
+          'userId': _uid,
+          'createdAt': Timestamp.fromDate(DateTime.now()),
+        });
+        if (_receiverId != '') {
+          await _receivedPosts
+              .doc(_receiverId)
+              .collection('rPosts')
+              .doc(_postId)
+              .update({
+            'clapCount': FieldValue.increment(1),
+          });
+          await _receivedPosts
+              .doc(_receiverId)
+              .collection('rPosts')
+              .doc(_postId)
+              .collection('clappedByUsers')
+              .doc(_uid)
+              .set({
+            'userId': _uid,
+            'createdAt': Timestamp.fromDate(DateTime.now()),
+          });
+        }
+        return !isLiked;
+      } else {
+        await _clappedPosts
+            .doc(_uid)
+            .collection('cPosts')
+            .doc(_postId)
+            .delete();
+        await _servedPosts
+            .doc(_serverId)
+            .collection('sPosts')
+            .doc(_postId)
+            .update({
+          'clapCount': FieldValue.increment(-1),
+        });
+        if (_receiverId != '') {
+          await _receivedPosts
+              .doc(_receiverId)
+              .collection('rPosts')
+              .doc(_postId)
+              .update({
+            'clapCount': FieldValue.increment(-1),
+          });
+        }
+        return !isLiked;
+      }
+    } catch (e) {
+      return isLiked;
+    }
+  }
 
   Future<String> getURL(String id) async {
     var ref = _storage.ref('$id/default_image.jpeg');
@@ -67,6 +148,17 @@ class _ContentCardState extends State<ContentCard> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _postId = widget.postId;
+    _serverId = widget.serverId;
+    _receiverId = widget.receiverId;
+    _createdAt = fromAtNow(widget.createdAt);
+    _content = widget.content;
+    _clapCount = widget.clapCount;
+  }
+
+  @override
   Widget build(BuildContext context) {
     FutureBuilder<DocumentSnapshot<Map<String, dynamic>>> name(String id) {
       return FutureBuilder(
@@ -91,13 +183,6 @@ class _ContentCardState extends State<ContentCard> {
         },
       );
     }
-
-    String _postId = widget.postId;
-    String _serverId = widget.serverId;
-    String _receiverId = widget.receiverId;
-    String _createdAt = fromAtNow(widget.createdAt);
-    String _content = widget.content;
-    int _clapCount = widget.clapCount;
 
     return GestureDetector(
       onLongPress: () {
@@ -171,7 +256,11 @@ class _ContentCardState extends State<ContentCard> {
                                             .doc(_postId)
                                             .delete();
                                       }
-                                      //todo 関連するclappedPostへの処理
+                                      await _clappedPosts
+                                          .doc()
+                                          .collection('cPosts')
+                                          .doc(_postId)
+                                          .delete();
 
                                       Navigator.pop(context);
                                     },
@@ -241,9 +330,11 @@ class _ContentCardState extends State<ContentCard> {
           elevation: 1.0,
           shadowColor: Colors.white,
           margin: const EdgeInsets.only(bottom: 0.5),
+          //todo 【質問】子要素が別の並び方が必要
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              //アイコン
               Expanded(
                 flex: 1,
                 child: Column(
@@ -282,82 +373,135 @@ class _ContentCardState extends State<ContentCard> {
                         ),
                       ),
                     ),
+                    _receiverId == ''
+                        ? const SizedBox(width: 0, height: 0)
+                        : Padding(
+                            padding:
+                                const EdgeInsets.only(top: 14.0, right: 12.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                if (_receiverId != _uid) {
+                                  Navigator.push(context, MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                    return ProfilePageTwo(userId: _receiverId);
+                                  }));
+                                }
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                radius: 20,
+                                child: ClipOval(
+                                  child: FutureBuilder(
+                                    future: getURL(_receiverId),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<String> snapshot) {
+                                      if (snapshot.connectionState ==
+                                              ConnectionState.done &&
+                                          snapshot.hasData) {
+                                        return CachedNetworkImage(
+                                          fit: BoxFit.cover,
+                                          imageUrl: snapshot.data!,
+                                        );
+                                      }
+                                      return Container();
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    const SizedBox(height: 4.0),
                   ],
                 ),
               ),
               Expanded(
                 flex: 3,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                      //todo ↓ここの並びを、spaceAround、spaceBetweenなどに並べたい
                       children: [
+                        ///ユーザー名　　時間
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (_serverId != _uid) {
+                                        Navigator.push(context,
+                                            MaterialPageRoute(builder:
+                                                (BuildContext context) {
+                                          return ProfilePageTwo(
+                                              userId: _serverId);
+                                        }));
+                                      }
+                                    },
+                                    child: name(_serverId),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, right: 16.0),
+                              child: Text(
+                                _createdAt,
+                                style: const TextStyle(
+                                  fontFamily: 'NotoSansJP',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        ///投稿文
                         Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Column(
+                          padding: const EdgeInsets.only(top: 8.0, right: 12.0),
+                          child: Text(
+                            _content,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400,
+                              fontFamily: 'NotoSansJP',
+                            ),
+                            maxLines: 39,
+                            softWrap: true,
+                            overflow: TextOverflow.visible,
+                          ),
+                        ),
+
+                        ///いいねボタン
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 4.0,
+                            right: 24,
+                            bottom: 8.0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              GestureDetector(
-                                onTap: () {
-                                  if (_serverId != _uid) {
-                                    Navigator.push(context, MaterialPageRoute(
-                                        builder: (BuildContext context) {
-                                      return ProfilePageTwo(userId: _serverId);
-                                    }));
-                                  }
+                              LikeButton(
+                                //todo clapPosts > doc(_uid) > contains > postId なら trueにする
+                                isLiked: isClapped,
+                                likeCount: _clapCount,
+                                likeBuilder: (bool isLiked) {
+                                  return Image.asset(
+                                    'assets/images/c.png',
+                                    color: isLiked ? C.subColor : C.mainColor,
+                                  );
                                 },
-                                child: name(_serverId),
+                                onTap: _onLikeButtonTapped,
                               ),
                             ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, right: 16.0),
-                          child: Text(
-                            _createdAt,
-                            style: const TextStyle(
-                              fontFamily: 'NotoSansJP',
-                            ),
-                          ),
-                        ),
                       ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0, right: 12.0),
-                      child: Text(
-                        _content,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'NotoSansJP',
-                        ),
-                        maxLines: 39,
-                        softWrap: true,
-                        overflow: TextOverflow.visible,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 4.0,
-                        right: 24,
-                        bottom: 8.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          LikeButton(
-                            //todo 自分がいいねした投稿をclapListに追加する
-                            // countBuilder: ,
-                            likeCount: _clapCount,
-                            likeBuilder: (bool isLiked) {
-                              return Image.asset(
-                                'assets/images/c.png',
-                                color: isLiked ? C.subColor : C.mainColor,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 ),

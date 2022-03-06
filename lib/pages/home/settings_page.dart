@@ -23,31 +23,31 @@ enum AppState {
   cropped,
 }
 
+String dName = '';
+String dIntro = '';
+
 class _SettingsPageState extends State<SettingsPage> {
   final _storage = FirebaseStorage.instance;
   final String _uid = FirebaseAuth.instance.currentUser!.uid;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _introController = TextEditingController();
+  final TextEditingController _nameController =
+      TextEditingController(text: dName);
+  final TextEditingController _introController =
+      TextEditingController(text: dIntro);
 
   late AppState state;
   File? imageFile;
-  String dName = '';
-  String dIntro = '';
 
-  String? getValue(String value) {
-    FutureBuilder(
-      future: _userProfiles.doc(_uid).get(),
-      builder: (
-        context,
-        AsyncSnapshot<DocumentSnapshot> snapshot,
-      ) {
-        Map<String, dynamic> data =
-            snapshot.data!.data() as Map<String, dynamic>;
-        return data[value];
-      },
-    );
-    return '';
+  Future getValue() async {
+    final snapshot = await _userProfiles.doc(_uid).get();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    final userName = data['name'];
+    final userIntro = data['introduction'];
+
+    setState(() {
+      dName = userName;
+      dIntro = userIntro;
+    });
   }
 
   Padding _settingForm(
@@ -188,12 +188,10 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    getValue();
     state = AppState.free;
-    dName = getValue('name')!;
-    dIntro = getValue('introduction')!;
   }
 
-  //todo 【質問】FirestoreからStringだけを受け取る
   @override
   Widget build(BuildContext context) {
     return Scaffold(

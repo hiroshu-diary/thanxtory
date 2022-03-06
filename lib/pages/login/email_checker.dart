@@ -42,7 +42,6 @@ class _EmailCheck extends State<EmailCheck> {
       'name': widget.name,
       'introduction': 'Thanxtory、始めました！',
       'todayThanks': 0,
-      'rowCount': 0,
       'servedCount': 0,
       'receivedCount': 0
     });

@@ -16,7 +16,6 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-//todo CloudFunctionsで連続投稿を管理
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   late TabController _tabController;
@@ -99,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage>
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
-                          buildCounters('rowCount', '連続'),
+                          buildCounters('todayThanks', '今日'),
                           buildCounters('servedCount', 'サーブ'),
                           buildCounters('receivedCount', 'レシーブ'),
                         ],
@@ -163,16 +162,15 @@ class _ProfilePageState extends State<ProfilePage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          //todo 時系列で取得→自分のsPosts、rPosts, cPosts
           buildRefresher(
             buildTab(_servedPosts, 'sPosts', _serveController),
           ),
           buildRefresher(
             buildTab(_receivedPosts, 'rPosts', _receiveController),
           ),
-          //todo 自分のclappedPostをFutureBuilderで標示
+          //todo 【質問】受取り方を変える
           buildRefresher(
-            Container(),
+            buildTab(_clappedPosts, 'cPosts', _clapController),
           ),
         ],
       ),
@@ -196,35 +194,39 @@ class _ProfilePageState extends State<ProfilePage>
     ScrollController controller,
   ) {
     return FutureBuilder(
-      future: collection.doc(_uid).collection(subCollection).get(),
+      future: collection
+          .doc(_uid)
+          .collection(subCollection)
+          .orderBy('createdAt', descending: true)
+          .get(),
       builder: (
         BuildContext context,
         AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
       ) {
         if (snapshot.connectionState == ConnectionState.done) {
           return ListView.builder(
-            controller: controller,
-            padding: EdgeInsets.zero,
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, int index) {
-              var _post = snapshot.data!.docs[index];
-              String _postId = _post['postId'];
-              String _serverId = _post['serverId'];
-              String _receiverId = _post['receiverId'];
-              int _clapCount = _post['clapCount'];
-              String _content = _post['content'];
-              Timestamp _createdStamp = _post['createdAt'];
-              DateTime _createdAt = _createdStamp.toDate();
-              return ContentCard(
-                postId: _postId,
-                serverId: _serverId,
-                receiverId: _receiverId,
-                clapCount: _clapCount,
-                content: _content,
-                createdAt: _createdAt,
-              );
-            },
-          );
+              controller: controller,
+              padding: EdgeInsets.zero,
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, int index) {
+                var _post = snapshot.data!.docs[index];
+                String _postId = _post['postId'];
+                String _serverId = _post['serverId'];
+                String _receiverId = _post['receiverId'];
+                int _clapCount = _post['clapCount'];
+                String _content = _post['content'];
+                Timestamp _createdStamp = _post['createdAt'];
+                DateTime _createdAt = _createdStamp.toDate();
+
+                return ContentCard(
+                  postId: _postId,
+                  serverId: _serverId,
+                  receiverId: _receiverId,
+                  clapCount: _clapCount,
+                  content: _content,
+                  createdAt: _createdAt,
+                );
+              });
         }
         return const CircleAvatar(
           backgroundColor: Colors.transparent,
@@ -245,6 +247,7 @@ class _ProfilePageState extends State<ProfilePage>
             const TextStyle(
               fontSize: 17.0,
               fontWeight: FontWeight.w600,
+              fontFamily: 'NotoSansJP',
             ),
           ),
           Text(name),

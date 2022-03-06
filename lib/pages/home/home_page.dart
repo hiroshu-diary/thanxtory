@@ -8,7 +8,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thanxtory/pages/home/settings_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -29,8 +28,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int currentIndex = 0;
-  bool notification = false;
-  late SharedPreferences _prefs;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   late String _uid;
@@ -43,7 +41,6 @@ class _HomePageState extends State<HomePage> {
     if (today > lastPostDay) {
       todayThanks = 0;
     }
-    setInstance();
     super.initState();
   }
 
@@ -52,32 +49,6 @@ class _HomePageState extends State<HomePage> {
     const PostPage(),
     const ProfilePage(),
   ];
-
-  Future<void> setInstance() async {
-    _prefs = await SharedPreferences.getInstance();
-    getOrder();
-    getNotion();
-    setState(() {});
-  }
-
-  void setOrder(bool order) {
-    _prefs.setBool('order', order);
-    getOrder();
-    Navigator.pop(context);
-  }
-
-  void getOrder() {
-    timeSequence = _prefs.getBool('order') ?? true;
-  }
-
-  void setNotion(bool notion) {
-    _prefs.setBool('notion', notion);
-    getNotion();
-  }
-
-  void getNotion() {
-    notification = _prefs.getBool('notion') ?? false;
-  }
 
   void _launchURL(url) async {
     if (!await launch(url)) throw 'Could not launch $url';
@@ -157,29 +128,6 @@ class _HomePageState extends State<HomePage> {
                     //style: countStyle(),
                     const Divider(height: 2.0, color: C.subColor),
 
-                    ///プッシュ通知
-                    // buildTile(
-                    //   const Icon(
-                    //     CupertinoIcons.bell,
-                    //     color: Colors.black87,
-                    //     size: 24,
-                    //   ),
-                    //   '通知設定',
-                    //   () {
-                    //     setState(() {
-                    //       setNotion(!notification);
-                    //     });
-                    //   },
-                    //   CupertinoSwitch(
-                    //     value: notification,
-                    //     activeColor: C.subColor,
-                    //     onChanged: (bool value) {
-                    //       setState(() {
-                    //         setNotion(value);
-                    //       });
-                    //     },
-                    //   ),
-                    // ),
                     buildTile(
                       const Icon(
                         CupertinoIcons.settings,
@@ -323,9 +271,10 @@ class _HomePageState extends State<HomePage> {
                                             child: InkWell(
                                               splashColor: C.mainColor,
                                               onTap: () {
-                                                setOrder(!timeSequence);
-                                                //todo ここに順番を変えるメソッド
-                                                setState(() {});
+                                                setState(() {
+                                                  timeSequence = !timeSequence;
+                                                });
+                                                Navigator.pop(context);
                                               },
                                               child: ListTile(
                                                 leading: Padding(

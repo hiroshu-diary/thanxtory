@@ -99,7 +99,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
-                          buildCounters(_uid, 'rowCount', '連続'),
+                          buildCounters(_uid, 'todayThanks', '本日'),
                           buildCounters(_uid, 'servedCount', 'サーブ'),
                           buildCounters(_uid, 'receivedCount', 'レシーブ'),
                         ],
@@ -172,13 +172,15 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
           buildRefresher(
             buildTab(_receivedPosts, _uid, 'rPosts', _receiveController),
           ),
-          buildRefresher(Container()),
+          buildRefresher(
+            buildTab(_clappedPosts, _uid, 'cPosts', _clapController),
+          ),
         ],
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(
-          left: 32.0,
-          right: 32.0,
+          left: 80.0,
+          right: 80.0,
           bottom: 39.0,
         ),
         child: Container(
@@ -187,8 +189,9 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
             borderRadius: BorderRadius.circular(10),
           ),
           width: double.maxFinite,
-          height: 72,
+          height: 60,
           child: CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: () {
               Navigator.pop(context);
             },
@@ -226,7 +229,11 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
     ScrollController controller,
   ) {
     return FutureBuilder(
-      future: collection.doc(userId).collection(subCollection).get(),
+      future: collection
+          .doc(userId)
+          .collection(subCollection)
+          .orderBy('createdAt', descending: true)
+          .get(),
       builder: (
         BuildContext context,
         AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
@@ -280,6 +287,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
             const TextStyle(
               fontSize: 17.0,
               fontWeight: FontWeight.w600,
+              fontFamily: 'NotoSansJP',
             ),
           ),
           Text(name),
