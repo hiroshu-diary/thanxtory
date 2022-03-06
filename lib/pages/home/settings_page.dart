@@ -27,28 +27,27 @@ class _SettingsPageState extends State<SettingsPage> {
   final _storage = FirebaseStorage.instance;
   final String _uid = FirebaseAuth.instance.currentUser!.uid;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _introController = TextEditingController();
 
   late AppState state;
   File? imageFile;
   String dName = '';
   String dIntro = '';
 
-  FutureBuilder<DocumentSnapshot<Map<String, dynamic>>> getString() {
-    return FutureBuilder(
+  String? getValue(String value) {
+    FutureBuilder(
       future: _userProfiles.doc(_uid).get(),
       builder: (
-        BuildContext context,
+        context,
         AsyncSnapshot<DocumentSnapshot> snapshot,
       ) {
-        if (snapshot.hasData) {
-          Map<String, dynamic> data =
-              snapshot.data!.data() as Map<String, dynamic>;
-          dName = data['name'];
-          dIntro = data['introduction'];
-        }
-        return Container();
+        Map<String, dynamic> data =
+            snapshot.data!.data() as Map<String, dynamic>;
+        return data[value];
       },
     );
+    return '';
   }
 
   Padding _settingForm(
@@ -60,6 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
       child: TextFormField(
+        onEditingComplete: () => FocusScope.of(context).unfocus(),
         maxLines: maxLines,
         maxLength: maxLength,
         maxLengthEnforced: false,
@@ -189,18 +189,15 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     state = AppState.free;
-    getString();
+    dName = getValue('name')!;
+    dIntro = getValue('introduction')!;
   }
 
-  //todo 【質問】FABを隠す、FirestoreからStringを受け取る
+  //todo 【質問】FirestoreからStringだけを受け取る
   @override
   Widget build(BuildContext context) {
-    TextEditingController _nameController = TextEditingController(text: dName);
-    TextEditingController _introController =
-        TextEditingController(text: dIntro);
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         shadowColor: C.accentColor,
         foregroundColor: C.accentColor,
@@ -216,116 +213,127 @@ class _SettingsPageState extends State<SettingsPage> {
         elevation: 0.0,
         backgroundColor: Colors.white,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SizedBox(
-                  width: 200,
-                  height: 200,
-                  child:
-                      imageFile != null ? Image.file(imageFile!) : Container(),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: imageFile != null
+                          ? Image.file(imageFile!)
+                          : Container(),
+                    ),
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: SizedBox(
+                    width: 160,
+                    child: CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      color: C.mainColor,
+                      onPressed: () {
+                        if (state == AppState.free) {
+                          _pickImage();
+                        } else if (state == AppState.picked) {
+                          _cropImage();
+                        } else if (state == AppState.cropped) {
+                          _clearImage();
+                        }
+                      },
+                      child: Center(child: _buildButton()),
+                    ),
+                  ),
+                ),
+                _settingForm(1, 10, _nameController, 'ユーザー名'),
+                _settingForm(1, 39, _introController, '自己紹介'),
+                SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+              ],
             ),
-            SizedBox(
-              width: 160,
-              child: CupertinoButton(
-                padding: EdgeInsets.zero,
-                color: C.mainColor,
-                onPressed: () {
-                  if (state == AppState.free) {
-                    _pickImage();
-                  } else if (state == AppState.picked) {
-                    _cropImage();
-                  } else if (state == AppState.cropped) {
-                    _clearImage();
-                  }
-                },
-                child: Center(child: _buildButton()),
-              ),
-            ),
-            _settingForm(1, 10, _nameController, 'ユーザー名'),
-            _settingForm(1, 39, _introController, '自己紹介'),
-            const SizedBox(height: 150),
-          ],
+          ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Container(
-              width: 140,
-              height: 80,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black54),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: CupertinoButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Center(
-                  child: Text(
-                    'キャンセル',
-                    style: TextStyle(
-                      fontFamily: 'NotoSansJP',
-                      color: Colors.black54,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w500,
+      resizeToAvoidBottomInset: false,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FocusScope.of(context).hasFocus
+          ? null
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Container(
+                    width: 140,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black54),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: CupertinoButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Center(
+                        child: Text(
+                          'キャンセル',
+                          style: TextStyle(
+                            fontFamily: 'NotoSansJP',
+                            color: Colors.black54,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Container(
-              width: 140,
-              height: 80,
-              decoration: BoxDecoration(
-                border: Border.all(color: C.accentColor),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: CupertinoButton(
-                onPressed: () async {
-                  if (_nameController.text != '' &&
-                      _introController.text != '') {
-                    await _userProfiles.doc(_uid).update({
-                      'name': _nameController.text,
-                      'introduction': _introController.text,
-                    });
-                  }
-                  if (imageFile != null) {
-                    await _storage
-                        .ref('$_uid/default_image.jpeg')
-                        .putFile(imageFile!);
-                  }
-                  Navigator.pop(context);
-                },
-                child: const Center(
-                  child: Text(
-                    '更新する',
-                    style: TextStyle(
-                      fontFamily: 'NotoSansJP',
-                      color: C.accentColor,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w500,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Container(
+                    width: 140,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: C.accentColor),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: CupertinoButton(
+                      onPressed: () async {
+                        if (_nameController.text != '' &&
+                            _introController.text != '') {
+                          await _userProfiles.doc(_uid).update({
+                            'name': _nameController.text,
+                            'introduction': _introController.text,
+                          });
+                        }
+                        if (imageFile != null) {
+                          await _storage
+                              .ref('$_uid/default_image.jpeg')
+                              .putFile(imageFile!);
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: const Center(
+                        child: Text(
+                          '更新する',
+                          style: TextStyle(
+                            fontFamily: 'NotoSansJP',
+                            color: C.accentColor,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

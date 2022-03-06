@@ -53,7 +53,6 @@ class _ProfilePageState extends State<ProfilePage>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        //todo 【質問】高さをレスポンシブに変える
         preferredSize: const Size(double.maxFinite, 200),
         child: SafeArea(
           child: Column(

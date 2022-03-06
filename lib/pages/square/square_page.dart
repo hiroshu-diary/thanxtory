@@ -48,7 +48,7 @@ class _SquarePageState extends State<SquarePage> {
 
   FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab() {
     return FutureBuilder(
-      //todo orderByで時間順に取得する→CollectionGroup
+      //todo 【質問】orderByで時間順に取得する→CollectionGroup
       future: FirebaseFirestore.instance.collectionGroup('sPosts').get(),
       builder: (
         BuildContext context,

@@ -16,8 +16,6 @@ class ProfilePageTwo extends StatefulWidget {
   _ProfilePageTwoState createState() => _ProfilePageTwoState();
 }
 
-//todo CloudFunctionsで連続投稿を管理
-
 class _ProfilePageTwoState extends State<ProfilePageTwo>
     with TickerProviderStateMixin {
   late TabController _tabController;
@@ -55,7 +53,6 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        //todo 【質問】高さをレスポンシブに変える
         preferredSize: const Size(double.maxFinite, 200),
         child: SafeArea(
           child: Column(
@@ -175,7 +172,6 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
           buildRefresher(
             buildTab(_receivedPosts, _uid, 'rPosts', _receiveController),
           ),
-          //todo 自分のclappedPostをFutureBuilderで標示
           buildRefresher(Container()),
         ],
       ),
