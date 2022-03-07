@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+///グローバル変数
+bool timeSequence = true;
+
 class C {
   static const Color mainColor = Color.fromARGB(255, 255, 200, 255);
   static const Color subColor = Color.fromARGB(255, 255, 90, 255);
@@ -175,8 +178,3 @@ class Scroller {
     );
   }
 }
-
-//todo todayThanksをFirestoreからのみ取得へ変更、データをFirestoreに置く、prefsは排除
-int todayThanks = 0;
-bool timeSequence = true;
-int lastPostDay = 20220213;

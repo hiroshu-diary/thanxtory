@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/widgets/content_card.dart';
 
@@ -38,10 +37,6 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
-    int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
-    if (today > lastPostDay) {
-      todayThanks == 0;
-    }
 
     super.initState();
   }
@@ -166,15 +161,9 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
       body: TabBarView(
         controller: _tabController,
         children: [
-          buildRefresher(
-            buildTab(_servedPosts, _uid, 'sPosts', _serveController),
-          ),
-          buildRefresher(
-            buildTab(_receivedPosts, _uid, 'rPosts', _receiveController),
-          ),
-          buildRefresher(
-            buildTab(_clappedPosts, _uid, 'cPosts', _clapController),
-          ),
+          buildRefresher(_servedPosts, _uid, 'sPosts', _serveController),
+          buildRefresher(_receivedPosts, _uid, 'rPosts', _receiveController),
+          buildRefresher(_clappedPosts, _uid, 'cPosts', _clapController),
         ],
       ),
       bottomNavigationBar: Padding(
@@ -211,71 +200,71 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
     );
   }
 
-  RefreshIndicator buildRefresher(Widget child) {
+  RefreshIndicator buildRefresher(
+    CollectionReference collection,
+    String userId,
+    String subCollection,
+    ScrollController controller,
+  ) {
     return RefreshIndicator(
       backgroundColor: Colors.white,
       color: C.subColor,
       onRefresh: () async {
         setState(() {});
       },
-      child: child,
-    );
-  }
-
-  FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab(
-    CollectionReference collection,
-    String userId,
-    String subCollection,
-    ScrollController controller,
-  ) {
-    return FutureBuilder(
-      future: collection
-          .doc(userId)
-          .collection(subCollection)
-          .orderBy('createdAt', descending: true)
-          .get(),
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
-      ) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return ListView.builder(
-            controller: controller,
-            padding: EdgeInsets.zero,
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, int index) {
-              var _post = snapshot.data!.docs[index];
-              String _postId = _post['postId'];
-              String _serverId = _post['serverId'];
-              String _receiverId = _post['receiverId'];
-              int _clapCount = _post['clapCount'];
-              String _content = _post['content'];
-              Timestamp _createdStamp = _post['createdAt'];
-              DateTime _createdAt = _createdStamp.toDate();
-              return ContentCard(
-                postId: _postId,
-                serverId: _serverId,
-                receiverId: _receiverId,
-                clapCount: _clapCount,
-                content: _content,
-                createdAt: _createdAt,
-              );
-            },
+      child: FutureBuilder(
+        future: collection
+            .doc(userId)
+            .collection(subCollection)
+            .orderBy('createdAt', descending: true)
+            .get(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+        ) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+              controller: controller,
+              padding: EdgeInsets.zero,
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, int index) {
+                var _post = snapshot.data!.docs[index];
+                String _postId = _post['postId'];
+                String _serverId = _post['serverId'];
+                String _receiverId = _post['receiverId'];
+                int _clapCount = _post['clapCount'];
+                String _content = _post['content'];
+                Timestamp _createdStamp = _post['createdAt'];
+                DateTime _createdAt = _createdStamp.toDate();
+                return ContentCard(
+                  postId: _postId,
+                  serverId: _serverId,
+                  receiverId: _receiverId,
+                  clapCount: _clapCount,
+                  content: _content,
+                  createdAt: _createdAt,
+                );
+              },
+            );
+          }
+          return const Center(
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              child: SizedBox(
+                width: 240,
+                height: 240,
+                child: CircularProgressIndicator(
+                  color: C.subColor,
+                ),
+              ),
+            ),
           );
-        }
-        return const CircleAvatar(
-          backgroundColor: Colors.transparent,
-          child: CircularProgressIndicator(color: C.subColor),
-        );
-      },
+        },
+      ),
     );
   }
 
-  Expanded buildCounters(
-    String userId,
-    String count,
-    String name,
-  ) {
+  Expanded buildCounters(String userId, String count, String name) {
     return Expanded(
       flex: 1,
       child: Column(

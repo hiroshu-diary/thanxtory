@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../model/constant.dart';
 import '../../widgets/content_card.dart';
@@ -27,10 +26,6 @@ class _SquarePageState extends State<SquarePage> {
 
   @override
   void initState() {
-    int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
-    if (today > lastPostDay) {
-      todayThanks = 0;
-    }
     super.initState();
   }
 
@@ -61,9 +56,6 @@ class _SquarePageState extends State<SquarePage> {
         BuildContext context,
         AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
       ) {
-        if (snapshot.hasError) {
-          print(snapshot.error);
-        }
         if (snapshot.connectionState == ConnectionState.waiting ||
             !snapshot.hasData) {
           return const Center(

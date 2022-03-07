@@ -105,6 +105,13 @@ class _ContentCardState extends State<ContentCard> {
             .update({
           'clapCount': FieldValue.increment(-1),
         });
+        await _servedPosts
+            .doc(_serverId)
+            .collection('sPosts')
+            .doc(_postId)
+            .collection('clappedByUsers')
+            .doc(_uid)
+            .delete();
         if (_receiverId != '') {
           await _receivedPosts
               .doc(_receiverId)
@@ -113,6 +120,13 @@ class _ContentCardState extends State<ContentCard> {
               .update({
             'clapCount': FieldValue.increment(-1),
           });
+          await _receivedPosts
+              .doc(_receiverId)
+              .collection('rPosts')
+              .doc(_postId)
+              .collection('clappedByUsers')
+              .doc(_uid)
+              .delete();
         }
         return !isLiked;
       }
@@ -233,9 +247,8 @@ class _ContentCardState extends State<ContentCard> {
                                     child: const Text('削除'),
                                     isDestructiveAction: true,
                                     onPressed: () async {
-                                      todayThanks--;
                                       await _userProfiles.doc(_uid).update({
-                                        'todayThanks': todayThanks,
+                                        'todayThanks': FieldValue.increment(-1),
                                         'servedCount': FieldValue.increment(-1),
                                       });
                                       await _servedPosts

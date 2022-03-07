@@ -4,8 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../model/constant.dart';
 import '../animation/animation_page.dart';
@@ -32,34 +30,27 @@ class _PostPageState extends State<PostPage> {
 
   String destination = 'none';
   late TextEditingController _textEditingController;
-  late SharedPreferences _prefs;
-
-  Future<void> setInstance() async {
-    _prefs = await SharedPreferences.getInstance();
-    getDay();
-    setState(() {});
-  }
-
-  void setDay(int lastPostDay) {
-    _prefs.setInt('lastPostDay', lastPostDay);
-    getDay();
-  }
-
-  void getDay() {
-    lastPostDay = _prefs.getInt('lastPostDay') ?? 20220214;
-  }
-
   Future<String> getURL() async {
     var ref = _storage.ref('$_uid/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
     return imageUrl;
   }
 
+  Future getCount() async {
+    final snapshot = await _userProfiles.doc(_uid).get();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    final _count = data['todayThanks'];
+
+    setState(() {
+      todayThanks = _count;
+    });
+  }
+
   @override
   void initState() {
+    getCount();
     super.initState();
     _textEditingController = TextEditingController();
-    setInstance();
   }
 
   @override
@@ -99,13 +90,6 @@ class _PostPageState extends State<PostPage> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        //todo userProfilesで処理↓
-                        todayThanks++;
-                        final _now = DateTime.now();
-                        int _lastPostDay = int.parse(
-                          DateFormat('yyyyMMdd').format(_now),
-                        );
-                        setDay(_lastPostDay);
                         if (destination == 'someone') {
                           _receiverId = '';
                         } else if (destination == 'me') {
@@ -121,13 +105,13 @@ class _PostPageState extends State<PostPage> {
                           'postId': _postId,
                           'serverId': _uid,
                           'receiverId': _receiverId,
-                          'createdAt': Timestamp.fromDate(_now),
+                          'createdAt': Timestamp.fromDate(DateTime.now()),
                           'content': _textEditingController.text,
                           'clapCount': 0,
                         });
 
                         await _userProfiles.doc(_uid).update({
-                          'todayThanks': todayThanks,
+                          'todayThanks': FieldValue.increment(1),
                           'servedCount': FieldValue.increment(1),
                         });
 
@@ -141,7 +125,7 @@ class _PostPageState extends State<PostPage> {
                             'postId': _postId,
                             'serverId': _uid,
                             'receiverId': _receiverId,
-                            'createdAt': Timestamp.fromDate(_now),
+                            'createdAt': Timestamp.fromDate(DateTime.now()),
                             'content': _textEditingController.text,
                             'clapCount': 0,
                           });

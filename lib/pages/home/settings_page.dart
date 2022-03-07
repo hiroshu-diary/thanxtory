@@ -38,11 +38,6 @@ class _SettingsPageState extends State<SettingsPage> {
   late AppState state;
   File? imageFile;
 
-  // Stream getValue() {
-  //   final snapshot = _userProfiles.doc(_uid).snapshots();
-  //   Map<String, dynamic> data = snapshot..data()! as Map<String, dynamic>;
-  // }
-
   Future getValue() async {
     final snapshot = await _userProfiles.doc(_uid).get();
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;

@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/widgets/content_card.dart';
 
@@ -39,11 +38,6 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
-    int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
-    if (today > lastPostDay) {
-      todayThanks = 0;
-    }
-
     super.initState();
   }
 
@@ -162,77 +156,75 @@ class _ProfilePageState extends State<ProfilePage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          buildRefresher(
-            buildTab(_servedPosts, 'sPosts', _serveController),
-          ),
-          buildRefresher(
-            buildTab(_receivedPosts, 'rPosts', _receiveController),
-          ),
-          //todo 【関連】受取り方を変える
-          buildRefresher(
-            buildTab(_clappedPosts, 'cPosts', _clapController),
-          ),
+          buildRefresher(_servedPosts, 'sPosts', _serveController),
+          buildRefresher(_receivedPosts, 'rPosts', _receiveController),
+          //todo 【関連】受取り方を変える →profile_page_twoも変更
+          buildRefresher(_clappedPosts, 'cPosts', _clapController),
         ],
       ),
     );
   }
 
-  RefreshIndicator buildRefresher(Widget child) {
+  RefreshIndicator buildRefresher(
+    CollectionReference collection,
+    String subCollection,
+    ScrollController controller,
+  ) {
     return RefreshIndicator(
       backgroundColor: Colors.white,
       color: C.subColor,
       onRefresh: () async {
         setState(() {});
       },
-      child: child,
-    );
-  }
+      child: FutureBuilder(
+        future: collection
+            .doc(_uid)
+            .collection(subCollection)
+            .orderBy('createdAt', descending: true)
+            .get(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+        ) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+                controller: controller,
+                padding: EdgeInsets.zero,
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, int index) {
+                  var _post = snapshot.data!.docs[index];
+                  String _postId = _post['postId'];
+                  String _serverId = _post['serverId'];
+                  String _receiverId = _post['receiverId'];
+                  int _clapCount = _post['clapCount'];
+                  String _content = _post['content'];
+                  Timestamp _createdStamp = _post['createdAt'];
+                  DateTime _createdAt = _createdStamp.toDate();
 
-  FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab(
-    CollectionReference collection,
-    String subCollection,
-    ScrollController controller,
-  ) {
-    return FutureBuilder(
-      future: collection
-          .doc(_uid)
-          .collection(subCollection)
-          .orderBy('createdAt', descending: true)
-          .get(),
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
-      ) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return ListView.builder(
-              controller: controller,
-              padding: EdgeInsets.zero,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, int index) {
-                var _post = snapshot.data!.docs[index];
-                String _postId = _post['postId'];
-                String _serverId = _post['serverId'];
-                String _receiverId = _post['receiverId'];
-                int _clapCount = _post['clapCount'];
-                String _content = _post['content'];
-                Timestamp _createdStamp = _post['createdAt'];
-                DateTime _createdAt = _createdStamp.toDate();
-
-                return ContentCard(
-                  postId: _postId,
-                  serverId: _serverId,
-                  receiverId: _receiverId,
-                  clapCount: _clapCount,
-                  content: _content,
-                  createdAt: _createdAt,
-                );
-              });
-        }
-        return const CircleAvatar(
-          backgroundColor: Colors.transparent,
-          child: CircularProgressIndicator(color: C.subColor),
-        );
-      },
+                  return ContentCard(
+                    postId: _postId,
+                    serverId: _serverId,
+                    receiverId: _receiverId,
+                    clapCount: _clapCount,
+                    content: _content,
+                    createdAt: _createdAt,
+                  );
+                });
+          }
+          return const Center(
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              child: SizedBox(
+                width: 240,
+                height: 240,
+                child: CircularProgressIndicator(
+                  color: C.subColor,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

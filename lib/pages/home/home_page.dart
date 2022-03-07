@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:thanxtory/pages/home/settings_page.dart';
@@ -26,33 +25,15 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
+
+int todayThanks = 0;
+
 class _HomePageState extends State<HomePage> {
   int currentIndex = 0;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   late String _uid;
-
-  Future getThanks() async {
-    final snapshot = await _userProfiles.doc(_uid).get();
-    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-    final int count = data['todayThanks'];
-    todayThanks = count;
-
-    int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
-    if (today > lastPostDay) {
-      setState(() {});
-      todayThanks = 0;
-    }
-    print(todayThanks);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _uid = _auth.currentUser!.uid;
-    getThanks();
-  }
 
   List viewList = [
     const SquarePage(),
@@ -85,6 +66,24 @@ class _HomePageState extends State<HomePage> {
         trailing: trailing,
       ),
     );
+  }
+//todo 【質問】Streamとかでもっと早く読み取れる？→変更したらpost_pageの39行目も変更
+//globalに int todayThanks = 0;
+  Future getCount() async {
+    final snapshot = await _userProfiles.doc(_uid).get();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    final _count = data['todayThanks'];
+
+    setState(() {
+      todayThanks = _count;
+    });
+  }
+
+  @override
+  void initState() {
+    _uid = _auth.currentUser!.uid;
+    getCount();
+    super.initState();
   }
 
   @override

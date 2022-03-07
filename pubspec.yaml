@@ -12,11 +12,9 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   font_awesome_flutter: ^9.2.0
-  bouncing_widget: ^2.0.0
   like_button: ^2.0.4
   line_icons: ^2.0.1
   modal_bottom_sheet: ^2.0.0
-  shared_preferences: ^2.0.13
   provider: ^6.0.2
   intl: ^0.17.0
   cloud_firestore: ^3.1.8
