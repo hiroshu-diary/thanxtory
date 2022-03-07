@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:thanxtory/pages/home/home_page.dart';
 import 'package:thanxtory/pages/login/login_page.dart';
+
+import 'firebase_options.dart';
 import 'model/constant.dart';
 import 'model/scaffold_messenger_controller.dart';
 import 'routes/routes.dart';
-import 'firebase_options.dart';
-//todo リリース前に20220309に変える
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(
     MultiProvider(
       providers: [

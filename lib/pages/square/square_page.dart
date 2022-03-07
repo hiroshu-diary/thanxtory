@@ -48,13 +48,15 @@ class _SquarePageState extends State<SquarePage> {
 
   FutureBuilder<QuerySnapshot<Map<String, dynamic>>> buildTab() {
     return FutureBuilder(
-      //todo 【質問】FutureBuilder→StreamBuilderに変えたい
       future: timeSequence == true
           ? FirebaseFirestore.instance
               .collectionGroup('sPosts')
               .orderBy('createdAt', descending: true)
               .get()
-          : FirebaseFirestore.instance.collectionGroup('sPosts').get(),
+          : FirebaseFirestore.instance
+              .collectionGroup('sPosts')
+              .orderBy('postId', descending: true)
+              .get(),
       builder: (
         BuildContext context,
         AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,

@@ -176,8 +176,7 @@ class Scroller {
   }
 }
 
-///グローバル変数
-bool timeSequence = true;
 //todo todayThanksをFirestoreからのみ取得へ変更、データをFirestoreに置く、prefsは排除
 int todayThanks = 0;
+bool timeSequence = true;
 int lastPostDay = 20220213;

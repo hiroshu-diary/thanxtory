@@ -33,15 +33,25 @@ class _HomePageState extends State<HomePage> {
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   late String _uid;
 
-  @override
-  void initState() {
-    int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
-    _uid = _auth.currentUser!.uid;
+  Future getThanks() async {
+    final snapshot = await _userProfiles.doc(_uid).get();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    final int count = data['todayThanks'];
+    todayThanks = count;
 
+    int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
     if (today > lastPostDay) {
+      setState(() {});
       todayThanks = 0;
     }
+    print(todayThanks);
+  }
+
+  @override
+  void initState() {
     super.initState();
+    _uid = _auth.currentUser!.uid;
+    getThanks();
   }
 
   List viewList = [
@@ -271,9 +281,8 @@ class _HomePageState extends State<HomePage> {
                                             child: InkWell(
                                               splashColor: C.mainColor,
                                               onTap: () {
-                                                setState(() {
-                                                  timeSequence = !timeSequence;
-                                                });
+                                                timeSequence = !timeSequence;
+                                                setState(() {});
                                                 Navigator.pop(context);
                                               },
                                               child: ListTile(

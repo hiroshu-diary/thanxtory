@@ -31,8 +31,8 @@ class _PostPageState extends State<PostPage> {
   String _receiverId = '';
 
   String destination = 'none';
-  late SharedPreferences _prefs;
   late TextEditingController _textEditingController;
+  late SharedPreferences _prefs;
 
   Future<void> setInstance() async {
     _prefs = await SharedPreferences.getInstance();
@@ -212,7 +212,7 @@ class _PostPageState extends State<PostPage> {
                   contentPadding:
                       const EdgeInsets.only(left: 4, right: 16, top: 8),
                 ),
-                maxLines: 39,
+                maxLines: 10,
                 maxLength: 139,
                 maxLengthEnforced: false,
                 style: const TextStyle(

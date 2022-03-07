@@ -38,6 +38,11 @@ class _SettingsPageState extends State<SettingsPage> {
   late AppState state;
   File? imageFile;
 
+  // Stream getValue() {
+  //   final snapshot = _userProfiles.doc(_uid).snapshots();
+  //   Map<String, dynamic> data = snapshot..data()! as Map<String, dynamic>;
+  // }
+
   Future getValue() async {
     final snapshot = await _userProfiles.doc(_uid).get();
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
@@ -130,8 +135,10 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _pickImage() async {
-    final pickedImage =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
     imageFile = pickedImage != null ? File(pickedImage.path) : null;
     if (imageFile != null) {
       setState(() {
@@ -140,36 +147,31 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  Future<Null> _cropImage() async {
+  Future<void> _cropImage() async {
     File? croppedFile = await ImageCropper().cropImage(
-        sourcePath: imageFile!.path,
-        aspectRatioPresets: Platform.isAndroid
-            ? [
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9
-              ]
-            : [
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio5x3,
-                CropAspectRatioPreset.ratio5x4,
-                CropAspectRatioPreset.ratio7x5,
-                CropAspectRatioPreset.ratio16x9
-              ],
-        androidUiSettings: const AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: const IOSUiSettings(
+      sourcePath: imageFile!.path,
+      aspectRatioPresets: Platform.isAndroid
+          ? [
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.original,
+            ]
+          : [
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.original,
+            ],
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Cropper',
+          toolbarColor: Colors.deepOrange,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+        ),
+        IOSUiSettings(
           title: 'Cropper',
-        ));
+        ),
+      ],
+    );
     if (croppedFile != null) {
       imageFile = croppedFile;
       setState(() {
@@ -187,9 +189,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    super.initState();
     getValue();
     state = AppState.free;
+    super.initState();
   }
 
   @override

@@ -41,7 +41,7 @@ class _ProfilePageState extends State<ProfilePage>
     _tabController = TabController(length: 3, vsync: this);
     int today = int.parse(DateFormat('yyyyMMdd').format(DateTime.now()));
     if (today > lastPostDay) {
-      todayThanks == 0;
+      todayThanks = 0;
     }
 
     super.initState();
@@ -168,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage>
           buildRefresher(
             buildTab(_receivedPosts, 'rPosts', _receiveController),
           ),
-          //todo 【質問】受取り方を変える
+          //todo 【関連】受取り方を変える
           buildRefresher(
             buildTab(_clappedPosts, 'cPosts', _clapController),
           ),
