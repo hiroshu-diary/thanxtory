@@ -2,12 +2,15 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp()
 
-exports.resetCount = functions.region("asia-northeast1").pubsub.
-    .schedule('00***')
-    .onRun(async (context) => {
-        let ref = firestore.collection('userProfiles').get;
-        lat data = snapshot.data() as Map<String, dynamic>;
-        await data.update({'todayThanks': 0});
+exports.reset = functions.region("asia-northeast1").pubsub.schedule('00***')
+    .onRun(async () => {
+        const firestore = admin.firestore();
+        const usersCollection = await firestore.collection('userProfiles').get();
+        usersCollection.forEach(async userDoc => {
+            const userDocData = await userDoc.data();
+            const userDocId = await userDoc.id;
+            const newUserDocData = await {...userDocData, todayThanks: 0};
+            await usersRef.doc(userDocId).update(newUserDocData);
+        });
         return;
     });
-//todo 【質問】Cloud Functionsで全ユーザーのtodayThanksを0に更新したい
