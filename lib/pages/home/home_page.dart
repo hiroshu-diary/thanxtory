@@ -161,8 +161,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                       'アプリを評価',
                       () {
-                        //todo アプリストアURLの挿入
-                        String _storeURL = Platform.isIOS ? '' : '';
+                        String _storeURL = Platform.isIOS
+                            ? 'https://apps.apple.com/jp/app/thanxtory/id1613315043'
+                            : 'https://play.google.com/store/apps/details?id=com.hiroshu.diary.thanxtory';
                         _launchURL(_storeURL);
                       },
                     ),

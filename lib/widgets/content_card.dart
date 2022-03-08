@@ -48,6 +48,7 @@ class _ContentCardState extends State<ContentCard> {
   late String _content;
   late int _clapCount;
   bool isClapped = false;
+
   Future getBoolean() async {
     try {
       final snapshot =
@@ -76,7 +77,6 @@ class _ContentCardState extends State<ContentCard> {
   Future<bool> _onLikeButtonTapped(bool isLiked) async {
     try {
       if (isLiked == false) {
-        ///clapの処理
         await _clappedPosts.doc(_uid).collection('cPosts').doc(_postId).set({
           'postId': _postId,
           'serverId': _serverId,
