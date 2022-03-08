@@ -28,9 +28,8 @@ class _ProfilePageState extends State<ProfilePage>
   final ScrollController _serveController = ScrollController();
   final ScrollController _receiveController = ScrollController();
   final ScrollController _clapController = ScrollController();
-  //型変換
-  //future: Future<QuerySnapshot<Map<String, dynamic>>>?
-  Future myClap() async {
+
+  Future<List<Map<String, dynamic>>> myClap() async {
     final snapshot = await _clappedPosts
         .doc(_uid)
         .collection('cPosts')
@@ -40,7 +39,12 @@ class _ProfilePageState extends State<ProfilePage>
       snapshot.docs.map(
         (document) async {
           final _postId = document.id;
-          final _senderPostSnapshot = await _servedPosts.doc(_postId).get();
+          final _serverId = document.data()['serverId'];
+          final _senderPostSnapshot = await _servedPosts
+              .doc(_serverId)
+              .collection('sPosts')
+              .doc(_postId)
+              .get();
           return _senderPostSnapshot.data()!;
         },
       ).toList(),
@@ -298,21 +302,18 @@ class _ProfilePageState extends State<ProfilePage>
         setState(() {});
       },
       child: FutureBuilder(
-        future: _clappedPosts.doc(_uid).collection('cPosts').get(),
+        future: myClap(),
         builder: (
           BuildContext context,
-          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+          AsyncSnapshot<List<Map<String, dynamic>>> snapshot,
         ) {
           if (snapshot.connectionState == ConnectionState.done) {
             return ListView.builder(
                 controller: _clapController,
                 padding: EdgeInsets.zero,
-                itemCount: snapshot.data!.docs.length,
+                itemCount: snapshot.data!.length,
                 itemBuilder: (context, int index) {
-                  //todo 【関連】受取り方を変える →profile_page_twoも変更
-                  ///↓この_postIdを用いて_servedPosts.doc(_serverId).collection('sPosts').doc('_postId).getを受取り、
-                  ///この各フィールド値をContentCardに渡したい
-                  var _post = snapshot.data!.docs[index];
+                  var _post = snapshot.data![index];
                   String _postId = _post['postId'];
                   String _serverId = _post['serverId'];
                   String _receiverId = _post['receiverId'];

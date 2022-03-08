@@ -47,7 +47,6 @@ class _ContentCardState extends State<ContentCard> {
   late String _createdAt;
   late String _content;
   late int _clapCount;
-  //todo【関連】clapPosts > doc(_uid) > contains > postId なら trueにする
   bool isClapped = false;
   Future getBoolean() async {
     try {

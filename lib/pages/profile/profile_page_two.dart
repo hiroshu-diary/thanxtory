@@ -27,6 +27,30 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
   final ScrollController _serveController = ScrollController();
   final ScrollController _receiveController = ScrollController();
   final ScrollController _clapController = ScrollController();
+  late String _uid;
+
+  Future<List<Map<String, dynamic>>> myClap() async {
+    final snapshot = await _clappedPosts
+        .doc(_uid)
+        .collection('cPosts')
+        .orderBy('clappedAt', descending: true)
+        .get();
+    final _senderPosts = await Future.wait(
+      snapshot.docs.map(
+        (document) async {
+          final _postId = document.id;
+          final _serverId = document.data()['serverId'];
+          final _senderPostSnapshot = await _servedPosts
+              .doc(_serverId)
+              .collection('sPosts')
+              .doc(_postId)
+              .get();
+          return _senderPostSnapshot.data()!;
+        },
+      ).toList(),
+    );
+    return _senderPosts;
+  }
 
   Future<String> getURL(String id) async {
     var ref = storage.ref('$id/default_image.jpeg');
@@ -38,12 +62,13 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
 
+    _uid = widget.userId;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final String _uid = widget.userId;
+    // final String _uid = widget.userId;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -321,22 +346,18 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
         setState(() {});
       },
       child: FutureBuilder(
-        future: _clappedPosts
-            .doc(userId)
-            .collection('cPosts')
-            .orderBy('clappedAt', descending: true)
-            .get(),
+        future: myClap(),
         builder: (
           BuildContext context,
-          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+          AsyncSnapshot<List<Map<String, dynamic>>> snapshot,
         ) {
           if (snapshot.connectionState == ConnectionState.done) {
             return ListView.builder(
               controller: _clapController,
               padding: EdgeInsets.zero,
-              itemCount: snapshot.data!.docs.length,
+              itemCount: snapshot.data!.length,
               itemBuilder: (context, int index) {
-                var _post = snapshot.data!.docs[index];
+                var _post = snapshot.data![index];
                 String _postId = _post['postId'];
                 String _serverId = _post['serverId'];
                 String _receiverId = _post['receiverId'];
