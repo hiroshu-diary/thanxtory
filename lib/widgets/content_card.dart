@@ -47,13 +47,41 @@ class _ContentCardState extends State<ContentCard> {
   late String _createdAt;
   late String _content;
   late int _clapCount;
-
+  //todo【関連】clapPosts > doc(_uid) > contains > postId なら trueにする
   bool isClapped = false;
+  Future getBoolean() async {
+    try {
+      final snapshot =
+          await _clappedPosts.doc(_uid).collection('cPosts').doc(_postId).get();
+      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+      setState(() {
+        isClapped = true;
+      });
+    } catch (e) {
+      isClapped = false;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _postId = widget.postId;
+    getBoolean();
+    _serverId = widget.serverId;
+    _receiverId = widget.receiverId;
+    _createdAt = fromAtNow(widget.createdAt);
+    _content = widget.content;
+    _clapCount = widget.clapCount;
+  }
+
   Future<bool> _onLikeButtonTapped(bool isLiked) async {
     try {
       if (isLiked == false) {
+        ///clapの処理
         await _clappedPosts.doc(_uid).collection('cPosts').doc(_postId).set({
           'postId': _postId,
+          'serverId': _serverId,
+          'clappedAt': Timestamp.fromDate(DateTime.now()),
         });
         await _servedPosts
             .doc(_serverId)
@@ -159,17 +187,6 @@ class _ContentCardState extends State<ContentCard> {
     } else {
       return '$sec秒前';
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _postId = widget.postId;
-    _serverId = widget.serverId;
-    _receiverId = widget.receiverId;
-    _createdAt = fromAtNow(widget.createdAt);
-    _content = widget.content;
-    _clapCount = widget.clapCount;
   }
 
   @override
@@ -311,12 +328,12 @@ class _ContentCardState extends State<ContentCard> {
                     isDestructiveAction: true,
                     onPressed: () async {
                       await FirebaseFirestore.instance
-                          .collection('harmful')
+                          .collection('harmfulPosts')
                           .add({
                         'postId': _postId,
                         'serverId': _serverId,
                         'content': _content,
-                        'createdAt': _createdAt,
+                        'createdAt': Timestamp.fromDate(widget.createdAt),
                         'clapCount': _clapCount,
                         'reportedAt': Timestamp.fromDate(DateTime.now()),
                         'reporterId': _uid,
@@ -491,7 +508,6 @@ class _ContentCardState extends State<ContentCard> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             LikeButton(
-                              //todo【関連】clapPosts > doc(_uid) > contains > postId なら trueにする
                               isLiked: isClapped,
                               likeCount: _clapCount,
                               likeBuilder: (bool isLiked) {

@@ -25,7 +25,6 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-
 int todayThanks = 0;
 
 class _HomePageState extends State<HomePage> {
@@ -67,8 +66,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-//todo 【質問】Streamとかでもっと早く読み取れる？→変更したらpost_pageの39行目も変更
-//globalに int todayThanks = 0;
+
   Future getCount() async {
     final snapshot = await _userProfiles.doc(_uid).get();
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;

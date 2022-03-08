@@ -163,7 +163,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
         children: [
           buildRefresher(_servedPosts, _uid, 'sPosts', _serveController),
           buildRefresher(_receivedPosts, _uid, 'rPosts', _receiveController),
-          buildRefresher(_clappedPosts, _uid, 'cPosts', _clapController),
+          clapList(_uid),
         ],
       ),
       bottomNavigationBar: Padding(
@@ -308,6 +308,67 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
 
         return Text('　', style: style);
       },
+    );
+  }
+
+  RefreshIndicator clapList(
+    String userId,
+  ) {
+    return RefreshIndicator(
+      backgroundColor: Colors.white,
+      color: C.subColor,
+      onRefresh: () async {
+        setState(() {});
+      },
+      child: FutureBuilder(
+        future: _clappedPosts
+            .doc(userId)
+            .collection('cPosts')
+            .orderBy('clappedAt', descending: true)
+            .get(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+        ) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+              controller: _clapController,
+              padding: EdgeInsets.zero,
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, int index) {
+                var _post = snapshot.data!.docs[index];
+                String _postId = _post['postId'];
+                String _serverId = _post['serverId'];
+                String _receiverId = _post['receiverId'];
+                int _clapCount = _post['clapCount'];
+                String _content = _post['content'];
+                Timestamp _createdStamp = _post['createdAt'];
+                DateTime _createdAt = _createdStamp.toDate();
+                return ContentCard(
+                  postId: _postId,
+                  serverId: _serverId,
+                  receiverId: _receiverId,
+                  clapCount: _clapCount,
+                  content: _content,
+                  createdAt: _createdAt,
+                );
+              },
+            );
+          }
+          return const Center(
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              child: SizedBox(
+                width: 240,
+                height: 240,
+                child: CircularProgressIndicator(
+                  color: C.subColor,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

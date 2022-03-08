@@ -28,6 +28,25 @@ class _ProfilePageState extends State<ProfilePage>
   final ScrollController _serveController = ScrollController();
   final ScrollController _receiveController = ScrollController();
   final ScrollController _clapController = ScrollController();
+  //型変換
+  //future: Future<QuerySnapshot<Map<String, dynamic>>>?
+  Future myClap() async {
+    final snapshot = await _clappedPosts
+        .doc(_uid)
+        .collection('cPosts')
+        .orderBy('clappedAt', descending: true)
+        .get();
+    final _senderPosts = await Future.wait(
+      snapshot.docs.map(
+        (document) async {
+          final _postId = document.id;
+          final _senderPostSnapshot = await _servedPosts.doc(_postId).get();
+          return _senderPostSnapshot.data()!;
+        },
+      ).toList(),
+    );
+    return _senderPosts;
+  }
 
   Future<String> getURL(String id) async {
     var ref = storage.ref('$id/default_image.jpeg');
@@ -158,8 +177,7 @@ class _ProfilePageState extends State<ProfilePage>
         children: [
           buildRefresher(_servedPosts, 'sPosts', _serveController),
           buildRefresher(_receivedPosts, 'rPosts', _receiveController),
-          //todo 【関連】受取り方を変える →profile_page_twoも変更
-          buildRefresher(_clappedPosts, 'cPosts', _clapController),
+          clapList(),
         ],
       ),
     );
@@ -269,6 +287,64 @@ class _ProfilePageState extends State<ProfilePage>
         }
         return Text('　', style: style);
       },
+    );
+  }
+
+  RefreshIndicator clapList() {
+    return RefreshIndicator(
+      backgroundColor: Colors.white,
+      color: C.subColor,
+      onRefresh: () async {
+        setState(() {});
+      },
+      child: FutureBuilder(
+        future: _clappedPosts.doc(_uid).collection('cPosts').get(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+        ) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+                controller: _clapController,
+                padding: EdgeInsets.zero,
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, int index) {
+                  //todo 【関連】受取り方を変える →profile_page_twoも変更
+                  ///↓この_postIdを用いて_servedPosts.doc(_serverId).collection('sPosts').doc('_postId).getを受取り、
+                  ///この各フィールド値をContentCardに渡したい
+                  var _post = snapshot.data!.docs[index];
+                  String _postId = _post['postId'];
+                  String _serverId = _post['serverId'];
+                  String _receiverId = _post['receiverId'];
+                  int _clapCount = _post['clapCount'];
+                  String _content = _post['content'];
+                  Timestamp _createdStamp = _post['createdAt'];
+                  DateTime _createdAt = _createdStamp.toDate();
+
+                  return ContentCard(
+                    postId: _postId,
+                    serverId: _serverId,
+                    receiverId: _receiverId,
+                    clapCount: _clapCount,
+                    content: _content,
+                    createdAt: _createdAt,
+                  );
+                });
+          }
+          return const Center(
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              child: SizedBox(
+                width: 240,
+                height: 240,
+                child: CircularProgressIndicator(
+                  color: C.subColor,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
