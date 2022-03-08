@@ -6,7 +6,8 @@ import '../../model/constant.dart';
 import '../home/home_page.dart';
 
 class AnimationPage extends StatefulWidget {
-  const AnimationPage({Key? key}) : super(key: key);
+  final int count;
+  const AnimationPage({Key? key, required this.count}) : super(key: key);
   static const path = '/animation/';
   static const name = 'AnimationPage';
 
@@ -45,14 +46,14 @@ class _AnimationPageState extends State<AnimationPage>
     );
 
     late String _text;
-    if (todayThanks == 1) {
+    if (widget.count == 0) {
       _text = '今日も素敵な感謝を\nありがとうございます！！';
-    } else if (todayThanks == 3) {
+    } else {
       _text = '素敵な一日でしたね！\n１日３投稿達成です！！';
     }
 
     if (mounted) {
-      if (todayThanks == 1 || todayThanks == 3) {
+      if (widget.count == 0 || widget.count == 2) {
         await context
             .read<ScaffoldMessengerController>()
             .showAchievement(_text);

@@ -109,6 +109,7 @@ class _PostPageState extends State<PostPage> {
                           'content': _textEditingController.text,
                           'clapCount': 0,
                         });
+                        final _count = todayThanks;
 
                         await _userProfiles.doc(_uid).update({
                           'todayThanks': FieldValue.increment(1),
@@ -136,7 +137,7 @@ class _PostPageState extends State<PostPage> {
 
                         Nav.navigate(
                           context,
-                          const AnimationPage(),
+                          AnimationPage(count: _count),
                           const Offset(0, -0.5),
                         );
                       }
