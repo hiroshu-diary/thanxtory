@@ -264,7 +264,6 @@ class _ContentCardState extends State<ContentCard> {
                                     isDestructiveAction: true,
                                     onPressed: () async {
                                       await _userProfiles.doc(_uid).update({
-                                        'todayThanks': FieldValue.increment(-1),
                                         'servedCount': FieldValue.increment(-1),
                                       });
                                       await _servedPosts
