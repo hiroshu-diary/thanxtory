@@ -266,6 +266,7 @@ class _PostPageState extends State<PostPage> {
                                     onPressed: () {
                                       Nav.whiteNavi(
                                         context,
+                                        // const SearchPage(),
                                         Scaffold(
                                           body: Center(
                                             child: Column(

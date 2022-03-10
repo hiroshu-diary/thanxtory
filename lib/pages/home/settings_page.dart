@@ -299,12 +299,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     child: CupertinoButton(
                       onPressed: () async {
-                        if (_nameController.text != '' &&
-                            _introController.text != '') {
+                        if (_nameController.text.length > 1 &&
+                            _introController.text.isNotEmpty) {
                           await _userProfiles.doc(_uid).update({
                             'name': _nameController.text,
                             'introduction': _introController.text,
                           });
+                          // todo _nameController.textのbi-gramを生成してarrayをすべて更新する
                         }
                         if (imageFile != null) {
                           await _storage

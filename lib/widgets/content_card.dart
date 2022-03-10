@@ -74,23 +74,40 @@ class _ContentCardState extends State<ContentCard> {
   }
 
   Future<bool> _onLikeButtonTapped(bool isLiked) async {
-    try {
-      if (isLiked == false) {
-        await _clappedPosts.doc(_uid).collection('cPosts').doc(_postId).set({
-          'postId': _postId,
-          'serverId': _serverId,
-          'clappedAt': Timestamp.fromDate(DateTime.now()),
-        });
-        await _servedPosts
-            .doc(_serverId)
-            .collection('sPosts')
+    if (isLiked == false) {
+      await _clappedPosts.doc(_uid).collection('cPosts').doc(_postId).set({
+        'postId': _postId,
+        'serverId': _serverId,
+        'clappedAt': Timestamp.fromDate(DateTime.now()),
+      });
+      await _servedPosts
+          .doc(_serverId)
+          .collection('sPosts')
+          .doc(_postId)
+          .update({
+        'clapCount': FieldValue.increment(1),
+      });
+      await _servedPosts
+          .doc(_serverId)
+          .collection('sPosts')
+          .doc(_postId)
+          .collection('clappedByUsers')
+          .doc(_uid)
+          .set({
+        'userId': _uid,
+        'createdAt': Timestamp.fromDate(DateTime.now()),
+      });
+      if (_receiverId != '') {
+        await _receivedPosts
+            .doc(_receiverId)
+            .collection('rPosts')
             .doc(_postId)
             .update({
           'clapCount': FieldValue.increment(1),
         });
-        await _servedPosts
-            .doc(_serverId)
-            .collection('sPosts')
+        await _receivedPosts
+            .doc(_receiverId)
+            .collection('rPosts')
             .doc(_postId)
             .collection('clappedByUsers')
             .doc(_uid)
@@ -98,69 +115,41 @@ class _ContentCardState extends State<ContentCard> {
           'userId': _uid,
           'createdAt': Timestamp.fromDate(DateTime.now()),
         });
-        if (_receiverId != '') {
-          await _receivedPosts
-              .doc(_receiverId)
-              .collection('rPosts')
-              .doc(_postId)
-              .update({
-            'clapCount': FieldValue.increment(1),
-          });
-          await _receivedPosts
-              .doc(_receiverId)
-              .collection('rPosts')
-              .doc(_postId)
-              .collection('clappedByUsers')
-              .doc(_uid)
-              .set({
-            'userId': _uid,
-            'createdAt': Timestamp.fromDate(DateTime.now()),
-          });
-        }
-        return !isLiked;
-      } else {
-        // await _userProfiles.doc(_uid).update({
-        //   'cPostsIds': FieldValue.arrayRemove([_postId]),
-        // });
-        await _clappedPosts
-            .doc(_uid)
-            .collection('cPosts')
-            .doc(_postId)
-            .delete();
-        await _servedPosts
-            .doc(_serverId)
-            .collection('sPosts')
+      }
+      return !isLiked;
+    } else {
+      await _clappedPosts.doc(_uid).collection('cPosts').doc(_postId).delete();
+      await _servedPosts
+          .doc(_serverId)
+          .collection('sPosts')
+          .doc(_postId)
+          .update({
+        'clapCount': FieldValue.increment(-1),
+      });
+      await _servedPosts
+          .doc(_serverId)
+          .collection('sPosts')
+          .doc(_postId)
+          .collection('clappedByUsers')
+          .doc(_uid)
+          .delete();
+      if (_receiverId != '') {
+        await _receivedPosts
+            .doc(_receiverId)
+            .collection('rPosts')
             .doc(_postId)
             .update({
           'clapCount': FieldValue.increment(-1),
         });
-        await _servedPosts
-            .doc(_serverId)
-            .collection('sPosts')
+        await _receivedPosts
+            .doc(_receiverId)
+            .collection('rPosts')
             .doc(_postId)
             .collection('clappedByUsers')
             .doc(_uid)
             .delete();
-        if (_receiverId != '') {
-          await _receivedPosts
-              .doc(_receiverId)
-              .collection('rPosts')
-              .doc(_postId)
-              .update({
-            'clapCount': FieldValue.increment(-1),
-          });
-          await _receivedPosts
-              .doc(_receiverId)
-              .collection('rPosts')
-              .doc(_postId)
-              .collection('clappedByUsers')
-              .doc(_uid)
-              .delete();
-        }
-        return !isLiked;
       }
-    } catch (e) {
-      return isLiked;
+      return !isLiked;
     }
   }
 

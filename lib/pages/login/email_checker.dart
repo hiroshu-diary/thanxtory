@@ -1,11 +1,12 @@
 import 'dart:io';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../model/constant.dart';
 
@@ -36,6 +37,7 @@ class _EmailCheck extends State<EmailCheck> {
   var userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   final storage = FirebaseStorage.instance;
 
+  //todo widget.nameのbi-gramをarrayで保存する↓
   Future<void> setUserProfiles(String uid) {
     return userProfiles.doc(uid).set({
       'mail': widget.mail,

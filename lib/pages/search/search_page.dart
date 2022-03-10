@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 
@@ -64,7 +65,7 @@ class _SearchPageState extends State<SearchPage> {
         FloatingSearchBarAction(
           showIfOpened: false,
           child: CircularButton(
-            icon: const Icon(Icons.place),
+            icon: const Icon(CupertinoIcons.person),
             onPressed: () {},
           ),
         ),
@@ -73,6 +74,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ],
       builder: (context, transition) {
+        //FutureBuilder
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Material(

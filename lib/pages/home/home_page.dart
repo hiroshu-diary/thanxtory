@@ -49,20 +49,23 @@ class _HomePageState extends State<HomePage> {
     return InkWell(
       onTap: onTap,
       splashColor: C.mainColor,
-      child: ListTile(
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: icon,
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18.0,
-            fontFamily: 'NotoSansJP',
-            fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: ListTile(
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: icon,
           ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20.0,
+              fontFamily: 'NotoSansJP',
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          trailing: trailing,
         ),
-        trailing: trailing,
       ),
     );
   }
@@ -95,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                        vertical: 24.0,
+                        vertical: 36.0,
                         horizontal: 24.0,
                       ),
                       child: Center(
@@ -132,14 +135,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    //style: countStyle(),
                     const Divider(height: 2.0, color: C.subColor),
-
                     buildTile(
                       const Icon(
                         CupertinoIcons.settings,
                         color: Colors.black87,
-                        size: 24,
+                        size: 26,
                       ),
                       'プロフィール設定',
                       () {
@@ -157,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                             ? FontAwesomeIcons.appStore
                             : LineIcons.googlePlay,
                         color: Colors.black87,
-                        size: 24,
+                        size: 26,
                       ),
                       'アプリを評価',
                       () {
@@ -171,7 +172,7 @@ class _HomePageState extends State<HomePage> {
                       const Icon(
                         CupertinoIcons.doc,
                         color: Colors.black87,
-                        size: 24,
+                        size: 26,
                       ),
                       'アンケート',
                       () {
@@ -183,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                       const Icon(
                         Icons.logout_outlined,
                         color: Colors.black87,
-                        size: 24,
+                        size: 26,
                       ),
                       'サインアウト',
                       () async {
@@ -416,7 +417,7 @@ class _HomePageState extends State<HomePage> {
   TextStyle countStyle() {
     return const TextStyle(
       fontFamily: 'NotoSansJP',
-      fontSize: 24,
+      fontSize: 26,
       fontWeight: FontWeight.bold,
       color: C.subColor,
     );
