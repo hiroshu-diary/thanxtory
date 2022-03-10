@@ -48,7 +48,6 @@ class _ContentCardState extends State<ContentCard> {
   late String _content;
   late int _clapCount;
   bool isClapped = false;
-
   Future getBoolean() async {
     try {
       final snapshot =
@@ -120,6 +119,9 @@ class _ContentCardState extends State<ContentCard> {
         }
         return !isLiked;
       } else {
+        // await _userProfiles.doc(_uid).update({
+        //   'cPostsIds': FieldValue.arrayRemove([_postId]),
+        // });
         await _clappedPosts
             .doc(_uid)
             .collection('cPosts')

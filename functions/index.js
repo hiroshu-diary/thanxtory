@@ -7,9 +7,9 @@ exports.reset = functions.region("asia-northeast1").pubsub.schedule('00***')
         const firestore = admin.firestore();
         const usersCollection = await firestore.collection('userProfiles').get();
         usersCollection.forEach(async userDoc => {
-            const userDocData = await userDoc.data();
-            const userDocId = await userDoc.id;
-            const newUserDocData = await {...userDocData, todayThanks: 0};
+            const userDocData = userDoc.data();
+            const userDocId = userDoc.id;
+            const newUserDocData = {　todayThanks: 0　};
             await usersRef.doc(userDocId).update(newUserDocData);
         });
         return;

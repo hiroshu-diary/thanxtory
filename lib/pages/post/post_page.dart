@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,6 +32,7 @@ class _PostPageState extends State<PostPage> {
 
   String destination = 'none';
   late TextEditingController _textEditingController;
+
   Future<String> getURL() async {
     var ref = _storage.ref('$_uid/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
@@ -159,7 +162,10 @@ class _PostPageState extends State<PostPage> {
                 },
                 decoration: InputDecoration(
                   icon: Padding(
-                    padding: const EdgeInsets.only(left: 16, top: 16),
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      top: Platform.isIOS ? 16 : 64,
+                    ),
                     child: Column(
                       children: [
                         CircleAvatar(
