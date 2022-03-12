@@ -68,8 +68,6 @@ class _SearchPageState extends State<SearchPage> {
       openAxisAlignment: 0.0,
       width: isPortrait ? 600 : 500,
       debounceDelay: const Duration(milliseconds: 500),
-      onQueryChanged: (String text) {},
-      onSubmitted: (String text) {},
       transition: CircularFloatingSearchBarTransition(),
       actions: [
         FloatingSearchBarAction(
@@ -90,12 +88,13 @@ class _SearchPageState extends State<SearchPage> {
             BuildContext context,
             AsyncSnapshot<QuerySnapshot> snapshot,
           ) {
-            List<String> returnList = [];
+            var returnList = [];
             _userProfiles.get().then((QuerySnapshot snapshot) {
               snapshot.docs.forEach((doc) async {
-                String _name = await doc.get('name') as String;
-                if (_controller.query.contains(_name)) {
+                var _name = await doc.get('name') as String;
+                if (_name.contains(_controller.query)) {
                   returnList.add(doc.id);
+                  print(returnList);
                 }
               });
             });
@@ -119,6 +118,7 @@ class _SearchPageState extends State<SearchPage> {
             }
 
             return ListView.builder(
+              shrinkWrap: true,
               padding: EdgeInsets.zero,
               itemCount: returnList.length,
               itemBuilder: (context, int index) {

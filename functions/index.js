@@ -2,15 +2,13 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp()
 
-exports.reset = functions.region("asia-northeast1").pubsub.schedule('00***')
+exports.resetNumberFour = functions.region("asia-northeast1").pubsub.schedule('55 11 * * *')
     .onRun(async () => {
         const firestore = admin.firestore();
-        const usersCollection = await firestore.collection('userProfiles').get();
-        usersCollection.forEach(async userDoc => {
-            const userDocData = userDoc.data();
-            const userDocId = userDoc.id;
-            const newUserDocData = {　todayThanks: 0　};
-            await usersRef.doc(userDocId).update(newUserDocData);
-        });
+        const querySnapshot = await firestore.collection('userProfiles').get(); 
+        for(const qds of querySnapshotDocs) {
+            const userDocId = qds.id;
+            await firestore.collection('userProfiles').doc(userDocId).update({todayThanks: 0 });
+        }
         return;
     });
