@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import '../../model/constant.dart';
 import '../animation/animation_page.dart';
 import '../home/home_page.dart';
-import '../search/search_page.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({Key? key}) : super(key: key);
@@ -267,38 +266,38 @@ class _PostPageState extends State<PostPage> {
                                     onPressed: () {
                                       Nav.whiteNavi(
                                         context,
-                                        const SearchPage(),
-                                        // Scaffold(
-                                        //   body: Center(
-                                        //     child: Column(
-                                        //       mainAxisAlignment:
-                                        //           MainAxisAlignment.center,
-                                        //       children: [
-                                        //         const Text(
-                                        //           'Coming soon...',
-                                        //         ),
-                                        //         MaterialButton(
-                                        //           color: C.mainColor,
-                                        //           child: const Text(
-                                        //             '戻る',
-                                        //             style: TextStyle(
-                                        //               color: C.subColor,
-                                        //               fontSize: 20,
-                                        //               fontFamily: 'NotoSansJP',
-                                        //             ),
-                                        //           ),
-                                        //           onPressed: () {
-                                        //             Navigator.pop(context);
-                                        //             Navigator.pop(context);
-                                        //             setState(() {
-                                        //               destination = 'none';
-                                        //             });
-                                        //           },
-                                        //         ),
-                                        //       ],
-                                        //     ),
-                                        //   ),
-                                        // ),
+                                        // const SearchPage(),
+                                        Scaffold(
+                                          body: Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Text(
+                                                  'Coming soon...',
+                                                ),
+                                                MaterialButton(
+                                                  color: C.mainColor,
+                                                  child: const Text(
+                                                    '戻る',
+                                                    style: TextStyle(
+                                                      color: C.subColor,
+                                                      fontSize: 20,
+                                                      fontFamily: 'NotoSansJP',
+                                                    ),
+                                                  ),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    Navigator.pop(context);
+                                                    setState(() {
+                                                      destination = 'none';
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       );
                                     },
                                   ),
