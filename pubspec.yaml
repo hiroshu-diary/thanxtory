@@ -30,6 +30,7 @@ dependencies:
   material_floating_search_bar: ^0.3.7
   image_picker: ^0.8.4+10
   image_cropper: ^2.0.0-beta
+  anim_search_bar: ^2.0.2
 
 dev_dependencies:
   flutter_test:

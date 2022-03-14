@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:anim_search_bar/anim_search_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,9 +30,17 @@ class _PostPageState extends State<PostPage> {
   final _uid = FirebaseAuth.instance.currentUser!.uid;
   final _storage = FirebaseStorage.instance;
   String _receiverId = '';
+  String destination = '';
+  String rName = '';
+  String rId = '';
 
-  String destination = 'none';
   late TextEditingController _textEditingController;
+  final storage = FirebaseStorage.instance;
+  Future<String> getURLs(String id) async {
+    var ref = storage.ref('$id/default_image.jpeg');
+    String imageUrl = await ref.getDownloadURL();
+    return imageUrl;
+  }
 
   Future<String> getURL() async {
     var ref = _storage.ref('$_uid/default_image.jpeg');
@@ -54,6 +63,7 @@ class _PostPageState extends State<PostPage> {
     getCount();
     super.initState();
     _textEditingController = TextEditingController();
+    destination = '';
   }
 
   @override
@@ -94,7 +104,7 @@ class _PostPageState extends State<PostPage> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         if (destination == 'someone') {
-                          _receiverId = '';
+                          _receiverId = rId;
                         } else if (destination == 'me') {
                           _receiverId = _uid;
                         } else {
@@ -119,10 +129,9 @@ class _PostPageState extends State<PostPage> {
                           'servedCount': FieldValue.increment(1),
                         });
 
-                        if (destination == 'someone') {
-                        } else if (destination == 'me') {
+                        if (destination != 'none') {
                           await _receivedPosts
-                              .doc(_uid)
+                              .doc(_receiverId)
                               .collection('rPosts')
                               .doc(_postId)
                               .set({
@@ -136,7 +145,7 @@ class _PostPageState extends State<PostPage> {
                           await _userProfiles.doc(_uid).update({
                             'receivedCount': FieldValue.increment(1),
                           });
-                        } else if (destination == 'none') {}
+                        }
 
                         Nav.navigate(
                           context,
@@ -227,7 +236,7 @@ class _PostPageState extends State<PostPage> {
                   child: CupertinoButton(
                     child: Center(
                       child: Text(
-                        destination == 'me' ? '自分に贈る' : 'Thanxtoryアカウントに贈る',
+                        destination == '' ? 'Thanxtoryアカウントに贈る' : '$rNameに贈る',
                         style: const TextStyle(
                           color: C.subColor,
                           fontSize: 18,
@@ -264,38 +273,198 @@ class _PostPageState extends State<PostPage> {
                                       ),
                                     ),
                                     onPressed: () {
+                                      Navigator.pop(context);
+                                      var controller = TextEditingController();
                                       Nav.whiteNavi(
                                         context,
-                                        // const SearchPage(),
                                         Scaffold(
-                                          body: Center(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                const Text(
-                                                  'Coming soon...',
-                                                ),
-                                                MaterialButton(
-                                                  color: C.mainColor,
-                                                  child: const Text(
-                                                    '戻る',
-                                                    style: TextStyle(
-                                                      color: C.subColor,
-                                                      fontSize: 20,
-                                                      fontFamily: 'NotoSansJP',
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                    Navigator.pop(context);
+                                          appBar: PreferredSize(
+                                            preferredSize: const Size(
+                                              400,
+                                              44.0,
+                                            ),
+                                            child: SafeArea(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8.0),
+                                                child: AnimSearchBar(
+                                                  width: 400,
+                                                  autoFocus: true,
+                                                  textController: controller,
+                                                  onSuffixTap: () {
                                                     setState(() {
-                                                      destination = 'none';
+                                                      controller.clear();
                                                     });
                                                   },
                                                 ),
-                                              ],
+                                              ),
                                             ),
+                                          ),
+                                          body: FutureBuilder(
+                                            future: FirebaseFirestore.instance
+                                                .collection('userProfiles')
+                                                .get(),
+                                            builder: (
+                                              BuildContext context,
+                                              AsyncSnapshot<
+                                                      QuerySnapshot<
+                                                          Map<String, dynamic>>>
+                                                  snapshot,
+                                            ) {
+                                              if (snapshot.connectionState ==
+                                                      ConnectionState.waiting ||
+                                                  !snapshot.hasData) {
+                                                return const Center(
+                                                  child: CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                    child: SizedBox(
+                                                      width: 240,
+                                                      height: 240,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        color: C.subColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.done) {
+                                                return ListView.builder(
+                                                  padding: EdgeInsets.zero,
+                                                  itemCount: snapshot
+                                                      .data!.docs.length,
+                                                  itemBuilder:
+                                                      (context, int index) {
+                                                    var _profiles = snapshot
+                                                        .data!.docs[index];
+                                                    var _name =
+                                                        _profiles['name'];
+                                                    var _id = _profiles.id;
+                                                    return ConstrainedBox(
+                                                      constraints:
+                                                          const BoxConstraints(
+                                                              minWidth: double
+                                                                  .maxFinite),
+                                                      child: Card(
+                                                        elevation: 1.0,
+                                                        shadowColor:
+                                                            C.mainColor,
+                                                        margin: const EdgeInsets
+                                                            .only(bottom: 0.5),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child:
+                                                                    CircleAvatar(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .transparent,
+                                                                  radius: 30,
+                                                                  child:
+                                                                      ClipOval(
+                                                                    child:
+                                                                        FutureBuilder(
+                                                                      future:
+                                                                          getURLs(
+                                                                              _id),
+                                                                      builder: (BuildContext
+                                                                              context,
+                                                                          AsyncSnapshot<String>
+                                                                              snapshot) {
+                                                                        if (snapshot.connectionState ==
+                                                                                ConnectionState.done &&
+                                                                            snapshot.hasData) {
+                                                                          return CachedNetworkImage(
+                                                                            fit:
+                                                                                BoxFit.cover,
+                                                                            imageUrl:
+                                                                                snapshot.data!,
+                                                                          );
+                                                                        }
+                                                                        return Container();
+                                                                      },
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child: Text(
+                                                                  _name
+                                                                      .toString(),
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontFamily:
+                                                                        'NotoSansJP',
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const Spacer(),
+                                                              GestureDetector(
+                                                                child:
+                                                                    const Text(
+                                                                  '贈る',
+                                                                  style: TextStyle(
+                                                                      color: C
+                                                                          .accentColor),
+                                                                ),
+                                                                onTap: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  setState(() {
+                                                                    destination =
+                                                                        'someone';
+                                                                    rName =
+                                                                        _name;
+                                                                    rId = _id;
+                                                                  });
+                                                                },
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 39),
+                                                              GestureDetector(
+                                                                child:
+                                                                    const Text(
+                                                                  '詳しく見る',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .blueAccent),
+                                                                ),
+                                                                onTap: () {},
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                    ;
+                                                  },
+                                                );
+                                              }
+                                              return Container();
+                                            },
                                           ),
                                         ),
                                       );
@@ -328,6 +497,8 @@ class _PostPageState extends State<PostPage> {
                                       Navigator.pop(context);
                                       setState(() {
                                         destination = 'me';
+                                        rName = '自分';
+                                        rId = _uid;
                                       });
                                     },
                                   ),
