@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:thanxtory/pages/profile/profile_page_two.dart';
 
 import '../../model/constant.dart';
 import '../animation/animation_page.dart';
@@ -464,76 +465,94 @@ class _PostPageState extends State<PostPage> {
                 var _profiles = snapshot.data!.docs[index];
                 var _name = _profiles['name'];
                 var _id = _profiles.id;
-                return ConstrainedBox(
-                  constraints: const BoxConstraints(minWidth: double.maxFinite),
-                  child: Card(
-                    elevation: 1.0,
-                    shadowColor: C.mainColor,
-                    margin: const EdgeInsets.only(bottom: 0.5),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CircleAvatar(
-                              backgroundColor: Colors.transparent,
-                              radius: 30,
-                              child: ClipOval(
-                                child: FutureBuilder(
-                                  future: getURLs(_id),
-                                  builder: (BuildContext context,
-                                      AsyncSnapshot<String> snapshot) {
-                                    if (snapshot.connectionState ==
-                                            ConnectionState.done &&
-                                        snapshot.hasData) {
-                                      return CachedNetworkImage(
-                                        fit: BoxFit.cover,
-                                        imageUrl: snapshot.data!,
-                                      );
-                                    }
-                                    return Container();
-                                  },
+                return GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: ConstrainedBox(
+                    constraints:
+                        const BoxConstraints(minWidth: double.maxFinite),
+                    child: Card(
+                      elevation: 1.0,
+                      shadowColor: C.mainColor,
+                      margin: const EdgeInsets.only(bottom: 0.5),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                radius: 30,
+                                child: ClipOval(
+                                  child: FutureBuilder(
+                                    future: getURLs(_id),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<String> snapshot) {
+                                      if (snapshot.connectionState ==
+                                              ConnectionState.done &&
+                                          snapshot.hasData) {
+                                        return CachedNetworkImage(
+                                          fit: BoxFit.cover,
+                                          imageUrl: snapshot.data!,
+                                        );
+                                      }
+                                      return Container();
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              _name.toString(),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontFamily: 'NotoSansJP',
-                                fontWeight: FontWeight.w600,
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                _name.toString(),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: 'NotoSansJP',
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
-                          const Spacer(),
-                          GestureDetector(
-                            child: const Text(
-                              '贈る',
-                              style: TextStyle(color: C.accentColor),
+                            const Spacer(),
+                            GestureDetector(
+                              child: const Text(
+                                '贈る',
+                                style: TextStyle(
+                                  fontFamily: 'NotoSansJP',
+                                  fontSize: 16,
+                                  color: C.accentColor,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                setState(() {
+                                  destination = 'someone';
+                                  rName = _name;
+                                  rId = _id;
+                                });
+                              },
                             ),
-                            onTap: () {
-                              Navigator.pop(context);
-                              setState(() {
-                                destination = 'someone';
-                                rName = _name;
-                                rId = _id;
-                              });
-                            },
-                          ),
-                          const SizedBox(width: 39),
-                          GestureDetector(
-                            child: const Text(
-                              '詳しく見る',
-                              style: TextStyle(color: Colors.blueAccent),
+                            const SizedBox(width: 36),
+                            GestureDetector(
+                              child: const Text(
+                                '詳しく見る',
+                                style: TextStyle(
+                                  fontFamily: 'NotoSansJP',
+                                  fontSize: 16,
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                              onTap: () {
+                                Nav.whiteNavi(
+                                  context,
+                                  ProfilePageTwo(userId: _id),
+                                );
+                              },
                             ),
-                            onTap: () {},
-                          ),
-                        ],
+                            const SizedBox(width: 16),
+                          ],
+                        ),
                       ),
                     ),
                   ),
