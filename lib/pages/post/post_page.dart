@@ -247,296 +247,7 @@ class _PostPageState extends State<PostPage> {
                     onPressed: () {
                       Nav.whiteNavi(
                         context,
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                  vertical: 24,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: C.subColor),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: CupertinoButton(
-                                    child: const Center(
-                                      child: Text(
-                                        'Thanxtoryアカウントを探す',
-                                        style: TextStyle(
-                                          color: C.subColor,
-                                          fontSize: 20,
-                                          fontFamily: 'NotoSansJP',
-                                        ),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      var controller = TextEditingController();
-                                      Nav.whiteNavi(
-                                        context,
-                                        Scaffold(
-                                          appBar: PreferredSize(
-                                            preferredSize: const Size(
-                                              400,
-                                              44.0,
-                                            ),
-                                            child: SafeArea(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8.0),
-                                                child: AnimSearchBar(
-                                                  width: 400,
-                                                  autoFocus: true,
-                                                  textController: controller,
-                                                  onSuffixTap: () {
-                                                    setState(() {
-                                                      controller.clear();
-                                                    });
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          body: FutureBuilder(
-                                            future: FirebaseFirestore.instance
-                                                .collection('userProfiles')
-                                                .get(),
-                                            builder: (
-                                              BuildContext context,
-                                              AsyncSnapshot<
-                                                      QuerySnapshot<
-                                                          Map<String, dynamic>>>
-                                                  snapshot,
-                                            ) {
-                                              if (snapshot.connectionState ==
-                                                      ConnectionState.waiting ||
-                                                  !snapshot.hasData) {
-                                                return const Center(
-                                                  child: CircleAvatar(
-                                                    backgroundColor:
-                                                        Colors.transparent,
-                                                    child: SizedBox(
-                                                      width: 240,
-                                                      height: 240,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        color: C.subColor,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.done) {
-                                                return ListView.builder(
-                                                  padding: EdgeInsets.zero,
-                                                  itemCount: snapshot
-                                                      .data!.docs.length,
-                                                  itemBuilder:
-                                                      (context, int index) {
-                                                    var _profiles = snapshot
-                                                        .data!.docs[index];
-                                                    var _name =
-                                                        _profiles['name'];
-                                                    var _id = _profiles.id;
-                                                    return ConstrainedBox(
-                                                      constraints:
-                                                          const BoxConstraints(
-                                                              minWidth: double
-                                                                  .maxFinite),
-                                                      child: Card(
-                                                        elevation: 1.0,
-                                                        shadowColor:
-                                                            C.mainColor,
-                                                        margin: const EdgeInsets
-                                                            .only(bottom: 0.5),
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(8.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        8.0),
-                                                                child:
-                                                                    CircleAvatar(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  radius: 30,
-                                                                  child:
-                                                                      ClipOval(
-                                                                    child:
-                                                                        FutureBuilder(
-                                                                      future:
-                                                                          getURLs(
-                                                                              _id),
-                                                                      builder: (BuildContext
-                                                                              context,
-                                                                          AsyncSnapshot<String>
-                                                                              snapshot) {
-                                                                        if (snapshot.connectionState ==
-                                                                                ConnectionState.done &&
-                                                                            snapshot.hasData) {
-                                                                          return CachedNetworkImage(
-                                                                            fit:
-                                                                                BoxFit.cover,
-                                                                            imageUrl:
-                                                                                snapshot.data!,
-                                                                          );
-                                                                        }
-                                                                        return Container();
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        8.0),
-                                                                child: Text(
-                                                                  _name
-                                                                      .toString(),
-                                                                  style:
-                                                                      const TextStyle(
-                                                                    fontSize:
-                                                                        18,
-                                                                    fontFamily:
-                                                                        'NotoSansJP',
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              const Spacer(),
-                                                              GestureDetector(
-                                                                child:
-                                                                    const Text(
-                                                                  '贈る',
-                                                                  style: TextStyle(
-                                                                      color: C
-                                                                          .accentColor),
-                                                                ),
-                                                                onTap: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                  setState(() {
-                                                                    destination =
-                                                                        'someone';
-                                                                    rName =
-                                                                        _name;
-                                                                    rId = _id;
-                                                                  });
-                                                                },
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 39),
-                                                              GestureDetector(
-                                                                child:
-                                                                    const Text(
-                                                                  '詳しく見る',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .blueAccent),
-                                                                ),
-                                                                onTap: () {},
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                    ;
-                                                  },
-                                                );
-                                              }
-                                              return Container();
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                  vertical: 24,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: C.subColor),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: CupertinoButton(
-                                    child: const Center(
-                                      child: Text(
-                                        '自分に贈る',
-                                        style: TextStyle(
-                                          color: C.subColor,
-                                          fontSize: 20,
-                                          fontFamily: 'NotoSansJP',
-                                        ),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      setState(() {
-                                        destination = 'me';
-                                        rName = '自分';
-                                        rId = _uid;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                  vertical: 24,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.black54),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: CupertinoButton(
-                                    child: const Center(
-                                      child: Text(
-                                        '宛先を指定しない',
-                                        style: TextStyle(
-                                          color: Colors.black54,
-                                          fontSize: 20,
-                                          fontFamily: 'NotoSansJP',
-                                        ),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      setState(() {
-                                        destination = 'none';
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        buildSelectPage(context),
                       );
                     },
                   ),
@@ -568,5 +279,271 @@ class _PostPageState extends State<PostPage> {
               ),
             ),
           );
+  }
+
+  Center buildSelectPage(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 24,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: C.subColor),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: CupertinoButton(
+                child: const Center(
+                  child: Text(
+                    'Thanxtoryアカウントを探す',
+                    style: TextStyle(
+                      color: C.subColor,
+                      fontSize: 20,
+                      fontFamily: 'NotoSansJP',
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  var controller = TextEditingController();
+                  Nav.whiteNavi(
+                    context,
+                    buildSearchPage(controller, context),
+                  );
+                },
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 24,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: C.subColor),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: CupertinoButton(
+                child: const Center(
+                  child: Text(
+                    '自分に贈る',
+                    style: TextStyle(
+                      color: C.subColor,
+                      fontSize: 20,
+                      fontFamily: 'NotoSansJP',
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    destination = 'me';
+                    rName = '自分';
+                    rId = _uid;
+                  });
+                },
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 24,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black54),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: CupertinoButton(
+                child: const Center(
+                  child: Text(
+                    '宛先を指定しない',
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 20,
+                      fontFamily: 'NotoSansJP',
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    destination = '';
+                  });
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Scaffold buildSearchPage(
+      TextEditingController controller, BuildContext context) {
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size(
+          400,
+          44.0,
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: AnimSearchBar(
+              width: 400,
+              autoFocus: true,
+              textController: controller,
+              onSuffixTap: () {
+                setState(() {
+                  controller.clear();
+                });
+              },
+            ),
+          ),
+        ),
+      ),
+      resizeToAvoidBottomInset: false,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterDocked,
+      floatingActionButton: Container(
+        height: 60,
+        width: 80,
+        padding: EdgeInsets.zero,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black54),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: CupertinoButton(
+          child: const Center(
+            child: Text(
+              '戻る',
+              style: TextStyle(
+                color: Colors.black54,
+                fontFamily: 'NotoSansJP',
+              ),
+            ),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: FutureBuilder(
+        future: FirebaseFirestore.instance.collection('userProfiles').get(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+        ) {
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              !snapshot.hasData) {
+            return const Center(
+              child: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                child: SizedBox(
+                  width: 240,
+                  height: 240,
+                  child: CircularProgressIndicator(
+                    color: C.subColor,
+                  ),
+                ),
+              ),
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, int index) {
+                var _profiles = snapshot.data!.docs[index];
+                var _name = _profiles['name'];
+                var _id = _profiles.id;
+                return ConstrainedBox(
+                  constraints: const BoxConstraints(minWidth: double.maxFinite),
+                  child: Card(
+                    elevation: 1.0,
+                    shadowColor: C.mainColor,
+                    margin: const EdgeInsets.only(bottom: 0.5),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              radius: 30,
+                              child: ClipOval(
+                                child: FutureBuilder(
+                                  future: getURLs(_id),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<String> snapshot) {
+                                    if (snapshot.connectionState ==
+                                            ConnectionState.done &&
+                                        snapshot.hasData) {
+                                      return CachedNetworkImage(
+                                        fit: BoxFit.cover,
+                                        imageUrl: snapshot.data!,
+                                      );
+                                    }
+                                    return Container();
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              _name.toString(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontFamily: 'NotoSansJP',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          GestureDetector(
+                            child: const Text(
+                              '贈る',
+                              style: TextStyle(color: C.accentColor),
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              setState(() {
+                                destination = 'someone';
+                                rName = _name;
+                                rId = _id;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 39),
+                          GestureDetector(
+                            child: const Text(
+                              '詳しく見る',
+                              style: TextStyle(color: Colors.blueAccent),
+                            ),
+                            onTap: () {},
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+          return Container();
+        },
+      ),
+    );
   }
 }
