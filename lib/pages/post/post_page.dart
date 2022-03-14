@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:anim_search_bar/anim_search_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -389,24 +388,25 @@ class _PostPageState extends State<PostPage> {
   Scaffold buildSearchPage(
       TextEditingController controller, BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size(
+      appBar: const PreferredSize(
+        preferredSize: Size(
           400,
           44.0,
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: AnimSearchBar(
-              width: 400,
-              autoFocus: true,
-              textController: controller,
-              onSuffixTap: () {
-                setState(() {
-                  controller.clear();
-                });
-              },
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(' '),
+            // child: AnimSearchBar(
+            //   width: 400,
+            //   autoFocus: true,
+            //   textController: controller,
+            //   onSuffixTap: () {
+            //     setState(() {
+            //       controller.clear();
+            //     });
+            //   },
+            // ),
           ),
         ),
       ),
