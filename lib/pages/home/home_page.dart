@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
 
                               return Text(
                                 '今日の感謝数：${data['todayThanks'].toString()}',
-                                style: countStyle(),
+                                style: Style.countStyle(),
                               );
                             }
                             if (snapshot.connectionState ==
@@ -129,7 +129,7 @@ class _HomePageState extends State<HomePage> {
 
                             return Text(
                               '今日の感謝数：　',
-                              style: countStyle(),
+                              style: Style.countStyle(),
                             );
                           },
                         ),
@@ -187,8 +187,32 @@ class _HomePageState extends State<HomePage> {
                         size: 26,
                       ),
                       'サインアウト',
-                      () async {
-                        await _auth.signOut();
+                      () {
+                        Navigator.pop(context);
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CupertinoAlertDialog(
+                                title: const Text('サインアウトの確認'),
+                                content: const Text('サインアウトしても良いですか？'),
+                                actions: <CupertinoDialogAction>[
+                                  CupertinoDialogAction(
+                                    child: const Text('キャンセル'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  CupertinoDialogAction(
+                                    child: const Text('はい'),
+                                    isDestructiveAction: true,
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      await _auth.signOut();
+                                    },
+                                  )
+                                ],
+                              );
+                            });
                       },
                     ),
                   ],
@@ -414,15 +438,6 @@ class _HomePageState extends State<HomePage> {
               ],
             )
           : null,
-    );
-  }
-
-  TextStyle countStyle() {
-    return const TextStyle(
-      fontFamily: 'NotoSansJP',
-      fontSize: 26,
-      fontWeight: FontWeight.bold,
-      color: C.subColor,
     );
   }
 }

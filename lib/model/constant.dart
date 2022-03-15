@@ -178,3 +178,14 @@ class Scroller {
     );
   }
 }
+
+class Style {
+  static TextStyle countStyle() {
+    return const TextStyle(
+      fontFamily: 'NotoSansJP',
+      fontSize: 26,
+      fontWeight: FontWeight.bold,
+      color: C.subColor,
+    );
+  }
+}
