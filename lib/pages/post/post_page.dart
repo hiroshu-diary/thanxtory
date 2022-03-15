@@ -29,10 +29,6 @@ class _PostPageState extends State<PostPage> {
   final _uid = FirebaseAuth.instance.currentUser!.uid;
   final _storage = FirebaseStorage.instance;
   final searchController = TextEditingController();
-  //todo Map
-  var nameList = [];
-  var idList = [];
-  Map<String, String> map = {};
 
   String _receiverId = '';
   String destination = '';
@@ -135,7 +131,7 @@ class _PostPageState extends State<PostPage> {
                           'servedCount': FieldValue.increment(1),
                         });
 
-                        if (destination != 'none') {
+                        if (destination != '') {
                           await _receivedPosts
                               .doc(_receiverId)
                               .collection('rPosts')
@@ -405,10 +401,10 @@ class _PostPageState extends State<PostPage> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
                   setState(() {
                     destination = '';
                   });
+                  Navigator.pop(context);
                 },
               ),
             ),

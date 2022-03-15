@@ -44,32 +44,6 @@ class _HomePageState extends State<HomePage> {
     if (!await launch(url)) throw 'Could not launch $url';
   }
 
-  InkWell buildTile(Icon icon, String title, VoidCallback onTap,
-      [Widget? trailing]) {
-    return InkWell(
-      onTap: onTap,
-      splashColor: C.mainColor,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: ListTile(
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: icon,
-          ),
-          title: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20.0,
-              fontFamily: 'NotoSansJP',
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          trailing: trailing,
-        ),
-      ),
-    );
-  }
-
   Future getCount() async {
     final snapshot = await _userProfiles.doc(_uid).get();
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
@@ -136,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const Divider(height: 2.0, color: C.subColor),
-                    buildTile(
+                    Tile.buildTile(
                       const Icon(
                         CupertinoIcons.settings,
                         color: Colors.black87,
@@ -152,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                     ),
-                    buildTile(
+                    Tile.buildTile(
                       Icon(
                         Platform.isIOS
                             ? FontAwesomeIcons.appStore
@@ -168,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                         _launchURL(_storeURL);
                       },
                     ),
-                    buildTile(
+                    Tile.buildTile(
                       const Icon(
                         CupertinoIcons.doc,
                         color: Colors.black87,
@@ -180,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                         _launchURL(_formURL);
                       },
                     ),
-                    buildTile(
+                    Tile.buildTile(
                       const Icon(
                         Icons.logout_outlined,
                         color: Colors.black87,
@@ -260,11 +234,9 @@ class _HomePageState extends State<HomePage> {
                               builder: (context) => Container(
                                 height: MediaQuery.of(context).size.height / 2,
                                 width: double.maxFinite,
-                                padding: const EdgeInsets.fromLTRB(
-                                  8.0,
-                                  24.0,
-                                  8.0,
-                                  24.0,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 24,
+                                  horizontal: 8.0,
                                 ),
                                 child: Column(
                                   mainAxisAlignment:

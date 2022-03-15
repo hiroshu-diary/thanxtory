@@ -189,3 +189,31 @@ class Style {
     );
   }
 }
+
+class Tile {
+  static InkWell buildTile(Icon icon, String title, VoidCallback onTap,
+      [Widget? trailing]) {
+    return InkWell(
+      onTap: onTap,
+      splashColor: C.mainColor,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: ListTile(
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: icon,
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20.0,
+              fontFamily: 'NotoSansJP',
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          trailing: trailing,
+        ),
+      ),
+    );
+  }
+}
