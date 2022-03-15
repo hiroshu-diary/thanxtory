@@ -212,6 +212,7 @@ class _HomePageState extends State<HomePage> {
                       floating: true,
                       centerTitle: true,
                       title: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () {
                           Scroller.scrollToTop(squareController);
                         },
@@ -225,131 +226,133 @@ class _HomePageState extends State<HomePage> {
                       ),
                       actions: [
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () {
                             showCupertinoModalBottomSheet(
                               context: context,
                               barrierColor: Colors.black54,
                               bounce: true,
                               duration: const Duration(milliseconds: 400),
-                              builder: (context) => SizedBox(
+                              builder: (context) => Container(
                                 height: MediaQuery.of(context).size.height / 2,
                                 width: double.maxFinite,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 24.0,
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 24.0),
-                                        child: Column(
-                                          children: [
-                                            Icon(
-                                              timeSequence == true
-                                                  ? CupertinoIcons.time
-                                                  : CupertinoIcons.shuffle,
-                                              size: 40,
-                                              color: C.accentColor,
-                                            ),
-                                            const SizedBox(height: 16.0),
-                                            Text(
-                                              timeSequence == true
-                                                  ? 'スクエアが「時間順」に設定されています'
-                                                  : 'スクエアが「ランダム」に設定されています',
-                                              style: const TextStyle(
-                                                fontSize: 24,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w800,
-                                                decoration: TextDecoration.none,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                padding: const EdgeInsets.fromLTRB(
+                                  8.0,
+                                  24.0,
+                                  8.0,
+                                  24.0,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24.0,
                                       ),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                      child: Column(
                                         children: [
-                                          Card(
-                                            elevation: 0.0,
-                                            margin: EdgeInsets.zero,
-                                            child: InkWell(
-                                              splashColor: C.mainColor,
-                                              onTap: () {
-                                                timeSequence = !timeSequence;
-                                                setState(() {});
-                                                Navigator.pop(context);
-                                              },
-                                              child: ListTile(
-                                                leading: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                    left: 8.0,
-                                                  ),
-                                                  child: Icon(
-                                                    timeSequence == true
-                                                        ? CupertinoIcons.shuffle
-                                                        : CupertinoIcons.time,
-                                                  ),
-                                                ),
-                                                title: Text(
-                                                  timeSequence == true
-                                                      ? 'ランダム表示に切り替え'
-                                                      : '時間表示に切り替え',
-                                                  style: const TextStyle(
-                                                    fontSize: 20,
-                                                    color: Colors.black,
-                                                    fontWeight: FontWeight.w700,
-                                                    decoration:
-                                                        TextDecoration.none,
-                                                  ),
-                                                ),
-                                                subtitle: Text(
-                                                  timeSequence == true
-                                                      ? 'スクエアの標示がランダムになります'
-                                                      : 'スクエアの標示が時間順になります',
-                                                ),
-                                              ),
-                                            ),
+                                          Icon(
+                                            timeSequence == true
+                                                ? CupertinoIcons.time
+                                                : CupertinoIcons.shuffle,
+                                            size: 40,
+                                            color: C.accentColor,
                                           ),
-                                          Card(
-                                            color: Colors.transparent,
-                                            elevation: 0.0,
-                                            margin: EdgeInsets.zero,
-                                            child: InkWell(
-                                              splashColor: Colors.black12,
-                                              onTap: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: const ListTile(
-                                                title: Text(
-                                                  'キャンセル',
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: 20,
-                                                    color: Colors.black,
-                                                    fontWeight: FontWeight.w700,
-                                                    decoration:
-                                                        TextDecoration.none,
-                                                  ),
-                                                ),
-                                              ),
+                                          const SizedBox(height: 16.0),
+                                          Text(
+                                            timeSequence == true
+                                                ? 'スクエアが「時間順」に設定されています'
+                                                : 'スクエアが「ランダム」に設定されています',
+                                            style: const TextStyle(
+                                              fontSize: 24,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w800,
+                                              decoration: TextDecoration.none,
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Card(
+                                          elevation: 0.0,
+                                          margin: EdgeInsets.zero,
+                                          child: InkWell(
+                                            splashColor: C.mainColor,
+                                            onTap: () {
+                                              timeSequence = !timeSequence;
+                                              setState(() {});
+                                              Navigator.pop(context);
+                                            },
+                                            child: ListTile(
+                                              leading: Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 8.0,
+                                                ),
+                                                child: Icon(
+                                                  timeSequence == true
+                                                      ? CupertinoIcons.shuffle
+                                                      : CupertinoIcons.time,
+                                                ),
+                                              ),
+                                              title: Text(
+                                                timeSequence == true
+                                                    ? 'ランダム表示に切り替え'
+                                                    : '時間表示に切り替え',
+                                                style: const TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w700,
+                                                  decoration:
+                                                      TextDecoration.none,
+                                                ),
+                                              ),
+                                              subtitle: Text(
+                                                timeSequence == true
+                                                    ? 'スクエアの標示がランダムになります'
+                                                    : 'スクエアの標示が時間順になります',
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Card(
+                                          color: Colors.transparent,
+                                          elevation: 0.0,
+                                          margin: EdgeInsets.zero,
+                                          child: InkWell(
+                                            splashColor: Colors.black12,
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const ListTile(
+                                              title: Text(
+                                                'キャンセル',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w700,
+                                                  decoration:
+                                                      TextDecoration.none,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
                           },
                           child: const Padding(
-                            padding: EdgeInsets.only(right: 16.0),
+                            padding: EdgeInsets.only(right: 8.0, left: 16.0),
                             child: Icon(
                               CupertinoIcons.arrow_up_arrow_down,
                               color: Colors.black54,

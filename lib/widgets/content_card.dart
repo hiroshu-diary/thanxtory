@@ -116,7 +116,6 @@ class _ContentCardState extends State<ContentCard> {
           'createdAt': Timestamp.fromDate(DateTime.now()),
         });
       }
-      return !isLiked;
     } else {
       await _clappedPosts.doc(_uid).collection('cPosts').doc(_postId).delete();
       await _servedPosts
@@ -149,8 +148,8 @@ class _ContentCardState extends State<ContentCard> {
             .doc(_uid)
             .delete();
       }
-      return !isLiked;
     }
+    return !isLiked;
   }
 
   Future<String> getURL(String id) async {
