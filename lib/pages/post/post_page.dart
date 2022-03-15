@@ -29,6 +29,12 @@ class _PostPageState extends State<PostPage> {
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
   final _uid = FirebaseAuth.instance.currentUser!.uid;
   final _storage = FirebaseStorage.instance;
+  final searchController = TextEditingController();
+  //todo Map
+  var nameList = [];
+  var idList = [];
+  Map<String, String> map = {};
+
   String _receiverId = '';
   String destination = '';
   String rName = '';
@@ -78,6 +84,7 @@ class _PostPageState extends State<PostPage> {
         ? Form(
             key: _formKey,
             child: Scaffold(
+              resizeToAvoidBottomInset: false,
               appBar: AppBar(
                 elevation: 0.0,
                 backgroundColor: Colors.transparent,
@@ -286,6 +293,9 @@ class _PostPageState extends State<PostPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          //List<Map<String,String>>
+          //List.where
+          //FutureBuilderはいらない→既存から絞り込む
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 32,
@@ -309,10 +319,10 @@ class _PostPageState extends State<PostPage> {
                 ),
                 onPressed: () {
                   Navigator.pop(context);
-                  var controller = TextEditingController();
+                  var _controller = TextEditingController();
                   Nav.whiteNavi(
                     context,
-                    buildSearchPage(controller, context),
+                    buildSearchPage(_controller, context),
                   );
                 },
               ),
@@ -386,56 +396,10 @@ class _PostPageState extends State<PostPage> {
   }
 
   Scaffold buildSearchPage(
-      TextEditingController controller, BuildContext context) {
+    TextEditingController controller,
+    BuildContext context,
+  ) {
     return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size(
-          400,
-          44.0,
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(' '),
-            // child: AnimSearchBar(
-            //   width: 400,
-            //   autoFocus: true,
-            //   textController: controller,
-            //   onSuffixTap: () {
-            //     setState(() {
-            //       controller.clear();
-            //     });
-            //   },
-            // ),
-          ),
-        ),
-      ),
-      resizeToAvoidBottomInset: false,
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterDocked,
-      floatingActionButton: Container(
-        height: 60,
-        width: 80,
-        padding: EdgeInsets.zero,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black54),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: CupertinoButton(
-          child: const Center(
-            child: Text(
-              '戻る',
-              style: TextStyle(
-                color: Colors.black54,
-                fontFamily: 'NotoSansJP',
-              ),
-            ),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
       body: FutureBuilder(
         future: FirebaseFirestore.instance.collection('userProfiles').get(),
         builder: (
@@ -459,12 +423,17 @@ class _PostPageState extends State<PostPage> {
           }
           if (snapshot.connectionState == ConnectionState.done) {
             return ListView.builder(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.only(top: 66),
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, int index) {
                 var _profiles = snapshot.data!.docs[index];
                 var _name = _profiles['name'];
                 var _id = _profiles.id;
+                //todo Map?
+                idList.add(_id);
+                nameList.add(_name);
+                var map = {_id, _name};
+                map.addAll(map);
                 return GestureDetector(
                   onTap: () => FocusScope.of(context).unfocus(),
                   child: ConstrainedBox(
@@ -563,6 +532,74 @@ class _PostPageState extends State<PostPage> {
           return Container();
         },
       ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(
+          bottom: 20.0,
+          right: 4.0,
+          left: 4.0,
+          top: 8.0,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: const SizedBox(
+                  height: 40,
+                  child: Center(
+                    child: Text(
+                      '＜ 戻る',
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 16,
+                        fontFamily: 'NotoSansJP',
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 6,
+              child: SizedBox(
+                height: 50,
+                child: ListTile(
+                  title: TextFormField(
+                    cursorColor: C.accentColor,
+                    onFieldSubmitted: (String text) {
+                      for (var name in nameList) {
+                        if (text.contains(name)) {}
+                      }
+                    },
+                    controller: searchController,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
+                          color: C.subColor,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
+                          color: Colors.black54,
+                          width: 1.0,
+                        ),
+                      ),
+                      hintText: '誰を探す？',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+
+///検索値.containsでtrueなら別のリストにidを保存する。→このリストでFutureBuilderをstackでtopに標示する
