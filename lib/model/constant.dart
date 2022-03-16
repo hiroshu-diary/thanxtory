@@ -217,3 +217,13 @@ class Tile {
     );
   }
 }
+
+class AllUser {
+  late String id;
+  late String name;
+
+  AllUser({
+    required this.id,
+    required this.name,
+  });
+}

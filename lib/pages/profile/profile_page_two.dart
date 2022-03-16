@@ -188,7 +188,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
         children: [
           buildRefresher(_servedPosts, _uid, 'sPosts', _serveController),
           buildRefresher(_receivedPosts, _uid, 'rPosts', _receiveController),
-          clapList(_uid),
+          clapList(),
         ],
       ),
       bottomNavigationBar: Padding(
@@ -336,9 +336,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
     );
   }
 
-  RefreshIndicator clapList(
-    String userId,
-  ) {
+  RefreshIndicator clapList() {
     return RefreshIndicator(
       backgroundColor: Colors.white,
       color: C.subColor,

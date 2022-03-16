@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import '../../model/constant.dart';
 import '../animation/animation_page.dart';
 import '../home/home_page.dart';
+import '../profile/profile_page_two.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({Key? key}) : super(key: key);
@@ -29,6 +30,8 @@ class _PostPageState extends State<PostPage> {
   final _uid = FirebaseAuth.instance.currentUser!.uid;
   final _storage = FirebaseStorage.instance;
   final searchController = TextEditingController();
+  List<AllUser> userList = [];
+  List<String> searchList = [];
 
   String _receiverId = '';
   String destination = '';
@@ -65,6 +68,7 @@ class _PostPageState extends State<PostPage> {
     super.initState();
     _textEditingController = TextEditingController();
     destination = '';
+    searchList = [];
   }
 
   @override
@@ -310,38 +314,10 @@ class _PostPageState extends State<PostPage> {
                   ),
                 ),
                 onPressed: () {
+                  Navigator.pop(context);
                   Nav.whiteNavi(
                     context,
-                    // const SearchPage(),
-                    Scaffold(
-                      body: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Coming soon...',
-                            ),
-                            MaterialButton(
-                              color: C.mainColor,
-                              child: const Text(
-                                '戻る',
-                                style: TextStyle(
-                                  color: C.subColor,
-                                  fontSize: 20,
-                                  fontFamily: 'NotoSansJP',
-                                ),
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  destination = '';
-                                });
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    buildSearchPage(context),
                   );
                 },
               ),
@@ -410,6 +386,216 @@ class _PostPageState extends State<PostPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Scaffold buildSearchPage(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder(
+        future: _userProfiles.get(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+        ) {
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              !snapshot.hasData) {
+            return const Center(
+              child: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                child: SizedBox(
+                  width: 240,
+                  height: 240,
+                  child: CircularProgressIndicator(
+                    color: C.subColor,
+                  ),
+                ),
+              ),
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+              padding: const EdgeInsets.only(top: 66),
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, int index) {
+                var _profiles = snapshot.data!.docs[index];
+                var _name = _profiles['name'];
+                var _id = _profiles.id;
+                var _allUser = AllUser(id: _id, name: _name);
+                userList.add(_allUser);
+
+                return GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: ConstrainedBox(
+                    constraints:
+                        const BoxConstraints(minWidth: double.maxFinite),
+                    child: Card(
+                      elevation: 1.0,
+                      shadowColor: C.mainColor,
+                      margin: const EdgeInsets.only(bottom: 0.5),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                radius: 30,
+                                child: ClipOval(
+                                  child: FutureBuilder(
+                                    future: getURLs(_id),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<String> snapshot) {
+                                      if (snapshot.connectionState ==
+                                              ConnectionState.done &&
+                                          snapshot.hasData) {
+                                        return CachedNetworkImage(
+                                          fit: BoxFit.cover,
+                                          imageUrl: snapshot.data!,
+                                        );
+                                      }
+                                      return Container();
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                _name.toString(),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: 'NotoSansJP',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            GestureDetector(
+                              child: const Text(
+                                '贈る',
+                                style: TextStyle(
+                                  fontFamily: 'NotoSansJP',
+                                  fontSize: 16,
+                                  color: C.accentColor,
+                                ),
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  destination = 'someone';
+                                  rName = _name;
+                                  rId = _id;
+                                });
+                                Navigator.pop(context);
+                              },
+                            ),
+                            const SizedBox(width: 36),
+                            GestureDetector(
+                              child: const Text(
+                                '詳しく見る',
+                                style: TextStyle(
+                                  fontFamily: 'NotoSansJP',
+                                  fontSize: 16,
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                              onTap: () {
+                                Nav.whiteNavi(
+                                  context,
+                                  ProfilePageTwo(userId: _id),
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 16),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+          return Container();
+        },
+      ),
+      bottomNavigationBar: Container(
+        color: const Color.fromRGBO(210, 212, 217, 1.0),
+        padding: const EdgeInsets.only(
+          bottom: 20.0,
+          right: 8.0,
+          left: 4.0,
+          top: 16.0,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 2,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: const SizedBox(
+                  height: 48,
+                  child: Center(
+                    child: Text(
+                      ' ＜ 戻る',
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 17,
+                        fontFamily: 'NotoSansJP',
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 9,
+              child: SizedBox(
+                height: 48,
+                child: TextFormField(
+                  maxLines: 1,
+                  cursorColor: C.accentColor,
+                  controller: searchController,
+                  textInputAction: TextInputAction.search,
+                  textAlignVertical: TextAlignVertical.center,
+                  onFieldSubmitted: (String text) {
+                    for (var n in userList) {
+                      if (n.name.contains(text)) {
+                        searchList.add(n.id);
+                      }
+                    }
+                    print(searchList);
+                    //todo searchListにあるuidを持つユーザーだけを標示する
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Colors.transparent,
+                        width: 1.0,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Colors.transparent,
+                        width: 1.0,
+                      ),
+                    ),
+                    hintText: '誰を探す？',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

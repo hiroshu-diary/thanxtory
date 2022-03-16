@@ -29,9 +29,9 @@ class _ProfilePageState extends State<ProfilePage>
   final ScrollController _receiveController = ScrollController();
   final ScrollController _clapController = ScrollController();
 
-  Future<List<Map<String, dynamic>>> myClap(String id) async {
+  Future<List<Map<String, dynamic>>> myClap() async {
     final snapshot = await _clappedPosts
-        .doc(id)
+        .doc(_uid)
         .collection('cPosts')
         .orderBy('clappedAt', descending: true)
         .get();
@@ -302,7 +302,7 @@ class _ProfilePageState extends State<ProfilePage>
         setState(() {});
       },
       child: FutureBuilder(
-        future: myClap(_uid),
+        future: myClap(),
         builder: (
           BuildContext context,
           AsyncSnapshot<List<Map<String, dynamic>>> snapshot,
