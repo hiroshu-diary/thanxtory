@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   List viewList = [
     const SquarePage(),
     const PostPage(),
-    const ProfilePage(),
+    const ProfilePage(userId: '', isMe: true),
   ];
 
   void _launchURL(url) async {

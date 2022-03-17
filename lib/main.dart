@@ -20,7 +20,7 @@ void main() async {
     MultiProvider(
       providers: [
         Provider(create: (_) => GlobalKey<NavigatorState>()),
-        Provider(create: (_) => ScaffoldMessengerController()),
+        Provider(create: (_) => SMController()),
       ],
       child: const MyApp(),
     ),
@@ -80,8 +80,7 @@ class ScaffoldMessengerNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
-      key: context.select<ScaffoldMessengerController, Key>(
-          (c) => c.scaffoldMessengerKey),
+      key: context.select<SMController, Key>((c) => c.scaffoldMessengerKey),
       child: Scaffold(
         body: Navigator(
           key: context.watch<GlobalKey<NavigatorState>>(),

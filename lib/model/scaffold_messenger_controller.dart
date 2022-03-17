@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'constant.dart';
 
-class ScaffoldMessengerController<T> {
+class SMController<T> {
   final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   Future<T?> showAchievement(String achieveMessage) {

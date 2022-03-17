@@ -54,9 +54,7 @@ class _AnimationPageState extends State<AnimationPage>
 
     if (mounted) {
       if (widget.count == 0 || widget.count == 2) {
-        await context
-            .read<ScaffoldMessengerController>()
-            .showAchievement(_text);
+        await context.read<SMController>().showAchievement(_text);
       }
     }
   }

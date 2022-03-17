@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import '../../model/constant.dart';
 import '../animation/animation_page.dart';
 import '../home/home_page.dart';
-import '../profile/profile_page_two.dart';
+import '../profile/profile_page.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({Key? key}) : super(key: key);
@@ -588,7 +588,7 @@ class _PostPageState extends State<PostPage> {
                   onTap: () {
                     Nav.whiteNavi(
                       context,
-                      ProfilePageTwo(userId: _id),
+                      ProfilePage(userId: _id, isMe: false),
                     );
                   },
                 ),

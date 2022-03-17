@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
 
 import '../model/constant.dart';
-import '../pages/profile/profile_page_two.dart';
+import '../pages/profile/profile_page.dart';
 
 class ContentCard extends StatefulWidget {
   final String postId;
@@ -363,7 +363,10 @@ class _ContentCardState extends State<ContentCard> {
                             if (_serverId != _uid) {
                               Navigator.push(context, MaterialPageRoute(
                                   builder: (BuildContext context) {
-                                return ProfilePageTwo(userId: _serverId);
+                                return ProfilePage(
+                                  userId: _serverId,
+                                  isMe: false,
+                                );
                               }));
                             }
                           },
@@ -400,8 +403,10 @@ class _ContentCardState extends State<ContentCard> {
                                   if (_receiverId != _uid) {
                                     Navigator.push(context, MaterialPageRoute(
                                         builder: (BuildContext context) {
-                                      return ProfilePageTwo(
-                                          userId: _receiverId);
+                                      return ProfilePage(
+                                        userId: _receiverId,
+                                        isMe: false,
+                                      );
                                     }));
                                   }
                                 },
@@ -450,8 +455,10 @@ class _ContentCardState extends State<ContentCard> {
                                     if (_serverId != _uid) {
                                       Navigator.push(context, MaterialPageRoute(
                                           builder: (BuildContext context) {
-                                        return ProfilePageTwo(
-                                            userId: _serverId);
+                                        return ProfilePage(
+                                          userId: _serverId,
+                                          isMe: false,
+                                        );
                                       }));
                                     }
                                   },

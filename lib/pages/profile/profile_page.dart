@@ -2,24 +2,29 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/widgets/content_card.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
-  static const path = '/profile/';
-  static const name = 'ProfilePage';
-
+  final String userId;
+  final bool isMe;
+  const ProfilePage({
+    Key? key,
+    required this.userId,
+    required this.isMe,
+  }) : super(key: key);
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
+  late String _uid;
+  late bool isMe;
   late TabController _tabController;
   final storage = FirebaseStorage.instance;
-  final _uid = FirebaseAuth.instance.currentUser!.uid;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   final _servedPosts = FirebaseFirestore.instance.collection('servedPosts');
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
@@ -61,6 +66,8 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
+    isMe = widget.isMe;
+    _uid = widget.isMe ? FirebaseAuth.instance.currentUser!.uid : widget.userId;
     super.initState();
   }
 
@@ -130,8 +137,9 @@ class _ProfilePageState extends State<ProfilePage>
                   const SizedBox(width: 20),
                   buildFutureBuilder(
                     'name',
-                    const TextStyle(
+                    TextStyle(
                       fontSize: 16.0,
+                      color: isMe ? Colors.black : C.subColor,
                       fontFamily: 'NotoSansJP',
                       fontWeight: FontWeight.w600,
                     ),
@@ -184,6 +192,34 @@ class _ProfilePageState extends State<ProfilePage>
           clapList(),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: isMe
+          ? null
+          : Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: C.subColor),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: 90,
+              height: 60,
+              child: CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Center(
+                  child: Text(
+                    '戻る',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontFamily: 'NotoSansJP',
+                      color: C.subColor,
+                    ),
+                  ),
+                ),
+              ),
+            ),
     );
   }
 
