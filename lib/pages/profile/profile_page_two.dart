@@ -29,9 +29,9 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
   final ScrollController _clapController = ScrollController();
   late String _uid;
 
-  Future<List<Map<String, dynamic>>> myClap() async {
+  Future<List<Map<String, dynamic>>> myClap(String id) async {
     final snapshot = await _clappedPosts
-        .doc(_uid)
+        .doc(id)
         .collection('cPosts')
         .orderBy('clappedAt', descending: true)
         .get();
@@ -61,7 +61,6 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
-
     _uid = widget.userId;
     super.initState();
   }
@@ -191,14 +190,15 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
           clapList(),
         ],
       ),
-      bottomNavigationBar: Padding(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
         padding: const EdgeInsets.only(
           left: 80.0,
           right: 80.0,
-          bottom: 39.0,
         ),
         child: Container(
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(color: C.subColor),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -344,7 +344,7 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
         setState(() {});
       },
       child: FutureBuilder(
-        future: myClap(),
+        future: myClap(_uid),
         builder: (
           BuildContext context,
           AsyncSnapshot<List<Map<String, dynamic>>> snapshot,

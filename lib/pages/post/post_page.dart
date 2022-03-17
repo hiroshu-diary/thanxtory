@@ -32,12 +32,8 @@ class _PostPageState extends State<PostPage> {
   final searchController = TextEditingController();
   List<AllUser> userList = [];
   List<String> searchList = [];
-
   String _receiverId = '';
-  String destination = '';
-  String rName = '';
-  String rId = '';
-
+  String _receiverName = 'Thanxtoryアカウント';
   late TextEditingController _textEditingController;
   final storage = FirebaseStorage.instance;
   Future<String> getURLs(String id) async {
@@ -50,6 +46,13 @@ class _PostPageState extends State<PostPage> {
     var ref = _storage.ref('$_uid/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
     return imageUrl;
+  }
+
+  Future<void> resetList() async {
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      searchList = [];
+    });
   }
 
   Future getCount() async {
@@ -67,7 +70,9 @@ class _PostPageState extends State<PostPage> {
     getCount();
     super.initState();
     _textEditingController = TextEditingController();
-    destination = '';
+    _receiverId = '';
+    _receiverName = 'Thanxtoryアカウント';
+
     searchList = [];
   }
 
@@ -109,14 +114,6 @@ class _PostPageState extends State<PostPage> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        if (destination == 'someone') {
-                          _receiverId = rId;
-                        } else if (destination == 'me') {
-                          _receiverId = _uid;
-                        } else {
-                          _receiverId = '';
-                        }
-
                         final newPostDoc =
                             _servedPosts.doc(_uid).collection('sPosts').doc();
                         var _postId = newPostDoc.id;
@@ -135,7 +132,7 @@ class _PostPageState extends State<PostPage> {
                           'servedCount': FieldValue.increment(1),
                         });
 
-                        if (destination != '') {
+                        if (_receiverId != '') {
                           await _receivedPosts
                               .doc(_receiverId)
                               .collection('rPosts')
@@ -148,7 +145,7 @@ class _PostPageState extends State<PostPage> {
                             'content': _textEditingController.text,
                             'clapCount': 0,
                           });
-                          await _userProfiles.doc(_uid).update({
+                          await _userProfiles.doc(_receiverId).update({
                             'receivedCount': FieldValue.increment(1),
                           });
                         }
@@ -242,7 +239,7 @@ class _PostPageState extends State<PostPage> {
                   child: CupertinoButton(
                     child: Center(
                       child: Text(
-                        destination == '' ? 'Thanxtoryアカウントに贈る' : '$rNameに贈る',
+                        '$_receiverNameに贈る',
                         style: const TextStyle(
                           color: C.subColor,
                           fontSize: 18,
@@ -251,10 +248,7 @@ class _PostPageState extends State<PostPage> {
                       ),
                     ),
                     onPressed: () {
-                      Nav.whiteNavi(
-                        context,
-                        buildSelectPage(context),
-                      );
+                      Nav.whiteNavi(context, buildSelectPage(context));
                     },
                   ),
                 ),
@@ -347,9 +341,8 @@ class _PostPageState extends State<PostPage> {
                 onPressed: () {
                   Navigator.pop(context);
                   setState(() {
-                    destination = 'me';
-                    rName = '自分';
-                    rId = _uid;
+                    _receiverId = _uid;
+                    _receiverName = '自分';
                   });
                 },
               ),
@@ -378,7 +371,8 @@ class _PostPageState extends State<PostPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    destination = '';
+                    _receiverId = '';
+                    _receiverName = 'Thanxtory';
                   });
                   Navigator.pop(context);
                 },
@@ -392,144 +386,60 @@ class _PostPageState extends State<PostPage> {
 
   Scaffold buildSearchPage(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: _userProfiles.get(),
-        builder: (
-          BuildContext context,
-          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
-        ) {
-          if (snapshot.connectionState == ConnectionState.waiting ||
-              !snapshot.hasData) {
-            return const Center(
-              child: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                child: SizedBox(
-                  width: 240,
-                  height: 240,
-                  child: CircularProgressIndicator(
-                    color: C.subColor,
-                  ),
-                ),
-              ),
-            );
-          }
-          if (snapshot.connectionState == ConnectionState.done) {
-            return ListView.builder(
-              padding: const EdgeInsets.only(top: 66),
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, int index) {
-                var _profiles = snapshot.data!.docs[index];
-                var _name = _profiles['name'];
-                var _id = _profiles.id;
-                var _allUser = AllUser(id: _id, name: _name);
-                userList.add(_allUser);
-
-                return GestureDetector(
-                  onTap: () => FocusScope.of(context).unfocus(),
-                  child: ConstrainedBox(
-                    constraints:
-                        const BoxConstraints(minWidth: double.maxFinite),
-                    child: Card(
-                      elevation: 1.0,
-                      shadowColor: C.mainColor,
-                      margin: const EdgeInsets.only(bottom: 0.5),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                radius: 30,
-                                child: ClipOval(
-                                  child: FutureBuilder(
-                                    future: getURLs(_id),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<String> snapshot) {
-                                      if (snapshot.connectionState ==
-                                              ConnectionState.done &&
-                                          snapshot.hasData) {
-                                        return CachedNetworkImage(
-                                          fit: BoxFit.cover,
-                                          imageUrl: snapshot.data!,
-                                        );
-                                      }
-                                      return Container();
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                _name.toString(),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontFamily: 'NotoSansJP',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            GestureDetector(
-                              child: const Text(
-                                '贈る',
-                                style: TextStyle(
-                                  fontFamily: 'NotoSansJP',
-                                  fontSize: 16,
-                                  color: C.accentColor,
-                                ),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  destination = 'someone';
-                                  rName = _name;
-                                  rId = _id;
-                                });
-                                Navigator.pop(context);
-                              },
-                            ),
-                            const SizedBox(width: 36),
-                            GestureDetector(
-                              child: const Text(
-                                '詳しく見る',
-                                style: TextStyle(
-                                  fontFamily: 'NotoSansJP',
-                                  fontSize: 16,
-                                  color: Colors.blueAccent,
-                                ),
-                              ),
-                              onTap: () {
-                                Nav.whiteNavi(
-                                  context,
-                                  ProfilePageTwo(userId: _id),
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 16),
-                          ],
-                        ),
-                      ),
+      body: RefreshIndicator(
+        backgroundColor: Colors.white,
+        color: C.subColor,
+        onRefresh: () async {
+          setState(() {});
+        },
+        //todo 37行目以降を参考に→https://github.com/flutteruniv/salon_app/blob/develop/ios/Podfile#L37
+        //todo Stream＋onChangedで試す
+        child: FutureBuilder(
+          //todo isSearchingがfalseなら今のままで、trueならsearchList(idのリスト)にあるものだけを返す
+          future: searchController.text.isNotEmpty
+              ? _userProfiles.where('name', whereIn: searchList).get()
+              : _userProfiles.get(),
+          builder: (
+            BuildContext context,
+            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+          ) {
+            if (snapshot.connectionState == ConnectionState.waiting ||
+                !snapshot.hasData) {
+              return const Center(
+                child: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  child: SizedBox(
+                    width: 240,
+                    height: 240,
+                    child: CircularProgressIndicator(
+                      color: C.subColor,
                     ),
                   ),
-                );
-              },
-            );
-          }
-          return Container();
-        },
+                ),
+              );
+            }
+            if (snapshot.connectionState == ConnectionState.done) {
+              return ListView.builder(
+                padding: const EdgeInsets.only(top: 66),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, int index) {
+                  var _profiles = snapshot.data!.docs[index];
+                  var _name = _profiles['name'];
+                  var _id = _profiles.id;
+                  var _allUser = AllUser(id: _id, name: _name);
+                  userList.add(_allUser);
+                  return buildUserCard(context, _id, _name);
+                },
+              );
+            }
+            return Container();
+          },
+        ),
       ),
       bottomNavigationBar: Container(
         color: const Color.fromRGBO(210, 212, 217, 1.0),
         padding: const EdgeInsets.only(
-          bottom: 20.0,
-          right: 8.0,
-          left: 4.0,
-          top: 16.0,
-        ),
+            bottom: 20.0, right: 8.0, left: 4.0, top: 16.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -545,7 +455,7 @@ class _PostPageState extends State<PostPage> {
                       ' ＜ 戻る',
                       style: TextStyle(
                         color: Colors.black54,
-                        fontSize: 17,
+                        fontSize: 16,
                         fontFamily: 'NotoSansJP',
                       ),
                     ),
@@ -563,38 +473,140 @@ class _PostPageState extends State<PostPage> {
                   controller: searchController,
                   textInputAction: TextInputAction.search,
                   textAlignVertical: TextAlignVertical.center,
-                  onFieldSubmitted: (String text) {
-                    for (var n in userList) {
-                      if (n.name.contains(text)) {
-                        searchList.add(n.id);
+                  onChanged: (String text) {
+                    for (var name in searchList) {
+                      if (name.contains(text) == false) {
+                        searchList.remove(name);
+                      }
+                    }
+                  },
+                  onFieldSubmitted: (String text) async {
+                    for (var user in userList) {
+                      if (user.name.contains(text)) {
+                        searchList.add(user.name);
                       }
                     }
                     print(searchList);
-                    //todo searchListにあるuidを持つユーザーだけを標示する
+                    resetList;
+                    //todo searchListにあるuidを持つユーザーだけを標示する →FutureBuilderを再取得させたい
                   },
                   decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                     filled: true,
                     fillColor: Colors.white,
+                    hintText: '検索 / 名前を入力',
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: const BorderSide(
                         color: Colors.transparent,
                         width: 1.0,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: const BorderSide(
                         color: Colors.transparent,
                         width: 1.0,
                       ),
                     ),
-                    hintText: '誰を探す？',
                   ),
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  GestureDetector buildUserCard(BuildContext context, String _id, _name) {
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: double.maxFinite),
+        child: Card(
+          elevation: 1.0,
+          shadowColor: C.mainColor,
+          margin: const EdgeInsets.only(bottom: 0.5),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 30,
+                    child: ClipOval(
+                      child: FutureBuilder(
+                        future: getURLs(_id),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<String> snapshot) {
+                          if (snapshot.connectionState ==
+                                  ConnectionState.done &&
+                              snapshot.hasData) {
+                            return CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl: snapshot.data!,
+                            );
+                          }
+                          return Container();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    _name.toString(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'NotoSansJP',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  child: const Text(
+                    '贈る',
+                    style: TextStyle(
+                      fontFamily: 'NotoSansJP',
+                      fontSize: 16,
+                      color: C.accentColor,
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _receiverId = _id;
+                      _receiverName = _name;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(width: 36),
+                GestureDetector(
+                  child: const Text(
+                    '詳しく見る',
+                    style: TextStyle(
+                      fontFamily: 'NotoSansJP',
+                      fontSize: 16,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                  onTap: () {
+                    Nav.whiteNavi(
+                      context,
+                      ProfilePageTwo(userId: _id),
+                    );
+                  },
+                ),
+                const SizedBox(width: 16),
+              ],
+            ),
+          ),
         ),
       ),
     );
