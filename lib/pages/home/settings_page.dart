@@ -305,7 +305,6 @@ class _SettingsPageState extends State<SettingsPage> {
                             'name': _nameController.text,
                             'introduction': _introController.text,
                           });
-                          // todo _nameController.textのbi-gramを生成してarrayをすべて更新する
                         }
                         if (imageFile != null) {
                           await _storage

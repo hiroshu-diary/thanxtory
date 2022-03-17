@@ -191,32 +191,26 @@ class _ProfilePageTwoState extends State<ProfilePageTwo>
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(
-          left: 80.0,
-          right: 80.0,
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: C.subColor),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: C.subColor),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          width: double.maxFinite,
-          height: 60,
-          child: CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Center(
-              child: Text(
-                '戻る',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontFamily: 'NotoSansJP',
-                  color: C.subColor,
-                ),
+        width: 90,
+        height: 60,
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Center(
+            child: Text(
+              '戻る',
+              style: TextStyle(
+                fontSize: 24,
+                fontFamily: 'NotoSansJP',
+                color: C.subColor,
               ),
             ),
           ),

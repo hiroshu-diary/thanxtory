@@ -29,37 +29,29 @@ class _PostPageState extends State<PostPage> {
   final _receivedPosts = FirebaseFirestore.instance.collection('receivedPosts');
   final _uid = FirebaseAuth.instance.currentUser!.uid;
   final _storage = FirebaseStorage.instance;
-  final searchController = TextEditingController();
-  List<AllUser> userList = [];
-  List<String> searchList = [];
   String _receiverId = '';
   String _receiverName = 'Thanxtoryアカウント';
   late TextEditingController _textEditingController;
-  final storage = FirebaseStorage.instance;
-  Future<String> getURLs(String id) async {
-    var ref = storage.ref('$id/default_image.jpeg');
+  // final searchController = TextEditingController();
+  // List<AllUser> userList = [];
+  // List<String> searchList = [];
+  // Future<void> resetList() async {
+  //   await Future.delayed(const Duration(seconds: 1));
+  //   setState(() {
+  //     searchList = [];
+  //   });
+  // }
+
+  Future<String> getURL(String id) async {
+    var ref = _storage.ref('$id/default_image.jpeg');
     String imageUrl = await ref.getDownloadURL();
     return imageUrl;
-  }
-
-  Future<String> getURL() async {
-    var ref = _storage.ref('$_uid/default_image.jpeg');
-    String imageUrl = await ref.getDownloadURL();
-    return imageUrl;
-  }
-
-  Future<void> resetList() async {
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      searchList = [];
-    });
   }
 
   Future getCount() async {
     final snapshot = await _userProfiles.doc(_uid).get();
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     final _count = data['todayThanks'];
-
     setState(() {
       todayThanks = _count;
     });
@@ -72,8 +64,7 @@ class _PostPageState extends State<PostPage> {
     _textEditingController = TextEditingController();
     _receiverId = '';
     _receiverName = 'Thanxtoryアカウント';
-
-    searchList = [];
+    // searchList = [];
   }
 
   @override
@@ -185,7 +176,7 @@ class _PostPageState extends State<PostPage> {
                           radius: 30,
                           child: ClipOval(
                             child: FutureBuilder(
-                              future: getURL(),
+                              future: getURL(_uid),
                               builder: (BuildContext context,
                                   AsyncSnapshot<String> snapshot) {
                                 if (snapshot.connectionState ==
@@ -396,9 +387,7 @@ class _PostPageState extends State<PostPage> {
         //todo Stream＋onChangedで試す
         child: FutureBuilder(
           //todo isSearchingがfalseなら今のままで、trueならsearchList(idのリスト)にあるものだけを返す
-          future: searchController.text.isNotEmpty
-              ? _userProfiles.where('name', whereIn: searchList).get()
-              : _userProfiles.get(),
+          future: _userProfiles.get(),
           builder: (
             BuildContext context,
             AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
@@ -426,8 +415,8 @@ class _PostPageState extends State<PostPage> {
                   var _profiles = snapshot.data!.docs[index];
                   var _name = _profiles['name'];
                   var _id = _profiles.id;
-                  var _allUser = AllUser(id: _id, name: _name);
-                  userList.add(_allUser);
+                  // var _allUser = AllUser(id: _id, name: _name);
+                  // userList.add(_allUser);
                   return buildUserCard(context, _id, _name);
                 },
               );
@@ -439,7 +428,7 @@ class _PostPageState extends State<PostPage> {
       bottomNavigationBar: Container(
         color: const Color.fromRGBO(210, 212, 217, 1.0),
         padding: const EdgeInsets.only(
-            bottom: 20.0, right: 8.0, left: 4.0, top: 16.0),
+            bottom: 20.0, right: 8.0, left: 8.0, top: 12.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -452,10 +441,10 @@ class _PostPageState extends State<PostPage> {
                   height: 48,
                   child: Center(
                     child: Text(
-                      ' ＜ 戻る',
+                      '戻る(検索機能準備中...)',
                       style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 16,
+                        color: Colors.black,
+                        fontSize: 18,
                         fontFamily: 'NotoSansJP',
                       ),
                     ),
@@ -463,56 +452,56 @@ class _PostPageState extends State<PostPage> {
                 ),
               ),
             ),
-            Expanded(
-              flex: 9,
-              child: SizedBox(
-                height: 48,
-                child: TextFormField(
-                  maxLines: 1,
-                  cursorColor: C.accentColor,
-                  controller: searchController,
-                  textInputAction: TextInputAction.search,
-                  textAlignVertical: TextAlignVertical.center,
-                  onChanged: (String text) {
-                    for (var name in searchList) {
-                      if (name.contains(text) == false) {
-                        searchList.remove(name);
-                      }
-                    }
-                  },
-                  onFieldSubmitted: (String text) async {
-                    for (var user in userList) {
-                      if (user.name.contains(text)) {
-                        searchList.add(user.name);
-                      }
-                    }
-                    print(searchList);
-                    resetList;
-                    //todo searchListにあるuidを持つユーザーだけを標示する →FutureBuilderを再取得させたい
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                    filled: true,
-                    fillColor: Colors.white,
-                    hintText: '検索 / 名前を入力',
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Colors.transparent,
-                        width: 1.0,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Colors.transparent,
-                        width: 1.0,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // Expanded(
+            //   flex: 9,
+            //   child: SizedBox(
+            //     height: 48,
+            //     child: TextFormField(
+            //       maxLines: 1,
+            //       cursorColor: C.accentColor,
+            //       controller: searchController,
+            //       textInputAction: TextInputAction.search,
+            //       textAlignVertical: TextAlignVertical.center,
+            //       onChanged: (String text) {
+            //         for (var name in searchList) {
+            //           if (name.contains(text) == false) {
+            //             searchList.remove(name);
+            //           }
+            //         }
+            //       },
+            //       onFieldSubmitted: (String text) async {
+            //         for (var user in userList) {
+            //           if (user.name.contains(text)) {
+            //             searchList.add(user.name);
+            //           }
+            //         }
+            //         print(searchList);
+            //         resetList;
+            //         //todo searchListにあるuidを持つユーザーだけを標示する →FutureBuilderを再取得させたい
+            //       },
+            //       decoration: InputDecoration(
+            //         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            //         filled: true,
+            //         fillColor: Colors.white,
+            //         hintText: '検索 / 名前を入力',
+            //         focusedBorder: OutlineInputBorder(
+            //           borderRadius: BorderRadius.circular(14),
+            //           borderSide: const BorderSide(
+            //             color: Colors.transparent,
+            //             width: 1.0,
+            //           ),
+            //         ),
+            //         enabledBorder: OutlineInputBorder(
+            //           borderRadius: BorderRadius.circular(14),
+            //           borderSide: const BorderSide(
+            //             color: Colors.transparent,
+            //             width: 1.0,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -540,7 +529,7 @@ class _PostPageState extends State<PostPage> {
                     radius: 30,
                     child: ClipOval(
                       child: FutureBuilder(
-                        future: getURLs(_id),
+                        future: getURL(_id),
                         builder: (BuildContext context,
                             AsyncSnapshot<String> snapshot) {
                           if (snapshot.connectionState ==

@@ -1,6 +1,12 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:thanxtory/model/constant.dart';
 import 'package:thanxtory/pages/login/auth_error.dart';
 import 'package:thanxtory/pages/login/email_checker.dart';
@@ -16,8 +22,11 @@ class Registration extends StatefulWidget {
 
 class _RegistrationState extends State<Registration> {
   final _auth = FirebaseAuth.instance;
-  late UserCredential _result;
+  final storage = FirebaseStorage.instance;
+  final userProfiles = FirebaseFirestore.instance.collection('userProfiles');
+
   late User _user;
+  late UserCredential _result;
 
   String _infoText = '';
   final TextEditingController _nameController = TextEditingController();
@@ -25,6 +34,32 @@ class _RegistrationState extends State<Registration> {
   final TextEditingController _passwordController = TextEditingController();
 
   final authError = AuthenticationError();
+
+  Future<void> setUserProfiles(String uid, String mail, String name) {
+    return userProfiles.doc(uid).set({
+      'mail': mail,
+      'name': name,
+      'introduction': 'Thanxtory、始めました！',
+      'todayThanks': 0,
+      'servedCount': 0,
+      'receivedCount': 0
+    });
+  }
+
+  Future<File> getImageFileFromAssets() async {
+    final byteData = await rootBundle.load('assets/default_image.jpeg');
+    final directory = await getApplicationDocumentsDirectory();
+    final directoryPath = directory.path;
+    final file = File('$directoryPath/default_image.jpeg');
+    await file.writeAsBytes(
+      byteData.buffer.asUint8List(
+        byteData.offsetInBytes,
+        byteData.lengthInBytes,
+      ),
+    );
+
+    return file;
+  }
 
   @override
   void dispose() {
@@ -81,10 +116,18 @@ class _RegistrationState extends State<Registration> {
 
                       _user = _result.user!;
                       _user.sendEmailVerification();
+
+                      final uid = _result.user!.uid;
+                      await setUserProfiles(
+                          uid, _mailController.text, _nameController.text);
+
+                      final File f = await getImageFileFromAssets();
+
+                      await storage.ref('$uid/default_image.jpeg').putFile(f);
+
                       Nav.whiteNavi(
                         context,
                         EmailCheck(
-                          name: _nameController.text,
                           mail: _mailController.text,
                           password: _passwordController.text,
                           from: 1,

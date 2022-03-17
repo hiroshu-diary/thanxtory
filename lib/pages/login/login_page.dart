@@ -20,7 +20,7 @@ class _Login extends State<LoginPage> {
   late UserCredential _result;
   late User _user;
   final authError = AuthenticationError();
-  String _infoText = "";
+  String _infoText = '';
 
   final TextEditingController _mailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -77,7 +77,6 @@ class _Login extends State<LoginPage> {
                       Nav.whiteNavi(
                         context,
                         EmailCheck(
-                          name: '',
                           mail: _mailController.text,
                           password: _passwordController.text,
                           from: 2,
