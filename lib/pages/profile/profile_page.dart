@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:thanxtory/model/constant.dart';
+import 'package:thanxtory/widgets/bottom_navigation.dart';
 import 'package:thanxtory/widgets/content_card.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -193,6 +194,7 @@ class _ProfilePageState extends State<ProfilePage>
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: isMe ? kBuildBottomNavigationBar(context, 2) : null,
       floatingActionButton: isMe
           ? null
           : Container(

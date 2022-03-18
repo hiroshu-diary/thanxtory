@@ -90,11 +90,12 @@ class _PostPageState extends State<PostPage> {
                     style: TextStyle(color: Colors.black87),
                   ),
                   onPressed: () {
-                    Nav.navigate(
-                      context,
-                      const HomePage(),
-                      const Offset(0, 0),
-                    );
+                    Navigator.pop(context);
+                    // Nav.navigate(
+                    //   context,
+                    //   const HomePage(),
+                    //   const Offset(0, 0),
+                    // );
                   },
                 ),
                 actions: [
