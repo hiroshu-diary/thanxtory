@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'constant.dart';
 
-Padding editForm(TextEditingController controller, String label) {
+Padding editForm(TextEditingController controller, String label, bool isName) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
     child: TextFormField(
+      maxLength: isName ? 10 : null,
       controller: controller,
       cursorColor: C.accentColor,
       decoration: InputDecoration(

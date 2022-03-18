@@ -51,7 +51,7 @@ class _Login extends State<LoginPage> {
                 ),
               ),
             ),
-            editForm(_mailController, 'メールアドレス'),
+            editForm(_mailController, 'メールアドレス', false),
             pWForm(_passwordController),
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 5.0),

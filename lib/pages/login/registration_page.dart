@@ -83,8 +83,8 @@ class _RegistrationState extends State<Registration> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
-            editForm(_nameController, 'ユーザー名（変更可）'),
-            editForm(_mailController, 'メールアドレス'),
+            editForm(_nameController, 'ユーザー名（変更可）', true),
+            editForm(_mailController, 'メールアドレス', false),
             pWForm(_passwordController),
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 5.0),

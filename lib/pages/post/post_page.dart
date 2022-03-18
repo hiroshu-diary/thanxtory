@@ -522,38 +522,58 @@ class _PostPageState extends State<PostPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    radius: 30,
-                    child: ClipOval(
-                      child: FutureBuilder(
-                        future: getURL(_id),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<String> snapshot) {
-                          if (snapshot.connectionState ==
-                                  ConnectionState.done &&
-                              snapshot.hasData) {
-                            return CachedNetworkImage(
-                              fit: BoxFit.cover,
-                              imageUrl: snapshot.data!,
-                            );
-                          }
-                          return Container();
-                        },
+                //アイコン
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Nav.whiteNavi(
+                      context,
+                      ProfilePage(userId: _id, isMe: false),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      radius: 30,
+                      child: ClipOval(
+                        child: FutureBuilder(
+                          future: getURL(_id),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<String> snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.done &&
+                                snapshot.hasData) {
+                              return CachedNetworkImage(
+                                fit: BoxFit.cover,
+                                imageUrl: snapshot.data!,
+                              );
+                            }
+                            return Container();
+                          },
+                        ),
                       ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _name.toString(),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'NotoSansJP',
-                      fontWeight: FontWeight.w600,
+                //name
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Nav.whiteNavi(
+                      context,
+                      ProfilePage(userId: _id, isMe: false),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _name.toString(),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'NotoSansJP',
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -563,7 +583,7 @@ class _PostPageState extends State<PostPage> {
                     '贈る',
                     style: TextStyle(
                       fontFamily: 'NotoSansJP',
-                      fontSize: 16,
+                      fontSize: 18,
                       color: C.accentColor,
                     ),
                   ),
@@ -575,24 +595,7 @@ class _PostPageState extends State<PostPage> {
                     Navigator.pop(context);
                   },
                 ),
-                const SizedBox(width: 36),
-                GestureDetector(
-                  child: const Text(
-                    '詳しく見る',
-                    style: TextStyle(
-                      fontFamily: 'NotoSansJP',
-                      fontSize: 16,
-                      color: Colors.blueAccent,
-                    ),
-                  ),
-                  onTap: () {
-                    Nav.whiteNavi(
-                      context,
-                      ProfilePage(userId: _id, isMe: false),
-                    );
-                  },
-                ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 24.0),
               ],
             ),
           ),
