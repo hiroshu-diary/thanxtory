@@ -132,6 +132,7 @@ class _RegistrationState extends State<Registration> {
                           password: _passwordController.text,
                           from: 1,
                         ),
+                        600,
                       );
                     } on FirebaseAuthException catch (e) {
                       setState(() {

@@ -93,14 +93,18 @@ class Nav {
   }
 
   ///ホワイトアウトorブラックアウト
-  static void whiteNavi(BuildContext context, Widget page) {
+  static void whiteNavi(
+    BuildContext context,
+    Widget page,
+    int length,
+  ) {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
           return page;
         },
-        transitionDuration: const Duration(milliseconds: 600),
-        reverseTransitionDuration: const Duration(milliseconds: 600),
+        transitionDuration: Duration(milliseconds: length),
+        reverseTransitionDuration: Duration(milliseconds: length),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final color = ColorTween(
             begin: Colors.transparent,

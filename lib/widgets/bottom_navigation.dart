@@ -22,17 +22,25 @@ BottomNavigationBar kBuildBottomNavigationBar(
         Navigator.pop(context);
       }
       if (index == 1) {
-        Nav.navigate360(
-          context,
-          const Offset(0, 1),
-          const PostPage(),
-        );
+        if (todayThanks < 3) {
+          Nav.navigate360(
+            context,
+            const Offset(0, 1),
+            const PostPage(),
+          );
+        } else {
+          Nav.whiteNavi(
+            context,
+            const PostPage(),
+            10,
+          );
+        }
       }
       if (index == 2 && currentIndex != 2) {
-        Nav.navigate360(
+        Nav.whiteNavi(
           context,
-          const Offset(0, 0),
           const ProfilePage(userId: '', isMe: true),
+          10,
         );
       }
     },

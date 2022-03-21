@@ -75,202 +75,232 @@ class _PostPageState extends State<PostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return todayThanks < 3
-        ? Form(
-            key: _formKey,
-            child: Scaffold(
-              resizeToAvoidBottomInset: false,
-              appBar: AppBar(
-                elevation: 0.0,
-                backgroundColor: Colors.transparent,
-                leadingWidth: double.maxFinite,
-                leading: CupertinoButton(
-                  child: const Text(
-                    'キャンセル',
-                    style: TextStyle(color: Colors.black87),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    // Nav.navigate(
-                    //   context,
-                    //   const HomePage(),
-                    //   const Offset(0, 0),
-                    // );
-                  },
-                ),
-                actions: [
-                  CupertinoButton(
-                    child: const Text(
-                      '投稿する',
-                      style: TextStyle(color: C.accentColor),
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        final newPostDoc =
-                            _servedPosts.doc(_uid).collection('sPosts').doc();
-                        var _postId = newPostDoc.id;
-                        await newPostDoc.set({
-                          'postId': _postId,
-                          'serverId': _uid,
-                          'receiverId': _receiverId,
-                          'createdAt': Timestamp.fromDate(DateTime.now()),
-                          'content': _textEditingController.text,
-                          'clapCount': 0,
-                        });
-                        final _count = todayThanks;
-
-                        await _userProfiles.doc(_uid).update({
-                          'todayThanks': FieldValue.increment(1),
-                          'servedCount': FieldValue.increment(1),
-                        });
-
-                        if (_receiverId != '') {
-                          await _receivedPosts
-                              .doc(_receiverId)
-                              .collection('rPosts')
-                              .doc(_postId)
-                              .set({
-                            'postId': _postId,
-                            'serverId': _uid,
-                            'receiverId': _receiverId,
-                            'createdAt': Timestamp.fromDate(DateTime.now()),
-                            'content': _textEditingController.text,
-                            'clapCount': 0,
-                          });
-                          await _userProfiles.doc(_receiverId).update({
-                            'receivedCount': FieldValue.increment(1),
-                          });
-                        }
-
-                        Nav.navigate(
-                          context,
-                          AnimationPage(count: _count),
-                          const Offset(0, -0.5),
-                        );
-                      }
-                    },
-                  ),
-                ],
+    if (todayThanks < 3) {
+      return Form(
+        key: _formKey,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            elevation: 0.0,
+            backgroundColor: Colors.transparent,
+            leadingWidth: double.maxFinite,
+            leading: CupertinoButton(
+              child: const Text(
+                'キャンセル',
+                style: TextStyle(color: Colors.black87),
               ),
-              body: TextFormField(
-                autofocus: true,
-                controller: _textEditingController,
-                validator: (value) {
-                  if (_textEditingController.text.length < 5) {
-                    return '５字以上入れてください';
-                  } else if (_textEditingController.text.length > 139) {
-                    return '139字以内にしてください';
-                  } else {
-                    return null;
+              onPressed: () {
+                Navigator.pop(context);
+                // Nav.navigate(
+                //   context,
+                //   const HomePage(),
+                //   const Offset(0, 0),
+                // );
+              },
+            ),
+            actions: [
+              CupertinoButton(
+                child: const Text(
+                  '投稿する',
+                  style: TextStyle(color: C.accentColor),
+                ),
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final newPostDoc =
+                        _servedPosts.doc(_uid).collection('sPosts').doc();
+                    var _postId = newPostDoc.id;
+                    await newPostDoc.set({
+                      'postId': _postId,
+                      'serverId': _uid,
+                      'receiverId': _receiverId,
+                      'createdAt': Timestamp.fromDate(DateTime.now()),
+                      'content': _textEditingController.text,
+                      'clapCount': 0,
+                    });
+                    final _count = todayThanks;
+
+                    await _userProfiles.doc(_uid).update({
+                      'todayThanks': FieldValue.increment(1),
+                      'servedCount': FieldValue.increment(1),
+                    });
+
+                    if (_receiverId != '') {
+                      await _receivedPosts
+                          .doc(_receiverId)
+                          .collection('rPosts')
+                          .doc(_postId)
+                          .set({
+                        'postId': _postId,
+                        'serverId': _uid,
+                        'receiverId': _receiverId,
+                        'createdAt': Timestamp.fromDate(DateTime.now()),
+                        'content': _textEditingController.text,
+                        'clapCount': 0,
+                      });
+                      await _userProfiles.doc(_receiverId).update({
+                        'receivedCount': FieldValue.increment(1),
+                      });
+                    }
+
+                    Nav.navigate(
+                      context,
+                      AnimationPage(count: _count),
+                      const Offset(0, -0.5),
+                    );
                   }
                 },
-                decoration: InputDecoration(
-                  icon: Padding(
-                    padding: EdgeInsets.only(
-                      left: 16,
-                      top: Platform.isIOS ? 16 : 64,
-                    ),
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          radius: 30,
-                          child: ClipOval(
-                            child: FutureBuilder(
-                              future: getURL(_uid),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<String> snapshot) {
-                                if (snapshot.connectionState ==
-                                        ConnectionState.done &&
-                                    snapshot.hasData) {
-                                  return CachedNetworkImage(
-                                    fit: BoxFit.cover,
-                                    imageUrl: snapshot.data!,
-                                  );
-                                }
-                                if (snapshot.connectionState ==
-                                        ConnectionState.waiting ||
-                                    !snapshot.hasData) {
-                                  return const CircularProgressIndicator(
-                                    color: C.subColor,
-                                  );
-                                }
-                                return Container();
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.only(left: 4, right: 16, top: 8),
-                ),
-                maxLines: 10,
-                maxLength: 139,
-                maxLengthEnforced: false,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'NotoSansJP',
-                  fontWeight: FontWeight.w500,
-                ),
               ),
-              bottomNavigationBar: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 12,
+            ],
+          ),
+          body: TextFormField(
+            autofocus: true,
+            controller: _textEditingController,
+            validator: (value) {
+              if (_textEditingController.text.length < 5) {
+                return '５字以上入れてください';
+              } else if (_textEditingController.text.length > 139) {
+                return '139字以内にしてください';
+              } else {
+                return null;
+              }
+            },
+            decoration: InputDecoration(
+              icon: Padding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  top: Platform.isIOS ? 16 : 64,
                 ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: C.subColor),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  width: double.maxFinite,
-                  height: 60,
-                  child: CupertinoButton(
-                    child: Center(
-                      child: Text(
-                        '$_receiverNameに贈る',
-                        style: const TextStyle(
-                          color: C.subColor,
-                          fontSize: 18,
-                          fontFamily: 'NotoSansJP',
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      radius: 30,
+                      child: ClipOval(
+                        child: FutureBuilder(
+                          future: getURL(_uid),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<String> snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.done &&
+                                snapshot.hasData) {
+                              return CachedNetworkImage(
+                                fit: BoxFit.cover,
+                                imageUrl: snapshot.data!,
+                              );
+                            }
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                !snapshot.hasData) {
+                              return const CircularProgressIndicator(
+                                color: C.subColor,
+                              );
+                            }
+                            return Container();
+                          },
                         ),
                       ),
                     ),
-                    onPressed: () {
-                      Nav.whiteNavi(context, buildSelectPage(context));
-                    },
+                  ],
+                ),
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.only(left: 4, right: 16, top: 8),
+            ),
+            maxLines: 10,
+            maxLength: 139,
+            maxLengthEnforced: false,
+            style: const TextStyle(
+              fontSize: 16,
+              fontFamily: 'NotoSansJP',
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          bottomNavigationBar: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32,
+              vertical: 12,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: C.subColor),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: double.maxFinite,
+              height: 60,
+              child: CupertinoButton(
+                child: Center(
+                  child: Text(
+                    '$_receiverNameに贈る',
+                    style: const TextStyle(
+                      color: C.subColor,
+                      fontSize: 18,
+                      fontFamily: 'NotoSansJP',
+                    ),
                   ),
+                ),
+                onPressed: () {
+                  Nav.whiteNavi(context, buildSelectPage(context), 500);
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(64.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: const [
+                CircleAvatar(
+                  maxRadius: 100,
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: AssetImage('assets/images/max.png'),
+                ),
+                Text(
+                  '今日の感謝の最大数を達成しました！\n　\n続きはまた明日。',
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: C.accentColor,
+                    fontFamily: 'NotoSansJP',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Container(
+          padding: EdgeInsets.zero,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: C.subColor),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          width: 66,
+          height: 44,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Center(
+              child: Text(
+                '戻る',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'NotoSansJP',
+                  color: C.subColor,
                 ),
               ),
             ),
-          )
-        : Padding(
-            padding: const EdgeInsets.all(64.0),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  CircleAvatar(
-                    maxRadius: 100,
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: AssetImage('assets/images/max.png'),
-                  ),
-                  Text(
-                    '今日の感謝の最大数を達成しました！\n　\n続きはまた明日。',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: C.accentColor,
-                      fontFamily: 'NotoSansJP',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
+          ),
+        ),
+      );
+    }
   }
 
   Center buildSelectPage(BuildContext context) {
@@ -304,6 +334,7 @@ class _PostPageState extends State<PostPage> {
                   Nav.whiteNavi(
                     context,
                     buildSearchPage(context),
+                    500,
                   );
                 },
               ),
@@ -530,6 +561,7 @@ class _PostPageState extends State<PostPage> {
                     Nav.whiteNavi(
                       context,
                       ProfilePage(userId: _id, isMe: false),
+                      500,
                     );
                   },
                   child: Padding(
@@ -564,6 +596,7 @@ class _PostPageState extends State<PostPage> {
                     Nav.whiteNavi(
                       context,
                       ProfilePage(userId: _id, isMe: false),
+                      500,
                     );
                   },
                   child: Padding(

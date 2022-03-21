@@ -81,6 +81,7 @@ class _Login extends State<LoginPage> {
                           password: _passwordController.text,
                           from: 2,
                         ),
+                        600,
                       );
                     }
                   } on FirebaseAuthException catch (e) {
