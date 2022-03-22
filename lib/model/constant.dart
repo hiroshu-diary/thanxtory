@@ -195,7 +195,7 @@ class Style {
 }
 
 class Tile {
-  static InkWell buildTile(Icon icon, String title, VoidCallback onTap,
+  static InkWell buildTile(icon, String title, VoidCallback onTap,
       [Widget? trailing]) {
     return InkWell(
       onTap: onTap,
@@ -205,7 +205,11 @@ class Tile {
         child: ListTile(
           leading: Padding(
             padding: const EdgeInsets.only(left: 8.0),
-            child: icon,
+            child: Icon(
+              icon,
+              color: Colors.black87,
+              size: 26,
+            ),
           ),
           title: Text(
             title,

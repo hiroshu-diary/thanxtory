@@ -100,11 +100,7 @@ class _HomePageState extends State<HomePage> {
               ),
               const Divider(height: 2.0, color: C.subColor),
               Tile.buildTile(
-                const Icon(
-                  CupertinoIcons.settings,
-                  color: Colors.black87,
-                  size: 26,
-                ),
+                const Icon(CupertinoIcons.settings),
                 'プロフィール設定',
                 () {
                   Navigator.pop(context);
@@ -120,8 +116,6 @@ class _HomePageState extends State<HomePage> {
                   Platform.isIOS
                       ? FontAwesomeIcons.appStore
                       : LineIcons.googlePlay,
-                  color: Colors.black87,
-                  size: 26,
                 ),
                 'アプリを評価',
                 () {
@@ -132,11 +126,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               Tile.buildTile(
-                const Icon(
-                  CupertinoIcons.doc,
-                  color: Colors.black87,
-                  size: 26,
-                ),
+                const Icon(CupertinoIcons.doc),
                 'アンケート',
                 () {
                   const _formURL = 'https://forms.gle/yZBojmdRHM4khcSD9';
@@ -144,11 +134,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               Tile.buildTile(
-                const Icon(
-                  Icons.logout_outlined,
-                  color: Colors.black87,
-                  size: 26,
-                ),
+                const Icon(Icons.logout_outlined),
                 'サインアウト',
                 () {
                   Navigator.pop(context);
