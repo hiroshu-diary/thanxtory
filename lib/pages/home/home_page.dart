@@ -30,9 +30,18 @@ class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
   late String _uid;
+  late String userName;
+  late String userIntro;
 
   void _launchURL(url) async {
     if (!await launch(url)) throw 'Could not launch $url';
+  }
+
+  Future getValue() async {
+    final snapshot = await _userProfiles.doc(_uid).get();
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    userName = data['name'];
+    userIntro = data['introduction'];
   }
 
   Future getCount() async {
@@ -50,6 +59,7 @@ class _HomePageState extends State<HomePage> {
     _uid = _auth.currentUser!.uid;
     getCount();
     super.initState();
+    getValue();
   }
 
   @override
@@ -100,14 +110,18 @@ class _HomePageState extends State<HomePage> {
               ),
               const Divider(height: 2.0, color: C.subColor),
               Tile.buildTile(
-                const Icon(CupertinoIcons.settings),
+                const Icon(
+                  CupertinoIcons.settings,
+                  color: Colors.black87,
+                  size: 26,
+                ),
                 'プロフィール設定',
                 () {
                   Navigator.pop(context);
                   Nav.navigate360(
                     context,
                     const Offset(-1, 0),
-                    const SettingsPage(),
+                    SettingsPage(userName: userName, userIntro: userIntro),
                   );
                 },
               ),
@@ -116,6 +130,8 @@ class _HomePageState extends State<HomePage> {
                   Platform.isIOS
                       ? FontAwesomeIcons.appStore
                       : LineIcons.googlePlay,
+                  color: Colors.black87,
+                  size: 26,
                 ),
                 'アプリを評価',
                 () {
@@ -126,7 +142,11 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               Tile.buildTile(
-                const Icon(CupertinoIcons.doc),
+                const Icon(
+                  CupertinoIcons.doc,
+                  color: Colors.black87,
+                  size: 26,
+                ),
                 'アンケート',
                 () {
                   const _formURL = 'https://forms.gle/yZBojmdRHM4khcSD9';
@@ -134,7 +154,11 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               Tile.buildTile(
-                const Icon(Icons.logout_outlined),
+                const Icon(
+                  Icons.logout_outlined,
+                  color: Colors.black87,
+                  size: 26,
+                ),
                 'サインアウト',
                 () {
                   Navigator.pop(context);
@@ -201,8 +225,7 @@ class _HomePageState extends State<HomePage> {
                       showCupertinoModalBottomSheet(
                         context: context,
                         barrierColor: Colors.black54,
-                        bounce: true,
-                        duration: const Duration(milliseconds: 400),
+                        duration: const Duration(milliseconds: 150),
                         builder: (context) => Container(
                           height: MediaQuery.of(context).size.height / 2,
                           width: double.maxFinite,

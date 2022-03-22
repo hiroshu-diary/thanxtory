@@ -11,7 +11,13 @@ import 'package:image_picker/image_picker.dart';
 import '../../model/constant.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  final String userName;
+  final String userIntro;
+  const SettingsPage({
+    Key? key,
+    required this.userName,
+    required this.userIntro,
+  }) : super(key: key);
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -23,32 +29,15 @@ enum AppState {
   cropped,
 }
 
-String dName = '';
-String dIntro = '';
-
 class _SettingsPageState extends State<SettingsPage> {
   final _storage = FirebaseStorage.instance;
   final String _uid = FirebaseAuth.instance.currentUser!.uid;
   final _userProfiles = FirebaseFirestore.instance.collection('userProfiles');
-  final TextEditingController _nameController =
-      TextEditingController(text: dName);
-  final TextEditingController _introController =
-      TextEditingController(text: dIntro);
+  late TextEditingController _nameController;
+  late TextEditingController _introController;
 
   late AppState state;
   File? imageFile;
-
-  Future getValue() async {
-    final snapshot = await _userProfiles.doc(_uid).get();
-    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-    final userName = data['name'];
-    final userIntro = data['introduction'];
-
-    setState(() {
-      dName = userName;
-      dIntro = userIntro;
-    });
-  }
 
   Padding _settingForm(
     int maxLines,
@@ -184,8 +173,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    getValue();
     state = AppState.free;
+    _nameController = TextEditingController(text: widget.userName);
+    _introController = TextEditingController(text: widget.userIntro);
     super.initState();
   }
 
