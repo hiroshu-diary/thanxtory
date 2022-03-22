@@ -6,8 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../model/constant.dart';
+import '../../widgets/lazy_future_builder.dart';
 import '../animation/animation_page.dart';
 import '../home/home_page.dart';
 import '../profile/profile_page.dart';
@@ -32,6 +34,7 @@ class _PostPageState extends State<PostPage> {
   String _receiverId = '';
   String _receiverName = 'Thanxtoryアカウント';
   late TextEditingController _textEditingController;
+
   // final searchController = TextEditingController();
   // List<AllUser> userList = [];
   // List<String> searchList = [];
@@ -91,20 +94,11 @@ class _PostPageState extends State<PostPage> {
               ),
               onPressed: () {
                 Navigator.pop(context);
-                // Nav.navigate(
-                //   context,
-                //   const HomePage(),
-                //   const Offset(0, 0),
-                // );
               },
             ),
             actions: [
-              CupertinoButton(
-                child: const Text(
-                  '投稿する',
-                  style: TextStyle(color: C.accentColor),
-                ),
-                onPressed: () async {
+              LazyFutureBuilder(
+                futureBuilder: () async {
                   if (_formKey.currentState!.validate()) {
                     final newPostDoc =
                         _servedPosts.doc(_uid).collection('sPosts').doc();
@@ -148,6 +142,37 @@ class _PostPageState extends State<PostPage> {
                       const Offset(0, -0.5),
                     );
                   }
+                  await Future.delayed(const Duration(milliseconds: 10));
+                },
+                builder: (context, futureBuilder, isFutureBuilding) {
+                  return CupertinoButton(
+                    onPressed: isFutureBuilding ? null : futureBuilder,
+                    child: AnimatedCrossFade(
+                      layoutBuilder: (first, _, second, __) => IntrinsicWidth(
+                        child: IntrinsicHeight(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: <Widget>[
+                              first,
+                              second,
+                            ],
+                          ),
+                        ),
+                      ),
+                      firstChild: const Text(
+                        '投稿する',
+                        style: TextStyle(color: C.accentColor),
+                      ),
+                      secondChild: const SpinKitThreeBounce(
+                        color: C.accentColor,
+                        size: 16,
+                      ),
+                      crossFadeState: isFutureBuilding
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 200),
+                    ),
+                  );
                 },
               ),
             ],
@@ -275,13 +300,8 @@ class _PostPageState extends State<PostPage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Container(
           padding: EdgeInsets.zero,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: C.subColor),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          width: 66,
-          height: 44,
+          width: 60,
+          height: 40,
           child: CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () {
@@ -291,7 +311,7 @@ class _PostPageState extends State<PostPage> {
               child: Text(
                 '戻る',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontFamily: 'NotoSansJP',
                   color: C.subColor,
                 ),
