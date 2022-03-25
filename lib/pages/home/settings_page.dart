@@ -5,10 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../model/constant.dart';
+import '../../widgets/lazy_future_builder.dart';
 
 class SettingsPage extends StatefulWidget {
   final String userName;
@@ -184,19 +186,67 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        shadowColor: C.accentColor,
-        foregroundColor: C.accentColor,
-        title: const Text(
-          '設定',
-          style: TextStyle(
-            fontFamily: 'NotoSansJP',
-            color: C.accentColor,
-            fontSize: 22.0,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
         elevation: 0.0,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        leadingWidth: double.maxFinite,
+        leading: CupertinoButton(
+          child: const Text(
+            'キャンセル',
+            style: TextStyle(color: Colors.black87),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          LazyFutureBuilder(
+            futureBuilder: () async {
+              if (_nameController.text.length > 1 &&
+                  _introController.text.isNotEmpty) {
+                await _userProfiles.doc(_uid).update({
+                  'name': _nameController.text,
+                  'introduction': _introController.text,
+                });
+              }
+              if (imageFile != null) {
+                await _storage
+                    .ref('$_uid/default_image.jpeg')
+                    .putFile(imageFile!);
+              }
+              Navigator.pop(context);
+            },
+            builder: (context, futureBuilder, isFutureBuilding) {
+              return CupertinoButton(
+                onPressed: isFutureBuilding ? null : futureBuilder,
+                child: AnimatedCrossFade(
+                  layoutBuilder: (first, _, second, __) => IntrinsicWidth(
+                    child: IntrinsicHeight(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          first,
+                          second,
+                        ],
+                      ),
+                    ),
+                  ),
+                  firstChild: const Text(
+                    '更新する',
+                    style: TextStyle(color: C.accentColor),
+                  ),
+                  secondChild: const SpinKitThreeBounce(
+                    color: C.accentColor,
+                    size: 16,
+                  ),
+                  crossFadeState: isFutureBuilding
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 200),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -237,88 +287,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 _settingForm(1, 10, _nameController, 'ユーザー名'),
-                _settingForm(1, 39, _introController, '自己紹介'),
+                _settingForm(1, 21, _introController, '自己紹介'),
                 SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
               ],
             ),
           ),
         ),
       ),
-      resizeToAvoidBottomInset: false,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FocusScope.of(context).hasFocus
-          ? null
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Container(
-                    width: 140,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black54),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: CupertinoButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Center(
-                        child: Text(
-                          'キャンセル',
-                          style: TextStyle(
-                            fontFamily: 'NotoSansJP',
-                            color: Colors.black54,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Container(
-                    width: 140,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: C.accentColor),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: CupertinoButton(
-                      onPressed: () async {
-                        if (_nameController.text.length > 1 &&
-                            _introController.text.isNotEmpty) {
-                          await _userProfiles.doc(_uid).update({
-                            'name': _nameController.text,
-                            'introduction': _introController.text,
-                          });
-                        }
-                        if (imageFile != null) {
-                          await _storage
-                              .ref('$_uid/default_image.jpeg')
-                              .putFile(imageFile!);
-                        }
-                        Navigator.pop(context);
-                      },
-                      child: const Center(
-                        child: Text(
-                          '更新する',
-                          style: TextStyle(
-                            fontFamily: 'NotoSansJP',
-                            color: C.accentColor,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
     );
   }
 }
