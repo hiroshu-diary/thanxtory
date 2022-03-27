@@ -35,15 +35,15 @@ class _PostPageState extends State<PostPage> {
   String _receiverName = 'Thanxtoryアカウント';
   late TextEditingController _textEditingController;
 
-  // final searchController = TextEditingController();
-  // List<AllUser> userList = [];
-  // List<String> searchList = [];
-  // Future<void> resetList() async {
-  //   await Future.delayed(const Duration(seconds: 1));
-  //   setState(() {
-  //     searchList = [];
-  //   });
-  // }
+  final searchController = TextEditingController();
+  List<AllUser> userList = [];
+  List<String> searchList = [];
+  Future<void> resetList() async {
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      searchList = [];
+    });
+  }
 
   Future<String> getURL(String id) async {
     var ref = _storage.ref('$id/default_image.jpeg');
@@ -435,17 +435,17 @@ class _PostPageState extends State<PostPage> {
         onRefresh: () async {
           setState(() {});
         },
-        //todo 37行目以降を参考に→https://github.com/flutteruniv/salon_app/blob/develop/ios/Podfile#L37
-        //todo Stream＋onChangedで試す
-        child: FutureBuilder(
-          //todo isSearchingがfalseなら今のままで、trueならsearchList(idのリスト)にあるものだけを返す
-          future: _userProfiles.get(),
+        //todo onChangedで試す
+        child: StreamBuilder(
+          stream: _userProfiles.snapshots(),
           builder: (
             BuildContext context,
-            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+            AsyncSnapshot snapshot,
           ) {
-            if (snapshot.connectionState == ConnectionState.waiting ||
-                !snapshot.hasData) {
+            if (snapshot.hasError) {
+              return const Text('問題が発生しました');
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircleAvatar(
                   backgroundColor: Colors.transparent,
@@ -459,21 +459,19 @@ class _PostPageState extends State<PostPage> {
                 ),
               );
             }
-            if (snapshot.connectionState == ConnectionState.done) {
-              return ListView.builder(
-                padding: const EdgeInsets.only(top: 66),
-                itemCount: snapshot.data!.docs.length,
-                itemBuilder: (context, int index) {
-                  var _profiles = snapshot.data!.docs[index];
-                  var _name = _profiles['name'];
-                  var _id = _profiles.id;
-                  // var _allUser = AllUser(id: _id, name: _name);
-                  // userList.add(_allUser);
-                  return buildUserCard(context, _id, _name);
-                },
-              );
-            }
-            return Container();
+
+            return ListView.builder(
+              padding: const EdgeInsets.only(top: 66),
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, int index) {
+                var _profiles = snapshot.data!.docs[index];
+                var _name = _profiles['name'];
+                var _id = _profiles.id;
+                var _allUser = AllUser(id: _id, name: _name);
+                userList.add(_allUser);
+                return buildUserCard(context, _id, _name);
+              },
+            );
           },
         ),
       ),
@@ -493,7 +491,7 @@ class _PostPageState extends State<PostPage> {
                   height: 48,
                   child: Center(
                     child: Text(
-                      '戻る(検索機能準備中...)',
+                      '戻る',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -504,56 +502,39 @@ class _PostPageState extends State<PostPage> {
                 ),
               ),
             ),
-            // Expanded(
-            //   flex: 9,
-            //   child: SizedBox(
-            //     height: 48,
-            //     child: TextFormField(
-            //       maxLines: 1,
-            //       cursorColor: C.accentColor,
-            //       controller: searchController,
-            //       textInputAction: TextInputAction.search,
-            //       textAlignVertical: TextAlignVertical.center,
-            //       onChanged: (String text) {
-            //         for (var name in searchList) {
-            //           if (name.contains(text) == false) {
-            //             searchList.remove(name);
-            //           }
-            //         }
-            //       },
-            //       onFieldSubmitted: (String text) async {
-            //         for (var user in userList) {
-            //           if (user.name.contains(text)) {
-            //             searchList.add(user.name);
-            //           }
-            //         }
-            //         print(searchList);
-            //         resetList;
-            //         //todo searchListにあるuidを持つユーザーだけを標示する →FutureBuilderを再取得させたい
-            //       },
-            //       decoration: InputDecoration(
-            //         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            //         filled: true,
-            //         fillColor: Colors.white,
-            //         hintText: '検索 / 名前を入力',
-            //         focusedBorder: OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(14),
-            //           borderSide: const BorderSide(
-            //             color: Colors.transparent,
-            //             width: 1.0,
-            //           ),
-            //         ),
-            //         enabledBorder: OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(14),
-            //           borderSide: const BorderSide(
-            //             color: Colors.transparent,
-            //             width: 1.0,
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            Expanded(
+              flex: 9,
+              child: SizedBox(
+                height: 48,
+                child: TextFormField(
+                  maxLines: 1,
+                  cursorColor: C.accentColor,
+                  controller: searchController,
+                  textInputAction: TextInputAction.search,
+                  textAlignVertical: TextAlignVertical.center,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: '検索 / 名前を入力',
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(
+                        color: Colors.transparent,
+                        width: 1.0,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(
+                        color: Colors.transparent,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
