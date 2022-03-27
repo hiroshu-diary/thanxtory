@@ -48,10 +48,7 @@ class _HomePageState extends State<HomePage> {
     final snapshot = await _userProfiles.doc(_uid).get();
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     final _count = data['todayThanks'];
-
-    setState(() {
-      todayThanks = _count;
-    });
+    todayThanks = _count;
   }
 
   @override
@@ -65,7 +62,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       drawer: Drawer(
         child: Padding(
           padding: const EdgeInsets.only(top: 60.0),
@@ -205,17 +201,11 @@ class _HomePageState extends State<HomePage> {
                 backgroundColor: Colors.white,
                 floating: true,
                 centerTitle: true,
-                title: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Scroller.scrollToTop(squareController);
-                  },
-                  child: const Text(
-                    'Thanxtory',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 24.0,
-                    ),
+                title: const Text(
+                  'Thanxtory',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 24.0,
                   ),
                 ),
                 actions: [

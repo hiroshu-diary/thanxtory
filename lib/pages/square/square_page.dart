@@ -14,8 +14,6 @@ class SquarePage extends StatefulWidget {
   _SquarePageState createState() => _SquarePageState();
 }
 
-final ScrollController squareController = ScrollController();
-
 class _SquarePageState extends State<SquarePage> {
   final storage = FirebaseStorage.instance;
   Future<String> getURL(String id) async {
@@ -68,10 +66,9 @@ class _SquarePageState extends State<SquarePage> {
           }
           if (snapshot.connectionState == ConnectionState.done) {
             return ListView.builder(
-              controller: squareController,
               padding: EdgeInsets.zero,
               itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, int index) {
+              itemBuilder: (context, index) {
                 var _post = snapshot.data!.docs[index];
                 String _postId = _post['postId'];
                 String _serverId = _post['serverId'];
